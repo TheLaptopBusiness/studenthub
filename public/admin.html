@@ -1,0 +1,778 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Coach Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600..800&family=Figtree:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&display=swap">
+<style>
+:root{
+  --bg:#f4f6f9; --panel:#ffffff; --sunk:#edf1f5; --line:#d9e1e9;
+  --fg:#15232f; --muted:#5a6a7a; --accent:#1f6fb2; --accent-ink:#ffffff; --accent-soft:#e2eefa;
+  --good:#1b7a4b; --good-soft:#e0f3e8; --warn:#985a00; --warn-soft:#fcf0da; --bad:#b3261e; --bad-soft:#fae3e1;
+  --display:"Bricolage Grotesque","Trebuchet MS",system-ui,sans-serif;
+  --body:"Figtree",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,"SFMono-Regular",Menlo,monospace;
+  --r:14px; --r-sm:10px;
+  color-scheme:light;
+}
+
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--body);font-size:15px;line-height:1.55}
+h1,h2,h3{font-family:var(--display);font-stretch:85%;line-height:1.15;margin:0;text-wrap:balance}
+button,input,select,textarea{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.wrap{max-width:1160px;margin:0 auto;padding-inline:24px;padding-block:28px 64px;display:flex;flex-direction:column;gap:20px}
+.top{display:flex;justify-content:space-between;align-items:end;gap:12px;flex-wrap:wrap}
+.top .eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.top h1{font-size:30px;font-weight:800}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:18px}
+.tiles{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+.tile{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:14px 16px;display:flex;flex-direction:column;gap:2px}
+.tile b{font-family:var(--display);font-size:32px;font-weight:800;font-variant-numeric:tabular-nums;line-height:1.1}
+.tile span{font-size:13px;color:var(--muted)}
+.tile.warn b{color:var(--warn)}
+.row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.field{display:flex;flex-direction:column;gap:4px;min-width:0;flex:1 1 200px}
+.field label{font-size:12px;font-weight:600;color:var(--muted)}
+input,select,textarea{background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:8px 10px;min-width:0}
+textarea{width:100%;resize:vertical;min-height:90px}
+.btn{border:1px solid var(--accent);background:var(--accent);color:var(--accent-ink);border-radius:6px;padding:9px 16px;font-weight:600;cursor:pointer;white-space:nowrap}
+.btn.ghost{background:transparent;color:var(--accent)}
+.btn:disabled{opacity:.5;cursor:default}
+.note{font-size:13px;color:var(--muted);margin:0}
+.filters{display:flex;flex-wrap:wrap;gap:6px}
+.filters button{border:1px solid var(--line);background:var(--panel);border-radius:999px;padding:5px 12px;font-size:13px;cursor:pointer}
+.filters button[aria-pressed="true"]{background:var(--accent-soft);border-color:var(--accent)}
+.tablewrap{overflow-x:auto;border:1px solid var(--line);border-radius:8px;background:var(--panel)}
+table{width:100%;border-collapse:collapse;font-size:14px;min-width:760px}
+th{text-align:left;font-size:11px;font-family:var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:500;padding:10px 14px;border-bottom:1px solid var(--line)}
+td{padding:10px 14px;border-bottom:1px solid var(--line);vertical-align:middle}
+tr:last-child td{border-bottom:0}
+tbody tr{cursor:pointer}
+tbody tr:hover{background:var(--sunk)}
+tbody tr.sel{background:var(--accent-soft)}
+td .sub{display:block;font-size:12px;color:var(--muted)}
+.num{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.pill{display:inline-block;font-size:12px;font-weight:600;border-radius:999px;padding:2px 9px}
+.pill.invited{background:var(--sunk);color:var(--muted)}
+.pill.active{background:var(--good-soft);color:var(--good)}
+.pill.paused{background:var(--sunk);color:var(--muted);text-decoration:line-through}
+.pill.stalled{background:var(--warn-soft);color:var(--warn)}
+.bar{height:6px;background:var(--sunk);border-radius:999px;overflow:hidden;width:110px}
+.bar i{display:block;height:100%;background:var(--good)}
+.detail{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.3fr);gap:20px;align-items:start}
+.detail h2{font-size:24px}
+.kv{display:grid;grid-template-columns:auto minmax(0,1fr);gap:4px 14px;font-size:14px;margin:0}
+.kv dt{color:var(--muted)}
+.kv dd{margin:0}
+.tasks{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:4px;font-size:14px;max-height:420px;overflow:auto}
+.tasks li{display:grid;grid-template-columns:62px minmax(0,1fr);gap:8px}
+.tasks li.done span:last-child{text-decoration:line-through;color:var(--muted)}
+.tasks .wk{font-family:var(--mono);font-size:12px;color:var(--muted)}
+.report{border-top:1px solid var(--line);padding-top:12px;margin-top:4px}
+.report h3{font-size:16px;margin:10px 0 4px}
+.report p{margin:0 0 8px}
+.report ul,.report ol{margin:0 0 8px;padding-left:20px}
+.screen{min-height:100vh;display:grid;place-items:center;padding:24px 16px}
+.screen .card{max-width:420px;width:100%;display:flex;flex-direction:column;gap:12px}
+.stack{display:flex;flex-direction:column;gap:14px}
+.tabs{display:flex;gap:6px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.tabs button{all:unset;cursor:pointer;padding:10px 14px;font-weight:600;color:var(--muted);border-bottom:3px solid transparent;margin-bottom:-1px}
+.tabs button[aria-selected="true"]{color:var(--fg);border-bottom-color:var(--accent)}
+.tabs button:focus-visible{outline:3px solid var(--accent)}
+.badge{display:inline-block;min-width:20px;text-align:center;font-size:12px;border-radius:999px;background:var(--bad);color:#fff;padding:0 6px;margin-left:6px}
+.help{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+.help ol{margin:6px 0 0;padding-left:20px;font-size:14px}
+.help li{margin:3px 0}
+.meter{height:8px;background:var(--sunk);border-radius:999px;overflow:hidden}
+.meter i{display:block;height:100%;background:var(--accent)}
+.drop{border:2px dashed var(--line);border-radius:12px;padding:18px;text-align:center;color:var(--muted);font-size:14px}
+.drop.over{border-color:var(--accent);background:var(--accent-soft)}
+.kind{font-size:12px;font-weight:600;border-radius:999px;padding:2px 9px;background:var(--sunk);color:var(--muted);white-space:nowrap}
+.kind.faq{background:var(--good-soft);color:var(--good)}
+.qcard{display:flex;flex-direction:column;gap:10px}
+.qcard .ans{background:var(--sunk);border-radius:10px;padding:12px 14px;font-size:14px;max-height:240px;overflow:auto}
+.off{opacity:.55}
+.gbtn{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;border:1.5px solid var(--line);background:var(--panel);color:var(--fg);border-radius:999px;padding:10px 18px;font-weight:700;cursor:pointer}
+.gbtn:hover{border-color:var(--accent)}
+.gbtn svg{width:20px;height:20px}
+.or{display:flex;align-items:center;gap:12px;font-size:13px;color:var(--muted)}
+.or::before,.or::after{content:"";flex:1;height:1px;background:var(--line)}
+details.acct{position:relative}
+details.acct>summary{list-style:none;cursor:pointer}
+details.acct>summary::-webkit-details-marker{display:none}
+details.acct .pop{position:absolute;right:0;top:calc(100% + 8px);z-index:10;width:300px;max-width:calc(100vw - 32px);background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px;box-shadow:0 8px 28px rgba(20,40,70,.14);display:flex;flex-direction:column;gap:10px}
+.qcard .field,#k-form>.field{flex:none}
+a.btn{text-decoration:none;display:inline-block}
+@media (max-width:860px){ .help{grid-template-columns:minmax(0,1fr)} }
+@media (max-width:860px){
+  .wrap{padding-inline:16px}
+  .tiles{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .detail{grid-template-columns:minmax(0,1fr)}
+}
+.pill.bad{background:var(--bad-soft);color:var(--bad)}
+.sub+.sub{margin-top:2px}
+.detail{display:flex!important;flex-direction:column;gap:20px}
+.detail[hidden]{display:none!important}
+.dhead{display:flex;flex-wrap:wrap;gap:12px 20px;align-items:flex-start;justify-content:space-between}
+.dgrid{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:22px;align-items:start}
+.ck{display:flex;flex-direction:column;gap:6px}
+.ck h3{font-size:17px;margin-top:10px;display:flex;gap:8px;align-items:center}
+.ci{border:1px solid var(--line);border-radius:8px;padding:10px 12px;display:grid;grid-template-columns:auto minmax(0,1fr);gap:4px 10px}
+.ci.over{border-color:var(--bad);background:var(--bad-soft)}
+.ci.done{background:var(--sunk);border-color:transparent}
+.ci.wait{border-color:var(--warn)}
+.ci input[type=checkbox]{width:18px;height:18px;margin-top:2px;accent-color:var(--good)}
+.ci .tt{font-weight:600}
+.ci.done .tt{color:var(--muted);text-decoration:line-through}
+.ci .x{grid-column:2;display:flex;flex-direction:column;gap:6px;font-size:13px;min-width:0;overflow-wrap:anywhere}
+.ci .x .row{gap:6px}
+.ci .err{color:var(--bad)}
+.ci input[type=text],.ci input[type=date],.ci select,.ci textarea,.msgbox textarea,.dhead select{border:1px solid var(--line);border-radius:6px;padding:5px 8px;font-size:13px;background:var(--panel)}
+.ci textarea,.msgbox textarea{width:100%;min-height:54px;resize:vertical}
+.cm{border-left:3px solid var(--line);padding-left:8px}
+.cm.team{border-color:var(--accent)}
+.cm b{font-size:12px}
+.mlist{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px;max-height:320px;overflow:auto;font-size:14px}
+.mlist li{border:1px solid var(--line);border-radius:8px;padding:8px 10px}
+.mlist p{margin:2px 0 0;white-space:pre-wrap}
+.btn.sm{padding:4px 10px;font-size:13px}
+@media (max-width:900px){ .dgrid{grid-template-columns:minmax(0,1fr)} }
+.survey{border:1px solid var(--line);border-radius:8px;padding:12px 14px;display:flex;flex-direction:column;gap:8px;background:var(--panel)}
+.sw{display:inline-flex;gap:4px;vertical-align:middle}
+.sw i{width:16px;height:16px;border-radius:4px;border:1px solid var(--line);display:inline-block}
+</style>
+</head>
+<body>
+<div class="screen" id="signin" hidden>
+  <div class="card">
+    <h1 style="font-size:26px">Coach Dashboard</h1>
+    <p class="note" id="signin-msg">Sign in with your coach account.</p>
+    <div id="signin-google-wrap" class="stack" style="gap:12px" hidden>
+      <button class="gbtn" type="button" id="signin-google"><svg viewBox="0 0 48 48" aria-hidden="true"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.2 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.4-.4-3.5z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.7 15.1 19 12 24 12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.2 0-9.6-3.3-11.3-8l-6.5 5C9.5 39.6 16.2 44 24 44z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.2-2.2 4.2-4.1 5.6l6.2 5.2C37 39.2 44 34 44 24c0-1.3-.1-2.4-.4-3.5z"/></svg>Continue with Google</button>
+      <div class="or"><span>or use your email</span></div>
+    </div>
+    <form class="stack" style="gap:12px" id="signin-form">
+      <input id="signin-email" type="email" required autocomplete="email" placeholder="you@yourdomain.com" aria-label="Email">
+      <input id="signin-password" type="password" autocomplete="current-password" placeholder="Password" aria-label="Password">
+      <button class="btn" type="submit" id="signin-go">Sign in</button>
+      <button class="linkbtn" type="button" id="signin-mode" style="background:none;border:0;color:var(--accent);cursor:pointer;font-weight:600;text-decoration:underline">No password yet, or forgot it? Email me a sign-in link</button>
+      <p class="note" id="signin-note" aria-live="polite"></p>
+    </form>
+  </div>
+</div>
+
+<div class="wrap" id="app" hidden>
+  <div class="top">
+    <div><span class="eyebrow">Laptop Business Mastery</span><h1>Coach Dashboard</h1></div>
+    <div class="row"><a class="btn ghost" href="/">Student Hub</a>
+      <details class="acct"><summary class="btn ghost">Password</summary>
+        <form class="pop" id="pw-form" autocomplete="off">
+          <strong>Set or change your password</strong>
+          <input type="text" autocomplete="username" hidden aria-hidden="true">
+          <input id="pw-1" type="password" autocomplete="new-password" placeholder="New password (8+ characters)" aria-label="New password">
+          <input id="pw-2" type="password" autocomplete="new-password" placeholder="Type it again" aria-label="Type it again">
+          <button class="btn" type="submit">Save password</button>
+          <span class="note" id="pw-note" aria-live="polite"></span>
+        </form>
+      </details>
+      <button class="btn ghost" id="signout" type="button">Sign out</button></div>
+  </div>
+
+  <div class="tabs" role="tablist">
+    <button role="tab" id="tab-students" data-pane="students" aria-selected="true">Students</button>
+    <button role="tab" id="tab-knowledge" data-pane="knowledge" aria-selected="false">Coach Knowledge</button>
+    <button role="tab" id="tab-review" data-pane="review" aria-selected="false">Questions to review<span class="badge" id="review-count" hidden>0</span></button>
+  </div>
+
+  <div class="stack" id="pane-students" style="gap:20px">
+  <div class="tiles">
+    <div class="tile"><b id="t-total">0</b><span>Students enrolled</span></div>
+    <div class="tile warn"><b id="t-overdue">0</b><span>Have overdue steps</span></div>
+    <div class="tile warn"><b id="t-us">0</b><span>Waiting on us (reply, logo, website)</span></div>
+    <div class="tile"><b id="t-ready">0</b><span>Cleared to buy</span></div>
+  </div>
+
+  <form class="card row" id="add-form" autocomplete="off" style="align-items:end">
+    <div class="field"><label for="add-name">Student name</label><input id="add-name" type="text" required></div>
+    <div class="field"><label for="add-email">Email</label><input id="add-email" type="email" required></div>
+    <div class="field"><label for="add-phone">Mobile (for texts)</label><input id="add-phone" type="tel"></div>
+    <div class="field" style="flex:0 1 190px"><label for="add-owner">Owner</label><select id="add-owner"></select></div>
+    <button class="btn" type="submit" id="add-go">Enroll &amp; send welcome email</button>
+    <p class="note" id="add-note" style="flex-basis:100%" aria-live="polite"></p>
+  </form>
+
+  <div class="row" style="justify-content:space-between">
+    <div class="filters" id="filters">
+      <button type="button" data-f="all" aria-pressed="true">All</button>
+      <button type="button" data-f="attention" aria-pressed="false">Needs attention</button>
+      <button type="button" data-f="us" aria-pressed="false">Waiting on us</button>
+      <button type="button" data-f="overdue" aria-pressed="false">Overdue</button>
+      <button type="button" data-f="risk" aria-pressed="false">At risk (14+ days quiet)</button>
+      <button type="button" data-f="invited" aria-pressed="false">Never signed in</button>
+      <button type="button" data-f="ready" aria-pressed="false">Cleared to buy</button>
+      <button type="button" data-f="paused" aria-pressed="false">Paused</button>
+    </div>
+    <select id="owner-f" aria-label="Filter by owner" style="border:1px solid var(--line);border-radius:999px;padding:5px 10px;font-size:13px;background:var(--panel)"><option value="">Everyone's students</option></select>
+    <input id="search" type="search" placeholder="Search name or email" aria-label="Search students" style="flex:0 1 260px">
+  </div>
+
+  <div class="tablewrap">
+    <table>
+      <thead><tr><th>Student</th><th>Owner</th><th>Stage</th><th>Checklist</th><th>Flags</th><th>Last active</th><th>Enrolled</th></tr></thead>
+      <tbody id="rows"><tr><td colspan="7" class="note">Loading students…</td></tr></tbody>
+    </table>
+  </div>
+
+  <section class="card detail" id="detail" hidden aria-live="polite"></section>
+  </div>
+
+  <div class="stack" id="pane-knowledge" hidden style="gap:20px">
+    <div class="card stack" style="gap:8px">
+      <h2 style="font-size:22px">Teach the AI Coach your way of doing things</h2>
+      <p class="note">Everything here becomes the Coach's main source. It follows your verified answers first, then your videos and documents, then the playbook. Add your YouTube video transcripts, course docs, supplier lists, pricing rules, anything you'd tell a student.</p>
+      <div class="meter" aria-hidden="true"><i id="k-meter" style="width:0"></i></div>
+      <p class="note" id="k-meter-text"></p>
+    </div>
+    <div class="help">
+      <div class="card"><strong>Getting a video's transcript (any video)</strong>
+        <ol><li>Open the video on YouTube.</li><li>Under the title, click <b>…more</b>, then <b>Show transcript</b>.</li><li>Click inside the transcript panel, select all the text and copy it.</li><li>Paste it below and add the video's title and link. Timestamps are removed for you.</li></ol></div>
+      <div class="card"><strong>Many videos at once (your own channel)</strong>
+        <ol><li>Open <b>YouTube Studio → Subtitles</b> and pick a video.</li><li>Next to the language, open the <b>⋮</b> menu and choose <b>Download</b> (.srt or .vtt).</li><li>Repeat for each video, then drag all the files into the box below. Each file name becomes the title.</li><li>If a video only has automatic captions and no download option, use the copy method instead.</li></ol></div>
+    </div>
+    <form class="card stack" id="k-form" autocomplete="off">
+      <h3 style="font-size:18px">Add to the library</h3>
+      <div class="row" style="align-items:end">
+        <div class="field" style="flex:0 1 200px"><label for="k-kind">Type</label><select id="k-kind"><option value="video">Video transcript</option><option value="doc">Document / SOP</option><option value="rules">My rules &amp; numbers</option><option value="faq">Verified answer (Q&amp;A)</option></select></div>
+        <div class="field"><label for="k-title" id="k-title-label">Title</label><input id="k-title" type="text" placeholder="e.g. How I find laptop deals on GovDeals"></div>
+        <div class="field" id="k-url-wrap"><label for="k-url">YouTube link (optional)</label><input id="k-url" type="url" placeholder="https://youtube.com/watch?v=..."></div>
+      </div>
+      <div class="field"><label for="k-content" id="k-content-label">Transcript or text</label><textarea id="k-content" rows="8" placeholder="Paste here…"></textarea></div>
+      <div class="row"><button class="btn" type="submit" id="k-add">Add to library</button><span class="note" id="k-note" aria-live="polite"></span></div>
+      <label class="drop" id="k-drop" for="k-files">Or drop transcript files here (.srt, .vtt, .txt, .md), or click to choose them<input id="k-files" type="file" multiple accept=".srt,.vtt,.txt,.md,text/plain" hidden></label>
+    </form>
+    <div class="row" style="justify-content:space-between">
+      <div class="filters" id="k-filters">
+        <button type="button" data-k="all" aria-pressed="true">All</button>
+        <button type="button" data-k="video" aria-pressed="false">Videos</button>
+        <button type="button" data-k="doc" aria-pressed="false">Documents</button>
+        <button type="button" data-k="rules" aria-pressed="false">Rules</button>
+        <button type="button" data-k="faq" aria-pressed="false">Verified answers</button>
+      </div>
+      <input id="k-search" type="search" placeholder="Search titles" aria-label="Search library" style="flex:0 1 240px">
+    </div>
+    <div class="tablewrap">
+      <table>
+        <thead><tr><th>Title</th><th>Type</th><th>Words</th><th>Added</th><th>Coach uses it</th><th></th></tr></thead>
+        <tbody id="k-rows"><tr><td colspan="6" class="note">Loading…</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="stack" id="pane-review" hidden style="gap:20px">
+    <div class="card stack" style="gap:6px">
+      <h2 style="font-size:22px">Questions to review</h2>
+      <p class="note">Answers students marked "Not quite". Write the right answer once and it becomes a verified answer: the AI Coach uses it for every student from then on.</p>
+      <p class="note" id="r-stats"></p>
+    </div>
+    <div class="stack" id="r-list"><p class="note">Loading…</p></div>
+  </div>
+</div>
+
+<script type="module">
+import { loadConfig, readSessionFromLink, accessToken, clearSession, signInWithPassword, signInWithGoogle, sendSignInLink } from "./auth.js";
+const $ = (s, el = document) => el.querySelector(s);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[c]));
+const store = {
+  get(k){ try{ return JSON.parse(localStorage.getItem(k)); }catch{ return null; } },
+  set(k,v){ try{ localStorage.setItem(k, JSON.stringify(v)); }catch{} },
+  del(k){ try{ localStorage.removeItem(k); }catch{} }
+};
+const DAY = 864e5;
+const daysSince = iso => iso ? (Date.now() - Date.parse(iso)) / DAY : Infinity;
+function ago(iso){
+  if(!iso) return "—";
+  const d = Math.floor(daysSince(iso));
+  return d <= 0 ? "Today" : d === 1 ? "Yesterday" : d + " days ago";
+}
+function md(src){
+  const lines = String(src).split("\n"); let out = "", list = null, para = [];
+  const inline = t => esc(t).replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>");
+  const fp = () => { if(para.length){ out += "<p>" + inline(para.join(" ")) + "</p>"; para = []; } };
+  const fl = () => { if(list){ out += "</" + list + ">"; list = null; } };
+  for(const raw of lines){
+    const l = raw.trim(); let m;
+    if(!l){ fp(); fl(); continue; }
+    if((m = l.match(/^#+\s+(.*)/))){ fp(); fl(); out += "<h3>" + inline(m[1]) + "</h3>"; continue; }
+    if((m = l.match(/^[-*•]\s+(.*)/))){ fp(); if(list !== "ul"){ fl(); out += "<ul>"; list = "ul"; } out += "<li>" + inline(m[1]) + "</li>"; continue; }
+    if((m = l.match(/^\d+[.)]\s+(.*)/))){ fp(); if(list !== "ol"){ fl(); out += "<ol>"; list = "ol"; } out += "<li>" + inline(m[1]) + "</li>"; continue; }
+    fl(); para.push(l);
+  }
+  fp(); fl(); return out;
+}
+
+/* ---------- sign-in (shared session with the Student Hub) ---------- */
+function showSignin(msg){ clearSession(); if(msg) $("#signin-msg").textContent = msg; $("#app").hidden = true; $("#signin").hidden = false; }
+const linkErr = readSessionFromLink();
+async function api(path, body){
+  const t = await accessToken();
+  if(!t){ showSignin("Your session ended. Sign in again."); throw new Error("signed_out"); }
+  const r = await fetch(path, { method: body ? "POST" : "GET", headers: { authorization: "Bearer " + t, ...(body ? { "content-type":"application/json" } : {}) }, body: body ? JSON.stringify(body) : undefined });
+  let j = null; try{ j = await r.json(); }catch{}
+  if(r.status === 401){ showSignin("Your session ended. Sign in again."); throw new Error("signed_out"); }
+  if(r.status === 403){ showSignin("That account isn't a coach account. Sign in with the email listed in ADMIN_EMAILS."); throw new Error("forbidden"); }
+  if(!r.ok) throw new Error((j && j.error) || "Something went wrong. Try again.");
+  return j;
+}
+let linkMode = false;
+function setMode(link){
+  linkMode = link;
+  $("#signin-password").hidden = link; $("#signin-password").required = !link;
+  $("#signin-go").textContent = link ? "Email me a sign-in link" : "Sign in";
+  $("#signin-mode").textContent = link ? "I have a password" : "No password yet, or forgot it? Email me a sign-in link";
+  $("#signin-note").textContent = "";
+}
+$("#signin-mode").addEventListener("click", () => setMode(!linkMode));
+loadConfig().then(cfg => { $("#signin-google-wrap").hidden = !cfg.google; if(!cfg.anonKey){ setMode(true); $("#signin-mode").hidden = true; } });
+$("#signin-google").addEventListener("click", async () => { if(!(await signInWithGoogle("/admin.html"))) $("#signin-note").textContent = "Google sign-in isn't switched on."; });
+$("#signin-form").addEventListener("submit", async e => {
+  e.preventDefault();
+  const email = $("#signin-email").value.trim();
+  if(linkMode){ $("#signin-note").textContent = "Sending…"; $("#signin-note").textContent = await sendSignInLink(email); return; }
+  $("#signin-note").textContent = "Signing in…";
+  const err = await signInWithPassword(email, $("#signin-password").value);
+  if(err){ $("#signin-note").textContent = err; return; }
+  location.reload();
+});
+$("#pw-form").addEventListener("submit", async e => {
+  e.preventDefault();
+  const p1 = $("#pw-1").value, p2 = $("#pw-2").value;
+  if(p1.length < 8){ $("#pw-note").textContent = "Use at least 8 characters."; return; }
+  if(p1 !== p2){ $("#pw-note").textContent = "The two passwords don't match."; return; }
+  $("#pw-note").textContent = "Saving…";
+  try{ await api("/api/password", { password: p1 }); $("#pw-1").value = ""; $("#pw-2").value = ""; $("#pw-note").textContent = "Saved."; }
+  catch(err){ $("#pw-note").textContent = err.message; }
+});
+$("#signout").addEventListener("click", () => showSignin("You're signed out."));
+
+/* ---------- students ---------- */
+let students = [], filter = "all", selected = null, team = [];
+const waitingOnUs = s => s.awaiting_reply > 0 || s.overdue_team > 0;
+const needsAttention = s => s.status !== "paused" && (s.overdue > 0 || waitingOnUs(s) || s.at_risk || (s.status === "invited" && daysSince(s.created_at) >= 2));
+const lastActive = s => [s.last_active_at, s.last_activity_at].filter(Boolean).sort().pop() || null;
+function flags(s){
+  const f = [];
+  if(s.awaiting_reply) f.push(`<span class="pill bad">${s.awaiting_reply} comment${s.awaiting_reply > 1 ? "s" : ""} to answer</span>`);
+  if(s.overdue_team) f.push(`<span class="pill bad">Our logo/website late</span>`);
+  const own = (s.overdue || 0) - (s.overdue_team || 0);
+  if(own > 0) f.push(`<span class="pill stalled">${own} overdue</span>`);
+  if(s.at_risk) f.push(`<span class="pill bad">Quiet ${s.quiet_days} days</span>`);
+  if(s.status === "invited") f.push(`<span class="pill invited">Never signed in</span>`);
+  if(s.reminders_paused) f.push(`<span class="pill invited">Reminders off</span>`);
+  if(s.status === "paused") f.push(`<span class="pill paused">Access paused</span>`);
+  return f.join(" ") || `<span class="sub">On track</span>`;
+}
+function render(){
+  const live = students.filter(s => s.status !== "paused");
+  $("#t-total").textContent = live.length;
+  $("#t-overdue").textContent = live.filter(s => s.overdue > 0).length;
+  $("#t-us").textContent = live.filter(waitingOnUs).length;
+  $("#t-ready").textContent = live.filter(s => s.total && s.done === s.total).length;
+  const q = $("#search").value.trim().toLowerCase(), ow = $("#owner-f").value;
+  const list = students.filter(s => {
+    if(q && !(s.name + " " + s.email + " " + (s.business_name || "")).toLowerCase().includes(q)) return false;
+    if(ow && (s.owner || "") !== ow) return false;
+    if(filter === "attention") return needsAttention(s);
+    if(filter === "us") return waitingOnUs(s);
+    if(filter === "overdue") return s.overdue > 0;
+    if(filter === "risk") return s.at_risk;
+    if(filter === "ready") return s.total && s.done === s.total;
+    if(filter === "invited") return s.status === "invited";
+    if(filter === "paused") return s.status === "paused";
+    return true;
+  }).sort((x, y) => (Number(waitingOnUs(y)) - Number(waitingOnUs(x))) || ((y.overdue || 0) - (x.overdue || 0)));
+  const tb = $("#rows");
+  if(!students.length){ tb.innerHTML = `<tr><td colspan="7" class="note">No students yet. Enroll your first student above (or from GoHighLevel); they get a fresh dashboard plus a welcome email and text.</td></tr>`; return; }
+  if(!list.length){ tb.innerHTML = `<tr><td colspan="7" class="note">No students match this filter.</td></tr>`; return; }
+  tb.innerHTML = list.map(s => `<tr data-id="${esc(s.id)}" class="${selected === s.id ? "sel" : ""}" tabindex="0">
+      <td><strong>${esc(s.name || "—")}</strong><span class="sub">${esc(s.business_name || s.email)}</span></td>
+      <td>${esc(s.owner || "—")}</td>
+      <td>${esc(s.stage || "")}</td>
+      <td><div class="bar"><i style="width:${s.percent || 0}%"></i></div><span class="sub num">${s.done || 0}/${s.total || 0} · ${s.percent || 0}%</span>${s.next ? `<span class="sub">Next: ${esc(s.next)}</span>` : ""}</td>
+      <td>${flags(s)}</td>
+      <td>${ago(lastActive(s))}</td><td>${ago(s.created_at)}</td></tr>`).join("");
+}
+async function load(){
+  const j = await api("/api/admin");
+  students = j.students || [];
+  if(j.team && !team.length){
+    team = j.team;
+    const opts = (j.coaches || team).map(n => `<option>${esc(n)}</option>`).join("");
+    $("#add-owner").innerHTML = opts; $("#owner-f").insertAdjacentHTML("beforeend", opts);
+  }
+  render();
+}
+$("#owner-f").addEventListener("change", render);
+$("#rows").addEventListener("click", e => { const tr = e.target.closest("tr[data-id]"); if(tr) openStudent(tr.dataset.id); });
+$("#rows").addEventListener("keydown", e => { if(e.key === "Enter"){ const tr = e.target.closest("tr[data-id]"); if(tr) openStudent(tr.dataset.id); } });
+$("#filters").addEventListener("click", e => {
+  const b = e.target.closest("button[data-f]"); if(!b) return;
+  filter = b.dataset.f;
+  document.querySelectorAll("#filters button").forEach(x => x.setAttribute("aria-pressed", String(x === b)));
+  render();
+});
+$("#search").addEventListener("input", render);
+
+$("#add-form").addEventListener("submit", async e => {
+  e.preventDefault();
+  $("#add-go").disabled = true; $("#add-note").textContent = "Enrolling…";
+  try{
+    const r = await api("/api/admin", { action:"add", name: $("#add-name").value.trim(), email: $("#add-email").value.trim(), phone: $("#add-phone").value.trim(), owner: $("#add-owner").value });
+    $("#add-note").textContent = r.emailed ? "Enrolled. Their dashboard is ready, and the welcome email and text are on the way." : "Enrolled, but the welcome email didn't send. Check your email settings, then use Resend sign-in link.";
+    $("#add-name").value = ""; $("#add-email").value = ""; $("#add-phone").value = "";
+    await load();
+  }catch(err){ if(err.message !== "signed_out") $("#add-note").textContent = err.message; }
+  finally{ $("#add-go").disabled = false; }
+});
+
+/* ---------- one student ---------- */
+let cur = null;           // { id, admin: /api/admin?id= data, dash: /api/checklist?student= data }
+const fmtD = iso => iso ? new Date(iso).toLocaleDateString("en-US", { weekday:"short", month:"short", day:"numeric" }) : "";
+async function cl(body){ cur.dash = await api("/api/checklist", { student: cur.id, ...body }); paint(); }
+async function openStudent(id){
+  selected = id; render();
+  const box = $("#detail"); box.hidden = false; box.innerHTML = `<p class="note">Loading…</p>`;
+  box.scrollIntoView({ behavior:"smooth", block:"start" });
+  try{
+    const [a, d] = await Promise.all([api("/api/admin?id=" + encodeURIComponent(id)), api("/api/checklist?student=" + encodeURIComponent(id))]);
+    cur = { id, admin: a, dash: d };
+  }catch(err){ box.innerHTML = `<p class="note">${esc(err.message)}</p>`; return; }
+  paint();
+}
+function itemHtml(i){
+  const cls = i.done ? "done" : i.overdue ? "over" : i.awaiting_reply ? "wait" : "";
+  const due = i.done ? `<span class="pill active">Done ${fmtD(i.done_at)}${i.done_by_name ? " · " + esc(i.done_by_name) : ""}</span>`
+    : i.overdue ? `<span class="pill bad">${i.overdue_days ? "Overdue " + i.overdue_days + "d · was due " + fmtD(i.due) : "Due today"}</span>`
+    : i.waiting_on ? `<span class="pill invited">Waiting on an earlier step</span>`
+    : i.due ? `<span class="pill invited">Due ${fmtD(i.due)}</span>` : "";
+  const val = i.value ? (i.input && i.input.type === "url" ? `<a href="${esc(i.value)}" target="_blank" rel="noopener">${esc(i.value)}</a>` : esc(i.value)) : "";
+  let input = "";
+  if(i.input && !i.done && !i.waiting_on){
+    input = i.input.type === "choice"
+      ? `<select data-v="${i.key}"><option value="">${esc(i.input.label)}…</option>${i.input.options.map(o => `<option>${o}</option>`).join("")}</select>`
+      : `<input type="text" data-v="${i.key}" placeholder="${esc(i.input.label)}${i.by === "team" ? " (sent to the student)" : ""}" style="flex:1 1 220px">`;
+  }
+  const comments = (i.comments || []).map(c => `<div class="cm ${c.from_team ? "team" : ""}"><b>${esc(c.author)}</b> <span class="note">${ago(c.created_at)}</span><div>${esc(c.body)}</div></div>`).join("");
+  return `<div class="ci ${cls}" data-k="${i.key}">
+    <input type="checkbox" data-tick="${i.key}" ${i.done ? "checked" : ""} aria-label="${esc(i.title)}">
+    <div><span class="tt">${esc(i.title)}</span> ${i.by === "team" ? `<span class="pill stalled">Our team</span>` : ""} ${due} ${i.awaiting_reply ? `<span class="pill bad">Needs a reply</span>` : ""}</div>
+    <div class="x">
+      ${val ? `<div>${esc(i.input ? i.input.label.replace(/\s*\(.*\)$/, "") : "Value")}: ${val}</div>` : ""}
+      ${input ? `<div class="row">${input}<button class="btn sm" type="button" data-save="${i.key}">${i.by === "team" ? "Deliver and tick" : "Save and tick"}</button></div>` : ""}
+      ${comments}
+      <details ${i.awaiting_reply ? "open" : ""}><summary class="note" style="cursor:pointer">${i.awaiting_reply ? "Reply" : "Comment or move the date"}</summary>
+        <div class="stack" style="gap:6px;margin-top:6px">
+          <textarea data-c="${i.key}" placeholder="Reply to ${esc(first(cur.dash.profile.name))} (they get an email and a text)"></textarea>
+          <div class="row"><button class="btn sm" type="button" data-send="${i.key}">Send reply</button></div>
+          ${!i.done ? `<div class="row"><label class="note" for="due-${i.key}">New due date</label><input type="date" id="due-${i.key}" data-due="${i.key}">
+            ${i.by === "team" ? `<label class="note"><input type="checkbox" data-tell="${i.key}" checked> Tell the student</label>` : ""}
+            <button class="btn sm ghost" type="button" data-move="${i.key}">Move date</button>${i.due ? `<button class="btn sm ghost" type="button" data-reset="${i.key}">Reset</button>` : ""}</div>` : ""}
+        </div></details>
+      <span class="note err" data-err="${i.key}"></span>
+    </div></div>`;
+}
+const first = n => String(n || "").trim().split(/\s+/)[0] || "the student";
+function surveyHtml(p){
+  const b = p.brand || {};
+  if(!p.brand_submitted_at) return `<div class="survey"><h3 style="font-size:18px">Brand survey</h3><p class="note" style="margin:0">Not sent yet. The logo clock starts when they send it.</p></div>`;
+  const sw = (b.swatches || []).map(c => `<i style="background:${esc(c)}" title="${esc(c)}"></i>`).join("");
+  const row = (k, v) => v ? `<dt>${k}</dt><dd>${v}</dd>` : "";
+  const link = u => `<a href="${esc(u)}" target="_blank" rel="noopener">${esc(u)}</a>`;
+  return `<div class="survey"><h3 style="font-size:18px">Brand survey <span class="note">sent ${fmtD(p.brand_submitted_at)}</span></h3>
+    <dl class="kv">
+      ${row("Business name", esc(b.business_name) + ' <span class="pill active">verified</span>')}
+      ${row("Logo", b.has_logo === "yes" ? "Has one" + (b.logo_link ? ": " + link(b.logo_link) : " (ask for the file)") : "<b>Needs a logo designed</b>")}
+      ${row("Colours", (b.colours ? esc(b.colours) : "") + (sw ? ` <span class="sw">${sw}</span>` : ""))}
+      ${row("Avoid", esc(b.colours_avoid || ""))}
+      ${row("Style", esc(b.style || ""))}
+      ${row("Site email", esc(b.contact_email || ""))}
+      ${row("Site phone", esc(b.contact_phone || ""))}
+      ${row("Address", b.show_address === "none" ? "Don't show" : esc(b.address || "") + (b.show_address === "city" ? " (city only)" : ""))}
+      ${row("Hours", esc(b.hours || ""))}
+      ${row("Socials", esc(b.socials || ""))}
+      ${row("Notes", esc(b.notes || ""))}
+    </dl></div>`;
+}
+function paint(){
+  const box = $("#detail"), d = cur.dash, p = d.profile, a = cur.admin, s = a.student;
+  const openDetails = new Set([...box.querySelectorAll(".ci details[open]")].map(x => x.closest(".ci").dataset.k));
+  box.innerHTML = `
+    <div class="dhead">
+      <div class="stack" style="gap:4px">
+        <h2>${esc(p.name || p.email)}${p.business_name ? ` <span class="note" style="font-size:15px">· ${esc(p.business_name)}</span>` : ""}</h2>
+        <span class="note">${esc(p.email)}${p.phone ? " · " + esc(p.phone) : " · no mobile number"} · enrolled ${fmtD(p.created_at)} · ${esc(d.stage)} · ${d.done}/${d.total} (${d.percent}%)${d.gate_open ? " · <b>cleared to buy</b>" : ""}</span>
+      </div>
+      <div class="row">
+        <label class="note" for="d-owner">Owner</label>
+        <select id="d-owner">${(d.coaches || team).map(n => `<option ${n === p.owner ? "selected" : ""}>${esc(n)}</option>`).join("")}</select>
+        <label class="note"><input type="checkbox" id="d-pause" ${p.reminders_paused ? "checked" : ""}> Pause reminders</label>
+      </div>
+    </div>
+    <div class="dgrid">
+      <div class="ck">
+        ${d.sections.map(sec => `<h3>${sec.n}. ${esc(sec.title)} <span class="pill ${sec.status === "complete" ? "active" : sec.status === "attention" ? "bad" : "invited"}">${sec.done}/${sec.total}</span></h3>
+          ${d.items.filter(i => i.section === sec.n).map(itemHtml).join("")}`).join("")}
+      </div>
+      <div class="stack">
+        <div class="stack msgbox" style="gap:8px">
+          <h3 style="font-size:18px">Message board</h3>
+          <p class="note" style="margin:0">Shows on their dashboard. They get an email and a text.</p>
+          <textarea id="d-msg" placeholder="e.g. Great work this week. Your EIN is next, it takes 10 minutes."></textarea>
+          <div class="row"><button class="btn sm" type="button" id="d-msg-go">Post message</button><span class="note" id="d-msg-note"></span></div>
+          <ul class="mlist">${d.messages.map(m => `<li><b>${esc(m.author)}</b> <span class="note">${ago(m.created_at)} · ${m.read_at ? "read" : "not read yet"}</span><p>${esc(m.body)}</p></li>`).join("") || `<li class="note">No messages yet.</li>`}</ul>
+        </div>
+        ${surveyHtml(p)}
+        <dl class="kv">
+          <dt>Partner</dt><dd>${esc(p.partner || "—")}</dd><dt>Domain</dt><dd>${esc(p.domain || "—")}</dd>
+          <dt>Logo</dt><dd>${p.logo_url ? `<a href="${esc(p.logo_url)}" target="_blank" rel="noopener">Open</a>` : "—"}</dd>
+          <dt>Website</dt><dd>${p.website_url ? `<a href="${esc(p.website_url)}" target="_blank" rel="noopener">Open</a>` : "—"}</dd>
+          <dt>Tier</dt><dd>${esc(p.tier || "—")}</dd><dt>Brand</dt><dd>${esc(p.focus_brand || "—")}</dd>
+          <dt>Monthly goal</dt><dd>${p.monthly_goal ? "$" + Number(p.monthly_goal).toLocaleString("en-US") : "—"}</dd>
+          <dt>Laptops/week</dt><dd>${esc(p.weekly_unit_target || "—")}</dd><dt>AI uses today</dt><dd>${s.ai_today || 0}</dd>
+        </dl>
+        <div class="stack" style="gap:6px">
+          <label for="notes" style="font-size:12px;font-weight:600;color:var(--muted)">Private coach notes (team only)</label>
+          <textarea id="notes">${esc(s.coach_notes || "")}</textarea>
+          <div class="row"><button class="btn ghost sm" id="save-notes" type="button">Save notes</button><span class="note" id="notes-msg"></span></div>
+        </div>
+        <div class="row">
+          <button class="btn ghost sm" id="resend" type="button">Resend sign-in link</button>
+          <button class="btn ghost sm" id="toggle" type="button">${s.status === "paused" ? "Reactivate access" : "Pause access"}</button>
+          <span class="note" id="act-msg"></span>
+        </div>
+        <div class="stack" style="gap:6px"><h3 style="font-size:18px">Auction analyses</h3>
+          ${(a.auctions || []).length ? `<ul class="tasks" style="max-height:none">${a.auctions.map(x => { const v = (x.result || {}).verdict || {};
+            return `<li style="grid-template-columns:76px minmax(0,1fr)"><span class="pill ${x.rating === "Pass" ? "paused" : x.rating === "Strong" ? "active" : "stalled"}" style="text-decoration:none">${esc(x.rating || "—")}</span><span><strong>${esc(x.title)}</strong> <span class="note">· ${ago(x.created_at)}</span><br><span class="note">${esc(v.reason || "")}</span></span></li>`; }).join("")}</ul>` : `<p class="note">No auctions analyzed yet.</p>`}
+        </div>
+        <div class="stack" style="gap:6px"><h3 style="font-size:18px">Weekly check-ins</h3>
+          ${(a.checkins || []).length ? a.checkins.map((c, n) => `<details class="report" ${n === 0 ? "open" : ""}><summary><strong>${esc(c.week_label || "Check-in")}</strong> <span class="note">· ${ago(c.created_at)}</span></summary>${md(c.report)}</details>`).join("") : `<p class="note">No check-ins yet.</p>`}
+        </div>
+      </div>
+    </div>`;
+  openDetails.forEach(k => { const x = box.querySelector(`.ci[data-k="${k}"] details`); if(x) x.open = true; });
+  const err = (k, m) => { const e = box.querySelector(`[data-err="${k}"]`); if(e) e.textContent = m; };
+  const run = async (k, body) => { err(k, ""); try{ await cl(body); load(); }catch(e){ err(k, e.message); } };
+  box.querySelectorAll("[data-tick]").forEach(cb => cb.addEventListener("change", () => {
+    const k = cb.dataset.tick, v = box.querySelector(`[data-v="${k}"]`);
+    run(k, { action:"tick", key:k, done: cb.checked, value: v ? v.value : undefined });
+  }));
+  box.querySelectorAll("[data-save]").forEach(b => b.addEventListener("click", () => {
+    const k = b.dataset.save; run(k, { action:"tick", key:k, done:true, value: box.querySelector(`[data-v="${k}"]`).value });
+  }));
+  box.querySelectorAll("[data-send]").forEach(b => b.addEventListener("click", () => {
+    const k = b.dataset.send, t = box.querySelector(`[data-c="${k}"]`).value.trim(); if(!t) return;
+    b.disabled = true; run(k, { action:"comment", key:k, body:t });
+  }));
+  box.querySelectorAll("[data-move]").forEach(b => b.addEventListener("click", () => {
+    const k = b.dataset.move, dt = box.querySelector(`[data-due="${k}"]`).value, tell = box.querySelector(`[data-tell="${k}"]`);
+    if(!dt){ err(k, "Pick a date first."); return; }
+    run(k, { action:"due", key:k, date: dt, tell_student: tell ? tell.checked : false });
+  }));
+  box.querySelectorAll("[data-reset]").forEach(b => b.addEventListener("click", () => run(b.dataset.reset, { action:"due", key:b.dataset.reset, date:"" })));
+  $("#d-owner").addEventListener("change", () => run("", { action:"owner", owner: $("#d-owner").value }));
+  $("#d-pause").addEventListener("change", () => run("", { action:"pause", paused: $("#d-pause").checked }));
+  $("#d-msg-go").addEventListener("click", async () => {
+    const t = $("#d-msg").value.trim(); if(!t) return;
+    $("#d-msg-note").textContent = "Posting…";
+    try{ await cl({ action:"message", body:t }); }catch(e){ $("#d-msg-note").textContent = e.message; }
+  });
+  $("#save-notes").addEventListener("click", async () => {
+    $("#notes-msg").textContent = "Saving…";
+    try{ await api("/api/admin", { action:"notes", id: cur.id, notes: $("#notes").value }); s.coach_notes = $("#notes").value; $("#notes-msg").textContent = "Saved."; }
+    catch(e){ $("#notes-msg").textContent = e.message; }
+  });
+  $("#resend").addEventListener("click", async () => {
+    $("#act-msg").textContent = "Sending…";
+    try{ const r = await api("/api/admin", { action:"resend", id: cur.id }); $("#act-msg").textContent = r.emailed ? "Sign-in link sent." : "Couldn't send the email. Check your email settings."; }
+    catch(e){ $("#act-msg").textContent = e.message; }
+  });
+  $("#toggle").addEventListener("click", async () => {
+    try{ await api("/api/admin", { action:"status", id: cur.id, status: s.status === "paused" ? "active" : "paused" }); await load(); openStudent(cur.id); }
+    catch(e){ $("#act-msg").textContent = e.message; }
+  });
+}
+
+
+/* ---------- tabs ---------- */
+const panes = ["students","knowledge","review"];
+let kLoaded = false, rLoaded = false;
+function showPane(p){
+  panes.forEach(x => { $("#pane-" + x).hidden = x !== p; $("#tab-" + x).setAttribute("aria-selected", String(x === p)); });
+  if(p === "knowledge" && !kLoaded) loadKnowledge();
+  if(p === "review" && !rLoaded) loadReview();
+}
+document.querySelectorAll(".tabs button[data-pane]").forEach(b => b.addEventListener("click", () => showPane(b.dataset.pane)));
+
+/* ---------- Coach Knowledge ---------- */
+const KIND_LABEL = { video:"Video", doc:"Document", rules:"Rules", faq:"Verified answer" };
+let kItems = [], kFilter = "all", kDelete = null;
+function kFormForKind(){
+  const faq = $("#k-kind").value === "faq";
+  $("#k-title-label").textContent = faq ? "Student question" : "Title";
+  $("#k-title").placeholder = faq ? "e.g. What's the most I should pay per laptop on my first lot?" : "e.g. How I find laptop deals on GovDeals";
+  $("#k-content-label").textContent = faq ? "Your answer" : ($("#k-kind").value === "video" ? "Transcript" : "Text");
+  $("#k-url-wrap").hidden = faq;
+}
+$("#k-kind").addEventListener("change", kFormForKind); kFormForKind();
+async function loadKnowledge(){
+  try{
+    const j = await api("/api/knowledge");
+    kItems = j.items || []; kLoaded = true;
+    const pctUsed = Math.min(100, Math.round(j.activeWords / Math.max(1, j.readsAllUpToWords) * 100));
+    $("#k-meter").style.width = pctUsed + "%";
+    $("#k-meter-text").textContent = `${j.activeWords.toLocaleString()} words in your library (videos, documents and rules). ` +
+      (j.activeWords <= j.readsAllUpToWords
+        ? `The Coach reads all of it for every question (up to about ${j.readsAllUpToWords.toLocaleString()} words).`
+        : `That's more than the Coach reads at once, so for each question it picks the most relevant parts. Verified answers are always read.`);
+    renderK();
+  }catch(err){ $("#k-rows").innerHTML = `<tr><td colspan="7" class="note">${esc(err.message)}</td></tr>`; }
+}
+function renderK(){
+  const q = $("#k-search").value.trim().toLowerCase();
+  const list = kItems.filter(i => (kFilter === "all" || i.kind === kFilter) && (!q || i.title.toLowerCase().includes(q)));
+  const tb = $("#k-rows");
+  if(!kItems.length){ tb.innerHTML = `<tr><td colspan="6" class="note">Your library is empty. Add your first video transcript above.</td></tr>`; return; }
+  if(!list.length){ tb.innerHTML = `<tr><td colspan="6" class="note">Nothing matches.</td></tr>`; return; }
+  tb.innerHTML = list.map(i => `<tr data-k="${esc(i.id)}" class="${i.active ? "" : "off"}" style="cursor:default">
+    <td><strong>${esc(i.title)}</strong>${i.source_url ? `<span class="sub"><a href="${esc(i.source_url)}" target="_blank" rel="noopener" style="color:var(--accent)">${esc(i.source_url)}</a></span>` : ""}</td>
+    <td><span class="kind ${i.kind}">${KIND_LABEL[i.kind] || i.kind}</span></td>
+    <td class="num">${i.words.toLocaleString()}</td>
+    <td>${ago(i.created_at)}</td>
+    <td><label class="row" style="gap:6px;font-size:14px"><input type="checkbox" data-act="toggle" ${i.active ? "checked" : ""}> ${i.active ? "On" : "Off"}</label></td>
+    <td><div class="row" style="gap:12px;flex-wrap:nowrap">
+      <button class="btn ghost small" type="button" data-act="edit" style="padding:5px 12px;font-size:13px">View / edit</button>
+      ${kDelete === i.id
+        ? `<span class="note" style="white-space:nowrap">Delete? <button type="button" class="btn small" data-act="delete-yes" style="padding:4px 10px;font-size:13px;background:var(--bad);border-color:var(--bad)">Delete</button> <button type="button" class="btn ghost small" data-act="delete-no" style="padding:4px 10px;font-size:13px">Keep</button></span>`
+        : `<button type="button" class="btn ghost small" data-act="delete" style="padding:5px 12px;font-size:13px;color:var(--bad);border-color:var(--line)">Delete</button>`}
+    </div></td></tr>`).join("");
+}
+$("#k-search").addEventListener("input", renderK);
+$("#k-filters").addEventListener("click", e => {
+  const b = e.target.closest("button[data-k]"); if(!b) return;
+  kFilter = b.dataset.k;
+  document.querySelectorAll("#k-filters button").forEach(x => x.setAttribute("aria-pressed", String(x === b)));
+  renderK();
+});
+$("#k-rows").addEventListener("click", async e => {
+  const el = e.target.closest("[data-act]"); if(!el) return;
+  const tr = e.target.closest("tr[data-k]"); const id = tr.dataset.k;
+  const act = el.dataset.act;
+  if(act === "delete"){ kDelete = id; renderK(); return; }
+  if(act === "delete-no"){ kDelete = null; renderK(); return; }
+  if(act === "delete-yes"){ kDelete = null; try{ await api("/api/knowledge", { action:"delete", id }); await loadKnowledge(); }catch(err){ alertRow(tr, err.message); } return; }
+  if(act === "edit"){
+    const next = tr.nextElementSibling;
+    if(next && next.classList.contains("k-edit")){ next.remove(); return; }
+    const row = document.createElement("tr"); row.className = "k-edit";
+    row.innerHTML = `<td colspan="6"><div class="stack" style="gap:8px"><p class="note">Loading…</p></div></td>`;
+    tr.after(row);
+    try{
+      const { item } = await api("/api/knowledge?id=" + encodeURIComponent(id));
+      const box = row.querySelector(".stack");
+      box.innerHTML = `<input type="text" value="${esc(item.title)}" aria-label="Title" class="k-e-title">
+        <textarea rows="12" aria-label="Text" class="k-e-content">${esc(item.content)}</textarea>
+        <div class="row"><button class="btn small" type="button" data-save>Save changes</button><span class="note" data-msg></span></div>`;
+      box.querySelector("[data-save]").addEventListener("click", async () => {
+        box.querySelector("[data-msg]").textContent = "Saving…";
+        try{ await api("/api/knowledge", { action:"update", id, title: box.querySelector(".k-e-title").value, content: box.querySelector(".k-e-content").value }); box.querySelector("[data-msg]").textContent = "Saved."; loadKnowledge(); }
+        catch(err){ box.querySelector("[data-msg]").textContent = err.message; }
+      });
+    }catch(err){ row.querySelector(".stack").innerHTML = `<p class="note">${esc(err.message)}</p>`; }
+  }
+});
+$("#k-rows").addEventListener("change", async e => {
+  if(e.target.dataset.act !== "toggle") return;
+  const id = e.target.closest("tr[data-k]").dataset.k;
+  try{ await api("/api/knowledge", { action:"update", id, active: e.target.checked }); await loadKnowledge(); }catch(err){ e.target.checked = !e.target.checked; }
+});
+function alertRow(tr, msg){ const n = document.createElement("span"); n.className = "note"; n.textContent = " " + msg; tr.lastElementChild.append(n); }
+$("#k-form").addEventListener("submit", async e => {
+  e.preventDefault();
+  const kind = $("#k-kind").value;
+  $("#k-add").disabled = true; $("#k-note").textContent = "Adding…";
+  try{
+    await api("/api/knowledge", { action:"add", kind, title: $("#k-title").value, source_url: kind === "faq" ? "" : $("#k-url").value, content: $("#k-content").value, clean: kind === "video" });
+    $("#k-title").value = ""; $("#k-url").value = ""; $("#k-content").value = "";
+    $("#k-note").textContent = "Added. The Coach uses it from the next question on.";
+    await loadKnowledge();
+  }catch(err){ $("#k-note").textContent = err.message; }
+  finally{ $("#k-add").disabled = false; }
+});
+async function addFiles(files){
+  const list = Array.from(files || []).filter(f => /\.(srt|vtt|txt|md)$/i.test(f.name));
+  if(!list.length){ $("#k-note").textContent = "Choose .srt, .vtt, .txt or .md files."; return; }
+  let done = 0, failed = [];
+  for(const f of list){
+    $("#k-note").textContent = `Adding ${done + 1} of ${list.length}: ${f.name}`;
+    try{
+      const text = await f.text();
+      const isCaption = /\.(srt|vtt)$/i.test(f.name);
+      const kind = isCaption ? "video" : ($("#k-kind").value === "faq" ? "doc" : $("#k-kind").value);
+      await api("/api/knowledge", { action:"add", kind, title: f.name.replace(/\.(srt|vtt|txt|md)$/i, "").replace(/[_]+/g, " ").trim(), content: text, clean: isCaption || kind === "video" });
+      done++;
+    }catch(err){ failed.push(f.name); }
+  }
+  $("#k-note").textContent = `Added ${done} file${done === 1 ? "" : "s"}.` + (failed.length ? ` Couldn't add: ${failed.join(", ")}.` : "");
+  await loadKnowledge();
+}
+$("#k-files").addEventListener("change", e => { addFiles(e.target.files); e.target.value = ""; });
+const drop = $("#k-drop");
+["dragenter","dragover"].forEach(ev => drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.add("over"); }));
+["dragleave","drop"].forEach(ev => drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.remove("over"); }));
+drop.addEventListener("drop", e => addFiles(e.dataTransfer.files));
+
+/* ---------- Questions to review ---------- */
+async function loadReview(){
+  try{
+    const j = await api("/api/feedback");
+    rLoaded = true;
+    const open = j.open || [];
+    $("#review-count").hidden = !open.length; $("#review-count").textContent = open.length;
+    const t = j.last30.up + j.last30.down;
+    $("#r-stats").textContent = t ? `Last 30 days: ${j.last30.up} answers marked right, ${j.last30.down} marked not quite (${Math.round(j.last30.up / t * 100)}% helpful).` : "No ratings yet. Students rate answers right under each Coach reply.";
+    const list = $("#r-list");
+    if(!open.length){ list.innerHTML = `<div class="card"><p class="note">Nothing to review. When a student marks an answer "Not quite", it shows up here.</p></div>`; return; }
+    list.innerHTML = "";
+    for(const o of open){
+      const c = document.createElement("div"); c.className = "card qcard";
+      c.innerHTML = `<div class="row" style="justify-content:space-between"><strong>${esc(o.student)}</strong><span class="note">${ago(o.created_at)}</span></div>
+        <div class="field"><label>Student's question</label><input type="text" class="r-q" value="${esc(o.question)}"></div>
+        <details><summary class="note" style="cursor:pointer">What the Coach said</summary><div class="ans report">${md(o.answer)}</div></details>
+        ${o.comment ? `<p style="margin:0"><span class="note">Student's note:</span> ${esc(o.comment)}</p>` : ""}
+        <div class="field"><label>The correct answer</label><textarea class="r-a" rows="5" placeholder="Write it the way you'd explain it to a student. This becomes a verified answer the Coach always follows."></textarea></div>
+        <div class="row"><button class="btn small" type="button" data-save>Save as verified answer</button><button class="btn ghost small" type="button" data-dismiss>Dismiss (the answer was fine)</button><span class="note" data-msg></span></div>`;
+      c.querySelector("[data-save]").addEventListener("click", async () => {
+        c.querySelector("[data-msg]").textContent = "Saving…";
+        try{ await api("/api/feedback", { action:"answer", id:o.id, question: c.querySelector(".r-q").value, answer: c.querySelector(".r-a").value }); kLoaded = false; await loadReview(); }
+        catch(err){ c.querySelector("[data-msg]").textContent = err.message; }
+      });
+      c.querySelector("[data-dismiss]").addEventListener("click", async () => {
+        try{ await api("/api/feedback", { action:"dismiss", id:o.id }); await loadReview(); }catch(err){ c.querySelector("[data-msg]").textContent = err.message; }
+      });
+      list.append(c);
+    }
+  }catch(err){ $("#r-list").innerHTML = `<p class="note">${esc(err.message)}</p>`; }
+}
+
+(async () => {
+  if(!(await accessToken())){ showSignin(linkErr); return; }
+  $("#app").hidden = false;
+  loadReview();
+  try{ await load(); }catch(err){ if(err.message !== "signed_out" && err.message !== "forbidden") $("#rows").innerHTML = `<tr><td colspan="7" class="note">${esc(err.message)}</td></tr>`; }
+})();
+</script>
+</body>
+</html>
