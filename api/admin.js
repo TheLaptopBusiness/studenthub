@@ -69,7 +69,7 @@ export default async function handler(req) {
   if (body.action === "resend") {
     const { link } = await signInLink(s.email, "/");
     const t = s.onboarded_at ? templates.login(s.name, link) : templates.welcome(s.name, link);
-    const emailed = await sendEmail({ to: s.email, ...t });
+    const emailed = await sendEmail({ to: s.email, student: s, ...t });
     return json({ ok: true, emailed });
   }
   if (body.action === "status") {

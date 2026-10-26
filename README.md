@@ -62,11 +62,9 @@ You'll create four free or low-cost accounts. Keep a note open to paste keys int
 4. Open **Authentication → Providers → Email** and set the **email OTP / link expiry** to `86400` seconds (24 hours) so welcome links last a day.
 5. You'll come back after step 4 to add your site address (see step 5).
 
-### 3. Resend (sending emails)
-1. Go to **resend.com**, create an account.
-2. Under **Domains**, add your domain (e.g. `yourdomain.com`) and add the DNS records it shows you at your domain provider. Wait until it says **Verified**.
-3. Under **API Keys**, create a key → `RESEND_API_KEY`.
-4. Your sender is `EMAIL_FROM`, e.g. `Laptop Business Mastery <coach@yourdomain.com>`.
+### 3. Emails and texts (GoHighLevel)
+Nothing to set up here. The Hub sends every email and text through your GoHighLevel workflow (step 7), so they all show up on the contact's record in GoHighLevel.
+(Prefer Resend for emails instead? Add `RESEND_API_KEY` and `EMAIL_FROM`, and the Hub uses it for emails automatically.)
 
 ### 4. GitHub + Vercel (the website)
 1. On **github.com**, create a **private** repository named `student-hub` and upload everything in this folder (keep the folder structure).
@@ -78,8 +76,6 @@ You'll create four free or low-cost accounts. Keep a note open to paste keys int
 | `ANTHROPIC_API_KEY` | from step 1 |
 | `SUPABASE_URL` | from step 2 |
 | `SUPABASE_SERVICE_ROLE_KEY` | from step 2 |
-| `RESEND_API_KEY` | from step 3 |
-| `EMAIL_FROM` | from step 3 |
 | `SUPABASE_ANON_KEY` | Supabase → Project Settings → API → the **anon / publishable** key. Safe to share with browsers; switches on password sign-in |
 | `GOOGLE_SIGNIN` | `on` to show "Continue with Google" (after step 5b) |
 | `TEAM` | your team, `Name=email` separated by `;`, e.g. `Moses Confidence=moses@yourdomain.com; Cynthia Nweze=cynthia@yourdomain.com; Abdi Hassan=abdi@yourdomain.com`. Everyone here can open the coach dashboard and gets the morning summary |
@@ -127,13 +123,15 @@ Leave "Allow new users to sign up" switched **on** in Supabase. Someone who isn'
 3. Back on the coach dashboard, open yourself, reply to the comment and post a message. You should get emails (and texts once step 7 is done).
 4. In Vercel → your project → **Settings → Cron Jobs**, click **Run** next to `/api/cron`. It runs every hour; the reminders and summary go out once a day at `DAILY_HOUR`.
 
-### 7. Texts through GoHighLevel (about 20 minutes)
+### 7. Emails and texts through GoHighLevel (about 20 minutes)
 1. In GoHighLevel → **Automation → Workflows → Create workflow**, trigger **Inbound Webhook**. Copy its URL into `GHL_WEBHOOK_URL` in Vercel and redeploy.
-2. Run a test from the coach dashboard (post a message to your test student) so GoHighLevel sees a sample.
+2. Enroll a test student from the coach dashboard so GoHighLevel sees a sample.
 3. Add action **Create/Update Contact**: map `email`, `phone`, `first_name`, `last_name`.
-4. Add action **Send SMS** with the message `{{inboundWebhookRequest.sms}}`. Every text is already written by the hub; GoHighLevel just sends it.
-5. Optional: add **If/Else** on `event` (`enrolled`, `section_complete`, `overdue`, `call_reminder`, `gate_open`, …) to tag contacts or move them through a pipeline.
-6. US texting needs **A2P 10DLC registration** in GoHighLevel (LC Phone). Do it early: approval can take a few days.
+4. Add an **If/Else** on `channel`:
+   - `sms` → **Send SMS** with the message `{{inboundWebhookRequest.sms}}`
+   - `email` → **Send Email** with subject `{{inboundWebhookRequest.subject}}` and body `{{inboundWebhookRequest.html}}` (if the email shows code instead of formatting, use `{{inboundWebhookRequest.text}}`)
+5. Every message is already written by the Hub; GoHighLevel just sends it. Optional: branch on `event` (`enrolled`, `section_complete`, `overdue`, `call_reminder`, `gate_open`, …) to tag contacts or move them through a pipeline.
+6. US texting needs **A2P 10DLC registration** in GoHighLevel (LC Phone).
 
 ### 8. Enroll automatically from GoHighLevel (optional)
 In the workflow that runs when someone signs your agreement or pays, add a **Custom Webhook** action: method `POST`, URL `https://hub.yourdomain.com/api/enroll?secret=YOUR_ENROLL_SECRET`, body with `first_name`, `last_name`, `email`, `phone`. The student gets their dashboard, welcome email and text within seconds. Sending the same contact twice is safe.
@@ -163,7 +161,7 @@ Skool can't run the hub inside it, so Skool is the front door:
 
 ## What sign-in costs
 
-Nothing extra. Google sign-in and passwords are free in Supabase, and they don't send emails, so they don't use up Resend's free 3,000 emails a month (100 a day). Email links are only sent for first sign-ins, forgotten passwords and new devices.
+Nothing extra. Google sign-in and passwords are free in Supabase, and they don't send emails, so they don't add to your GoHighLevel email sending. Email links are only sent for first sign-ins, forgotten passwords and new devices.
 
 ## Day-to-day
 

@@ -20,7 +20,7 @@ export default async function handler(req) {
     if (admin || (student && student.status !== "paused")) {
       const { link } = await signInLink(email, admin && !student ? "/admin.html" : "/");
       const t = templates.login(student ? student.name : "Coach", link);
-      await sendEmail({ to: email, ...t });
+      await sendEmail({ to: email, student: student || undefined, ...t });
     }
   } catch (e) {
     console.error("Login link failed", e && e.message);

@@ -76,7 +76,7 @@ export default async function handler(req) {
 
     // ----- coaching call reminders -----
     if (doCall24 && !paused && rem.call24 !== callLocal.date) {
-      if (await sendEmail({ to: s.email, ...templates.callReminder(s.name, `tomorrow (${callDay === "Sat" ? "Saturday" : callDay}) at ${hourLabel} MT`, callLink) })) sent.call24++;
+      if (await sendEmail({ to: s.email, student: s, ...templates.callReminder(s.name, `tomorrow (${callDay === "Sat" ? "Saturday" : callDay}) at ${hourLabel} MT`, callLink) })) sent.call24++;
       rem.call24 = callLocal.date; changed = true;
     }
     if (doCall1 && !paused && rem.call1 !== callLocal.date) {
@@ -106,7 +106,7 @@ export default async function handler(req) {
         if (!s.last_active_at) {
           const age = daysSince(s.created_at), count = rem.onboarding_count || 0;
           if (age >= 2 && count < 3 && daysSince(rem.onboarding_at) >= 3) {
-            await sendEmail({ to: s.email, ...templates.onboardingReminder(s.name) });
+            await sendEmail({ to: s.email, student: s, ...templates.onboardingReminder(s.name) });
             if (smsAllowed(rem, today)) { await sms("not_signed_in", s, `${first(s.name)}, your Laptop Business Mastery dashboard is ready and waiting. Check your email for the sign-in link, or go to ${siteUrl()}`); logSms(rem, today); }
             rem.onboarding_count = count + 1; rem.onboarding_at = nowIso(); changed = true; sent.signin++;
           }
@@ -114,7 +114,7 @@ export default async function handler(req) {
           // ----- overdue items (once per item) -----
           const fresh = late.filter(x => !(itemsBy[s.id] || []).find(r => r.key === x.key && r.reminded_at));
           if (fresh.length) {
-            await sendEmail({ to: s.email, ...templates.overdue(s.name, fresh.map(x => x.title)) });
+            await sendEmail({ to: s.email, student: s, ...templates.overdue(s.name, fresh.map(x => x.title)) });
             if (smsAllowed(rem, today)) {
               await sms("overdue", s, fresh.length === 1
                 ? `${first(s.name)}, "${fresh[0].title}" was due ${new Date(fresh[0].due).toLocaleDateString("en-US", { month: "short", day: "numeric" })}. Can you get it done in the next couple of days? Reply if you're stuck.`
@@ -138,7 +138,7 @@ export default async function handler(req) {
           }
           if (sum.quiet_days >= 5 && rem.ladder.level < 2) {
             const t = next ? TEMPLATE.find(x => x.key === next.key) : null;
-            await sendEmail({ to: s.email, ...templates.quiet(s.name, next && next.title, t && t.help) });
+            await sendEmail({ to: s.email, student: s, ...templates.quiet(s.name, next && next.title, t && t.help) });
             rem.ladder.level = 2; changed = true; sent.quiet_email++;
           }
 
@@ -150,7 +150,7 @@ export default async function handler(req) {
           }
           if (local.weekday === "Sun" && daysSince(s.last_checkin_at) > 5 && rem.checkin !== today) {
             const open = sum.total - sum.done;
-            await sendEmail({ to: s.email, ...templates.checkinReminder(s.name, open ? `${open} item${open === 1 ? "" : "s"}` : "") });
+            await sendEmail({ to: s.email, student: s, ...templates.checkinReminder(s.name, open ? `${open} item${open === 1 ? "" : "s"}` : "") });
             if (smsAllowed(rem, today)) { await sms("checkin", s, `${first(s.name)}, it's check-in time! 3 minutes: what got done this week, and where you're stuck. ${siteUrl()}/#checkin`); logSms(rem, today); }
             rem.checkin = today; changed = true; sent.checkin++;
           }
