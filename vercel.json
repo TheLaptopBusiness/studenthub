@@ -1,6 +1,0 @@
-{
-  "outputDirectory": "public",
-  "crons": [
-    { "path": "/api/cron", "schedule": "0 * * * *" }
-  ]
-}
