@@ -1,0 +1,1772 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#f4f6f9">
+<style>[hidden]{display:none!important}body{margin:0;background:#f4f6f9}img{max-width:100%}</style>
+</head>
+<body>
+<title>Laptop Business Mastery Hub</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600..800&family=Figtree:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&display=swap">
+<style>
+/* Single light theme. Layout: friendly workbench. Sidebar of plain-named tools grouped by stage (top scroller on phones); one roomy panel at a time */
+:root{
+  --bg:#f4f6f9; --panel:#ffffff; --sunk:#edf1f5; --line:#d9e1e9;
+  --fg:#15232f; --muted:#5a6a7a; --accent:#1f6fb2; --accent-ink:#ffffff; --accent-soft:#e2eefa;
+  --good:#1b7a4b; --good-soft:#e0f3e8; --warn:#985a00; --warn-soft:#fcf0da; --bad:#b3261e; --bad-soft:#fae3e1;
+  --display:"Bricolage Grotesque","Trebuchet MS",system-ui,sans-serif;
+  --body:"Figtree",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,"SFMono-Regular",Menlo,monospace;
+  --r:14px; --r-sm:10px;
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:16px;line-height:1.55}
+h1,h2,h3,h4{font-family:var(--display);line-height:1.15;text-wrap:balance;margin:0;font-weight:700}
+button,input,select,textarea{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.app{display:grid;grid-template-columns:250px minmax(0,1fr);min-height:100vh}
+
+/* sidebar */
+.rail{background:var(--panel);border-right:1px solid var(--line);padding:22px 14px;display:flex;flex-direction:column;gap:18px;position:sticky;top:env(safe-area-inset-top,0px);height:100vh;overflow-y:auto}
+.brand{display:flex;flex-direction:column;gap:2px;padding:0 8px}
+.brand .eyebrow{font-size:12px;font-weight:600;color:var(--accent)}
+.brand h1{font-size:21px;font-weight:800}
+.nav{display:flex;flex-direction:column;gap:2px}
+.nav .group{font-size:12px;font-weight:600;color:var(--muted);padding:12px 10px 4px}
+.nav button{all:unset;cursor:pointer;display:flex;align-items:center;gap:11px;padding:10px 10px;border-radius:var(--r-sm);color:var(--fg);font-weight:500}
+.nav button svg{width:20px;height:20px;flex:none;stroke:var(--muted);fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.nav button:hover{background:var(--sunk)}
+.nav button[aria-selected="true"]{background:var(--accent-soft);font-weight:700}
+.nav button[aria-selected="true"] svg{stroke:var(--accent)}
+.nav button:focus-visible{outline:3px solid var(--accent)}
+.rail .foot{margin-top:auto;font-size:13px;color:var(--muted);padding:0 8px}
+
+main{padding-block:32px 72px;padding-inline:36px;min-width:0}
+.view{max-width:1000px;margin:0 auto;display:flex;flex-direction:column;gap:22px}
+.view-head{display:flex;flex-direction:column;gap:8px}
+.view-head h2{font-size:32px}
+.view-head p{margin:0;color:var(--muted);max-width:62ch;font-size:17px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:22px}
+.grid2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:22px;align-items:start}
+
+/* forms */
+.fields{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:16px 18px}
+.field{display:flex;flex-direction:column;gap:5px;min-width:0}
+.field label,.field .label{font-size:15px;font-weight:600;color:var(--fg)}
+.hint{font-size:13px;color:var(--muted);line-height:1.4}
+.field input,.field select,.field textarea{background:var(--bg);border:1.5px solid var(--line);border-radius:var(--r-sm);padding:11px 12px;width:100%;min-width:0;font-size:16px}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--accent);outline:none;box-shadow:0 0 0 3px var(--accent-soft)}
+.field textarea{resize:vertical;min-height:84px}
+.field.wide{grid-column:1/-1}
+.fields>.field>input,.fields>.field>select,.fields>.field>.unit{margin-top:auto}
+.unit{position:relative}
+.unit span{position:absolute;right:12px;top:50%;transform:translateY(-50%);font-family:var(--mono);font-size:14px;color:var(--muted);pointer-events:none}
+.unit.pre span{left:12px;right:auto}
+.unit.pre input{padding-left:26px}
+.unit input{padding-right:32px;font-variant-numeric:tabular-nums}
+fieldset{border:0;margin:0;padding:0;display:flex;flex-direction:column;gap:12px;min-width:0}
+legend{font-family:var(--display);font-size:19px;font-weight:700;margin-bottom:4px;padding:0}
+.stack{display:flex;flex-direction:column;gap:18px}
+.row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.btn{border:2px solid var(--accent);background:var(--accent);color:var(--accent-ink);border-radius:999px;padding:11px 22px;font-weight:700;cursor:pointer;font-size:16px}
+.btn:hover{filter:brightness(1.06)}
+.btn.ghost{background:transparent;color:var(--accent)}
+.btn.small{padding:7px 14px;font-size:14px}
+.btn:disabled{opacity:.5;cursor:default}
+.linkbtn{background:none;border:0;padding:0;color:var(--accent);cursor:pointer;font-size:14px;font-weight:600;text-align:left;text-decoration:underline;text-underline-offset:3px}
+.note{font-size:14px;color:var(--muted)}
+.chip{display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:700;border-radius:999px;padding:4px 12px}
+.chip.good{background:var(--good-soft);color:var(--good)}
+.chip.warn{background:var(--warn-soft);color:var(--warn)}
+.chip.bad{background:var(--bad-soft);color:var(--bad)}
+.chip.info{background:var(--accent-soft);color:var(--accent)}
+.example{display:flex;gap:10px;align-items:center;flex-wrap:wrap;font-size:14px;background:var(--warn-soft);color:var(--fg);padding:10px 14px;border-radius:var(--r-sm)}
+.tip{display:flex;gap:10px;font-size:14px;background:var(--accent-soft);padding:12px 14px;border-radius:var(--r-sm)}
+.tip b{color:var(--accent)}
+details.more{border-top:1px solid var(--line);padding-top:14px}
+details.more>summary{cursor:pointer;font-weight:700;color:var(--accent);list-style:none;display:flex;align-items:center;gap:8px}
+details.more>summary::before{content:"+";display:inline-grid;place-items:center;width:22px;height:22px;border-radius:50%;background:var(--accent-soft);font-weight:700}
+details.more[open]>summary::before{content:"–"}
+details.more>summary::-webkit-details-marker{display:none}
+details.more>.stack{margin-top:16px}
+
+/* home */
+.hello h2{font-size:36px}
+.next-card{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:16px;align-items:center;background:var(--accent);color:var(--accent-ink);border-radius:var(--r);padding:22px 24px}
+.next-card .k{font-size:14px;font-weight:600;opacity:.85}
+.next-card h3{font-size:22px;margin-top:2px}
+.next-card .btn{background:var(--accent-ink);color:var(--accent);border-color:var(--accent-ink)}
+.next-card .progress{background:rgba(255,255,255,.25);margin-top:12px}
+.next-card .progress i{background:var(--accent-ink)}
+.actions{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+.action{all:unset;cursor:pointer;background:var(--panel);border:1.5px solid var(--line);border-radius:var(--r);padding:18px;display:flex;flex-direction:column;gap:8px;box-sizing:border-box}
+.action:hover{border-color:var(--accent);box-shadow:0 4px 18px rgba(20,40,70,.08)}
+.action:focus-visible{outline:3px solid var(--accent)}
+.action .ic{width:40px;height:40px;border-radius:12px;background:var(--accent-soft);display:grid;place-items:center}
+.action .ic svg{width:22px;height:22px;stroke:var(--accent);fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.action b{font-size:17px}
+.action span{font-size:14px;color:var(--muted)}
+.glossary{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px 26px;margin:0}
+.glossary div{display:flex;flex-direction:column;gap:2px}
+.glossary dt{font-weight:700}
+.glossary dd{margin:0;font-size:15px;color:var(--muted)}
+
+/* results */
+.answer{font-size:19px;line-height:1.5;font-weight:500}
+.answer strong{font-weight:800}
+.verdict{display:flex;flex-direction:column;gap:10px;padding-bottom:18px;border-bottom:1px solid var(--line)}
+.big{font-family:var(--display);font-weight:800;font-size:44px;font-variant-numeric:tabular-nums;line-height:1}
+.ledger{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}
+.ledger td{padding:8px 0;border-bottom:1px dashed var(--line)}
+.ledger td:last-child{text-align:right;font-family:var(--mono)}
+.ledger tr.total td{border-bottom:0;font-weight:700;padding-top:10px}
+.kpis{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.kpi{background:var(--sunk);border-radius:var(--r-sm);padding:12px 14px;display:flex;flex-direction:column;gap:2px}
+.kpi b{font-family:var(--mono);font-size:19px;font-variant-numeric:tabular-nums}
+.kpi span{font-size:13px;color:var(--muted)}
+.ai{background:var(--sunk);border-radius:var(--r-sm);padding:16px 18px;min-height:48px}
+.ai.empty{color:var(--muted);font-size:15px}
+.md h3{font-size:19px;margin:16px 0 6px}
+.md h4{font-size:16px;margin:12px 0 4px}
+.md p{margin:0 0 10px;max-width:68ch}
+.md ul,.md ol{margin:0 0 10px;padding-left:22px}
+.md li{margin:4px 0}
+.md code{font-family:var(--mono);font-size:13px;background:var(--panel);border:1px solid var(--line);padding:0 4px;border-radius:4px}
+.md>:first-child{margin-top:0}
+.thinking{color:var(--muted);font-style:italic}
+
+/* chat */
+.chat{display:flex;flex-direction:column;gap:14px;min-height:300px}
+.msg{max-width:80ch;display:flex;flex-direction:column;gap:4px}
+.msg .who{font-size:13px;font-weight:600;color:var(--muted)}
+.msg.user{align-self:flex-end;align-items:flex-end}
+.msg.user .bubble{background:var(--accent);color:var(--accent-ink);border-radius:18px 18px 4px 18px;padding:11px 16px;white-space:pre-wrap}
+.msg.bot .bubble{background:var(--sunk);border-radius:18px 18px 18px 4px;padding:13px 18px}
+.composer{display:flex;gap:10px;align-items:flex-end}
+.composer textarea{flex:1;min-width:0;background:var(--bg);border:1.5px solid var(--line);border-radius:16px;padding:12px 14px;min-height:52px;resize:vertical;font-size:16px}
+.starters{display:flex;flex-wrap:wrap;gap:8px}
+.starters button{border:1.5px solid var(--line);background:var(--panel);border-radius:999px;padding:8px 14px;font-size:14px;cursor:pointer;text-align:left}
+.starters button:hover{border-color:var(--accent)}
+details.profile summary{cursor:pointer;font-weight:700}
+.fb{display:flex;flex-wrap:wrap;gap:8px;align-items:center;font-size:14px;color:var(--muted)}
+.fb button.thumb{border:1.5px solid var(--line);background:var(--panel);border-radius:999px;padding:4px 12px;cursor:pointer;font-size:14px}
+.fb button.thumb:hover{border-color:var(--accent)}
+.fb form{display:flex;gap:8px;flex-wrap:wrap;width:100%}
+.fb input{flex:1 1 220px;min-width:0;background:var(--bg);border:1.5px solid var(--line);border-radius:999px;padding:7px 14px;font-size:15px}
+
+/* listing */
+.out-title{font-family:var(--mono);font-size:15px;background:var(--panel);border:1px solid var(--line);border-radius:var(--r-sm);padding:10px 12px;word-break:break-word}
+.specs{display:grid;grid-template-columns:auto minmax(0,1fr);gap:4px 16px;font-size:15px}
+.specs dt{color:var(--muted)}
+.specs dd{margin:0}
+.counter{font-family:var(--mono);font-size:12px;color:var(--muted)}
+
+/* playbook */
+.pb{display:grid;grid-template-columns:220px minmax(0,1fr);gap:24px;align-items:start}
+.toc{position:sticky;top:calc(env(safe-area-inset-top,0px) + 20px);display:flex;flex-direction:column;gap:2px}
+.toc a{color:var(--muted);text-decoration:none;font-size:15px;padding:5px 10px;border-radius:8px}
+.toc a:hover{background:var(--sunk);color:var(--fg)}
+.pb-sec{scroll-margin-top:20px}
+.pb-sec h3.sec{font-size:23px;margin-bottom:10px}
+.search{background:var(--panel);border:1.5px solid var(--line);border-radius:999px;padding:11px 18px;width:100%;font-size:16px}
+
+/* sign-in, onboarding, roadmap */
+.screen{min-height:100vh;display:grid;place-items:center;padding-block:32px;padding-inline:16px}
+.screen .card{width:100%;max-width:460px;display:flex;flex-direction:column;gap:14px}
+.screen h1{font-size:30px;font-weight:800}
+.steps{display:flex;gap:8px;align-items:center;font-size:14px;font-weight:600;color:var(--muted)}
+.steps i{flex:1;height:6px;border-radius:999px;background:var(--sunk)}
+.steps i.on{background:var(--accent)}
+.progress{height:10px;background:var(--sunk);border-radius:999px;overflow:hidden}
+.progress i{display:block;height:100%;background:var(--good);border-radius:999px;transition:width .3s}
+.rm-head{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:16px;align-items:end}
+.rm-stat{font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:14px;color:var(--muted)}
+.checks{display:flex;flex-wrap:wrap;gap:10px 18px}
+.checks label{display:flex;align-items:center;gap:8px;font-size:15px;font-weight:500}
+.checks input{width:18px;height:18px}
+.whoami{display:flex;flex-direction:column;gap:6px}
+.gbtn{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;border:1.5px solid var(--line);background:var(--panel);color:var(--fg);border-radius:999px;padding:11px 20px;font-weight:700;font-size:16px;cursor:pointer}
+.gbtn:hover{border-color:var(--accent)}
+.gbtn svg{width:20px;height:20px}
+.or{display:flex;align-items:center;gap:12px;font-size:13px;color:var(--muted)}
+.or::before,.or::after{content:"";flex:1;height:1px;background:var(--line)}
+.passtip{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;align-items:center}
+
+/* auction */
+.au-head{display:flex;flex-direction:column;gap:8px;padding-bottom:16px;border-bottom:1px solid var(--line)}
+.au-head h3{font-size:23px}
+.facts{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px 16px;font-size:15px}
+.facts div{display:flex;flex-direction:column}
+.facts span{font-size:13px;color:var(--muted)}
+.tscroll{overflow-x:auto;border:1px solid var(--line);border-radius:var(--r-sm)}
+.units{width:100%;border-collapse:collapse;font-size:15px;min-width:620px}
+.units th{text-align:left;font-size:13px;color:var(--muted);font-weight:600;padding:9px 12px;border-bottom:1px solid var(--line)}
+.units td{padding:9px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+.units tr:last-child td{border-bottom:0}
+.units td.num{font-family:var(--mono);font-variant-numeric:tabular-nums;white-space:nowrap}
+.flags{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+.flags li{display:grid;grid-template-columns:78px minmax(0,1fr);gap:10px;align-items:start;font-size:15px}
+.flags .chip{justify-content:center}
+.au-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:4px}
+.au-list button{all:unset;cursor:pointer;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;padding:9px 10px;border-radius:var(--r-sm);width:100%;box-sizing:border-box}
+.au-list button:hover{background:var(--sunk)}
+.au-list button:focus-visible{outline:3px solid var(--accent)}
+.au-list .t{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.warnbox{background:var(--warn-soft);color:var(--fg);border-radius:var(--r-sm);padding:12px 14px;font-size:15px}
+
+/* dashboard */
+.nav button .dot{width:9px;height:9px;border-radius:50%;background:var(--bad);margin-left:auto}
+.sec-h{font-size:20px}
+.db-next{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;align-items:center;background:var(--accent-soft);border-radius:var(--r-sm);padding:12px 14px}
+.db-next>div{display:flex;flex-direction:column;gap:2px}
+.db-next .k{font-size:13px;font-weight:600;color:var(--accent)}
+.alert{border-radius:var(--r-sm);padding:12px 14px;font-size:15px}
+.alert.bad{background:var(--bad-soft);color:var(--fg);border-left:4px solid var(--bad)}
+.alert.good{background:var(--good-soft);color:var(--fg);border-left:4px solid var(--good)}
+.callbar{display:flex;flex-wrap:wrap;gap:10px 16px;align-items:center;justify-content:space-between;font-size:15px;background:var(--panel);border:1px dashed var(--line);border-radius:var(--r-sm);padding:12px 16px}
+.callbar b{margin-right:6px}
+.msgs{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:10px}
+.msgs li{border:1px solid var(--line);border-radius:var(--r-sm);padding:12px 14px;display:flex;flex-direction:column;gap:4px}
+.msgs li.unread{border-color:var(--accent);background:var(--accent-soft)}
+.msgs .meta{font-size:13px;color:var(--muted);display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.msgs .meta b{color:var(--fg)}
+.msgs p{margin:0;white-space:pre-wrap}
+.dsec{display:flex;flex-direction:column;gap:10px;scroll-margin-top:90px}
+.dsec>header{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.dsec>header h3{font-size:21px}
+.dsec>header .n{font-family:var(--mono);font-size:14px;color:var(--muted)}
+.item{display:grid;grid-template-columns:auto minmax(0,1fr);gap:4px 14px;padding:14px 16px;border-radius:var(--r-sm);border:1.5px solid var(--line);background:var(--panel);scroll-margin-top:90px}
+.item.overdue{border-color:var(--bad)}
+.item.done{background:var(--sunk);border-color:transparent}
+.item.flash{box-shadow:0 0 0 4px var(--accent-soft)}
+.item>input[type=checkbox]{width:22px;height:22px;margin-top:2px;accent-color:var(--good);cursor:pointer}
+.item>input[type=checkbox]:disabled{cursor:default}
+.item .t{display:flex;flex-wrap:wrap;gap:6px 10px;align-items:baseline}
+.item .t label{font-weight:700;cursor:pointer}
+.item.done .t label{text-decoration:line-through;color:var(--muted)}
+.item .body{grid-column:2;display:flex;flex-direction:column;gap:8px;min-width:0}
+.item .help{margin:0;font-size:15px;color:var(--muted)}
+.item .meta{display:flex;flex-wrap:wrap;gap:6px 10px;align-items:center;font-size:13px}
+.item .val{font-size:15px;overflow-wrap:anywhere}
+.item .inp{display:flex;flex-wrap:wrap;gap:8px;align-items:end}
+.item .inp .field{flex:1 1 220px}
+.item .inp input,.item .inp select{padding:9px 11px}
+.item .err{font-size:14px;color:var(--bad);margin:0}
+.thread{display:flex;flex-direction:column;gap:8px;border-left:3px solid var(--line);padding-left:12px}
+.thread .c{font-size:15px}
+.thread .c .who{font-size:13px;font-weight:700}
+.thread .c.team .who{color:var(--accent)}
+.thread .c p{margin:2px 0 0;white-space:pre-wrap}
+.thread form{display:flex;flex-direction:column;gap:8px}
+.thread textarea{background:var(--bg);border:1.5px solid var(--line);border-radius:var(--r-sm);padding:9px 11px;min-height:64px;resize:vertical;font-size:15px}
+.thread textarea:focus{border-color:var(--accent);outline:none}
+.item form.survey{display:flex;flex-direction:column;gap:16px;border:1px solid var(--line);border-radius:var(--r-sm);padding:16px;background:var(--bg)}
+.item form.survey fieldset{border:0;margin:0;padding:0;display:flex;flex-direction:column;gap:12px;min-width:0}
+.item form.survey legend{font-family:var(--display);font-weight:700;font-size:18px;margin-bottom:8px;padding:0}
+.item form.survey input,.item form.survey select,.item form.survey textarea{background:var(--panel)}
+.opts{display:flex;flex-wrap:wrap;gap:8px 18px}
+.opt{display:flex;align-items:center;gap:8px;font-weight:500;cursor:pointer}
+.opt input{width:18px;height:18px;accent-color:var(--accent)}
+.swatches{display:flex;flex-wrap:wrap;gap:10px;margin-top:6px}
+.sw-pick{display:flex;align-items:center;gap:6px;font-family:var(--mono);font-size:13px;color:var(--muted);cursor:pointer}
+.sw-pick input{width:40px!important;height:32px;padding:2px!important;border-radius:8px}
+.snap{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:12px 18px;margin:0}
+.snap div{display:flex;flex-direction:column;min-width:0}
+.snap dt{font-size:13px;color:var(--muted)}
+.snap dd{margin:0;font-weight:600;overflow-wrap:anywhere}
+
+@media (max-width:860px){
+  .app{grid-template-columns:minmax(0,1fr)}
+  .rail{position:sticky;top:env(safe-area-inset-top,0px);height:auto;z-index:5;border-right:0;border-bottom:1px solid var(--line);padding:12px 16px;gap:10px;overflow:visible}
+  .brand{padding:0}
+  .brand h1{font-size:18px}
+  .nav{flex-direction:row;overflow-x:auto;gap:4px;scrollbar-width:none;margin-inline:-4px}
+  .nav .group,.rail .foot{display:none}
+  .nav button{white-space:nowrap;padding:8px 12px;font-size:15px}
+  main{padding-inline:16px;padding-block:22px 56px}
+  .grid2,.pb{grid-template-columns:minmax(0,1fr)}
+  .toc{display:none}
+  .actions{grid-template-columns:minmax(0,1fr)}
+  .glossary{grid-template-columns:minmax(0,1fr)}
+  .next-card{grid-template-columns:minmax(0,1fr)}
+  .rm-head{grid-template-columns:minmax(0,1fr)}
+  .db-next{grid-template-columns:minmax(0,1fr)}
+  .view-head h2{font-size:27px}
+  .hello h2{font-size:29px}
+  .big{font-size:38px}
+}
+@media (max-width:1100px) and (min-width:861px){ .actions{grid-template-columns:repeat(2,minmax(0,1fr))} }
+@media (prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important}}
+</style>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-home" viewBox="0 0 24 24"><path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/><path d="M10 20v-6h4v6"/></symbol>
+  <symbol id="i-plan" viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="17" rx="2"/><path d="M8 9l2 2 4-4"/><path d="M8 15h8"/></symbol>
+  <symbol id="i-chat" viewBox="0 0 24 24"><path d="M4 5h16v11H9l-5 4z"/><path d="M8 9h8M8 12h5"/></symbol>
+  <symbol id="i-gavel" viewBox="0 0 24 24"><path d="M14 4l6 6"/><path d="M11 7l6 6"/><path d="M12.5 5.5l5 5-3 3-5-5z"/><path d="M11 11l-7 7"/><path d="M3 21h9"/></symbol>
+  <symbol id="i-calc" viewBox="0 0 24 24"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M8 7h8"/><path d="M8 12h.01M12 12h.01M16 12h.01M8 16h.01M12 16h.01M16 16h.01"/></symbol>
+  <symbol id="i-tag" viewBox="0 0 24 24"><path d="M3 12V4h8l10 10-8 8z"/><circle cx="7.5" cy="8.5" r="1.5"/></symbol>
+  <symbol id="i-cal" viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="16" rx="2"/><path d="M8 3v4M16 3v4M4 10h16"/><path d="M9 15l2 2 4-4"/></symbol>
+  <symbol id="i-book" viewBox="0 0 24 24"><path d="M4 5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2z"/><path d="M4 5v16"/><path d="M8 7h7"/></symbol>
+</svg>
+
+<div class="screen" id="screen-loading" hidden><p class="note">Loading your hub…</p></div>
+<div class="screen" id="screen-signin" hidden>
+  <div class="card">
+    <span class="chip info" style="align-self:flex-start">Student Hub</span>
+    <h1>Welcome to Laptop Business Mastery</h1>
+    <p class="warnbox" id="signin-msg" hidden></p>
+    <div id="signin-google-wrap" class="stack" style="gap:14px" hidden>
+      <button class="gbtn" type="button" id="signin-google"><svg viewBox="0 0 48 48" aria-hidden="true"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.2 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.4-.4-3.5z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.7 15.1 19 12 24 12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.2 0-9.6-3.3-11.3-8l-6.5 5C9.5 39.6 16.2 44 24 44z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.2-2.2 4.2-4.1 5.6l6.2 5.2C37 39.2 44 34 44 24c0-1.3-.1-2.4-.4-3.5z"/></svg>Continue with Google</button>
+      <p class="hint" style="margin:-6px 0 0;text-align:center">Use the Google account with the email you enrolled with.</p>
+      <div class="or"><span>or use your email</span></div>
+    </div>
+    <form class="stack" style="gap:14px" id="signin-form" autocomplete="on">
+      <div class="field"><label for="signin-email">Email</label><input id="signin-email" type="email" autocomplete="email" required placeholder="you@example.com"></div>
+      <div class="field" id="signin-pass-field"><label for="signin-password">Password</label><input id="signin-password" type="password" autocomplete="current-password"></div>
+      <button class="btn" type="submit" id="signin-go">Sign in</button>
+      <button class="linkbtn" type="button" id="signin-mode" style="align-self:center;text-align:center">No password yet, or forgot it? Email me a sign-in link</button>
+      <p class="note" id="signin-note" style="margin:0;text-align:center" aria-live="polite"></p>
+    </form>
+  </div>
+</div>
+
+<div class="app" id="app">
+  <aside class="rail">
+    <div class="brand">
+      <span class="eyebrow">Student Hub</span>
+      <h1>Laptop Business Mastery</h1>
+    </div>
+    <nav class="nav" role="tablist" aria-label="Tools">
+      <button role="tab" data-view="home" id="tab-home"><svg><use href="#i-home"/></svg>Home</button>
+      <button role="tab" data-view="dashboard" id="tab-dashboard"><svg><use href="#i-plan"/></svg>My Dashboard<span class="dot" id="tab-dot" hidden></span></button>
+      <button role="tab" data-view="coach" id="tab-coach"><svg><use href="#i-chat"/></svg>Ask the Coach</button>
+      <span class="group">Buying laptops</span>
+      <button role="tab" data-view="auction" id="tab-auction"><svg><use href="#i-gavel"/></svg>Check an Auction</button>
+      <button role="tab" data-view="deal" id="tab-deal"><svg><use href="#i-calc"/></svg>Profit Calculator</button>
+      <span class="group">Selling laptops</span>
+      <button role="tab" data-view="listing" id="tab-listing"><svg><use href="#i-tag"/></svg>Write a Listing</button>
+      <span class="group">Every week</span>
+      <button role="tab" data-view="checkin" id="tab-checkin"><svg><use href="#i-cal"/></svg>Weekly Check-in</button>
+      <button role="tab" data-view="playbook" id="tab-playbook"><svg><use href="#i-book"/></svg>Playbook</button>
+    </nav>
+    <div class="foot whoami">
+      <span id="who-name"></span>
+      <button id="acct-link" type="button" class="linkbtn" hidden>Account &amp; password</button>
+      <a id="admin-link" href="/admin.html" class="linkbtn" hidden>Coach dashboard</a>
+      <button id="signout" type="button" class="linkbtn" hidden>Sign out</button>
+      <span>Stuck or unsure? Ask the Coach, or bring it to the next coaching call.</span>
+    </div>
+  </aside>
+
+  <main>
+    <!-- HOME -->
+    <section class="view" id="view-home" role="tabpanel" aria-labelledby="tab-home" hidden>
+      <div class="view-head hello">
+        <h2 id="home-hello">Welcome back</h2>
+        <p>Pick what you want to do. Each tool walks you through it one step at a time.</p>
+      </div>
+      <div class="next-card" id="home-next">
+        <div>
+          <span class="k" id="home-next-k">Your next step</span>
+          <h3 id="home-next-title">Open your dashboard</h3>
+          <div class="progress" id="home-progress" hidden><i id="home-bar" style="width:0"></i></div>
+        </div>
+        <button class="btn" type="button" id="home-next-go">Start here</button>
+      </div>
+      <div class="card tip passtip" id="home-pass-tip" hidden>
+        <span><b>Sign in faster</b> Set a password so you don't have to wait for an email link next time.</span>
+        <span class="row"><button class="btn small" type="button" id="home-pass-go">Set a password</button><button class="linkbtn" type="button" id="home-pass-hide">Not now</button></span>
+      </div>
+      <div class="actions">
+        <button class="action" type="button" data-go="auction"><span class="ic"><svg><use href="#i-gavel"/></svg></span><b>I found an auction</b><span>Paste the link. Find out what's in the lot and whether it's worth bidding on.</span></button>
+        <button class="action" type="button" data-go="deal"><span class="ic"><svg><use href="#i-calc"/></svg></span><b>How much should I bid?</b><span>Answer 4 questions and see your profit and the most you should pay.</span></button>
+        <button class="action" type="button" data-go="listing"><span class="ic"><svg><use href="#i-tag"/></svg></span><b>I'm ready to sell a laptop</b><span>Get a title, description and price you can paste straight into eBay.</span></button>
+        <button class="action" type="button" data-go="coach"><span class="ic"><svg><use href="#i-chat"/></svg></span><b>I have a question</b><span>Ask anything, any time. No question is too basic.</span></button>
+        <button class="action" type="button" data-go="checkin"><span class="ic"><svg><use href="#i-cal"/></svg></span><b>It's my weekly check-in</b><span>Tell us how the week went and get next week's plan.</span></button>
+        <button class="action" type="button" data-go="playbook"><span class="ic"><svg><use href="#i-book"/></svg></span><b>I want to learn how it's done</b><span>Step-by-step guides for every part of the business.</span></button>
+      </div>
+      <details class="card more" open>
+        <summary>Words you'll hear a lot</summary>
+        <div class="stack">
+          <dl class="glossary">
+            <div><dt>Lot</dt><dd>A group of laptops sold together in one auction.</dd></div>
+            <div><dt>Buyer's premium</dt><dd>An extra fee the auction site adds on top of your winning bid, usually 10–15%.</dd></div>
+            <div><dt>Sold comps</dt><dd>What the same laptop actually sold for recently. On eBay, search the model and turn on the "Sold items" filter.</dd></div>
+            <div><dt>ROI (return on investment)</dt><dd>Your profit compared to the money you put in. 40% ROI means $40 profit for every $100 spent.</dd></div>
+            <div><dt>Break-even price</dt><dd>The lowest price each laptop can sell for without losing money.</dd></div>
+            <div><dt>Grade A / B / C</dt><dd>How good a laptop looks and works. A is like new, C shows heavy wear. See the Playbook.</dd></div>
+            <div><dt>BIOS lock / MDM lock</dt><dd>A password or company lock that stops you using the laptop. Avoid these unless the seller removes them.</dd></div>
+            <div><dt>Duds</dt><dd>Laptops in a lot that don't work. You can still sell them for parts.</dd></div>
+          </dl>
+        </div>
+      </details>
+    </section>
+
+    <!-- MY DASHBOARD -->
+    <section class="view" id="view-dashboard" role="tabpanel" aria-labelledby="tab-dashboard" hidden>
+      <div class="view-head rm-head">
+        <div class="stack" style="gap:8px">
+          <h2>My Dashboard</h2>
+          <p id="db-sub">Your enrollment checklist. Tick each step when it's done, and comment on any step if you're stuck. Your coaches see everything here.</p>
+        </div>
+        <span class="chip info" id="db-stage" style="justify-self:start;align-self:start">Loading…</span>
+      </div>
+      <p class="note" id="db-load" aria-live="polite">Loading your dashboard…</p>
+      <div id="db-body" class="stack" hidden>
+        <div class="card stack" style="gap:12px">
+          <div class="row" style="justify-content:space-between"><strong id="db-count"></strong><span class="rm-stat" id="db-pct"></span></div>
+          <div class="progress" role="progressbar" aria-label="Checklist progress" aria-valuemin="0" aria-valuemax="100" id="db-bar-wrap"><i id="db-bar" style="width:0"></i></div>
+          <div class="db-next" id="db-next" hidden>
+            <div><span class="k">Your next step</span><b id="db-next-title"></b><span class="note" id="db-next-due"></span></div>
+            <button class="btn small" type="button" id="db-next-go">Go to it</button>
+          </div>
+          <p class="note" style="margin:0" id="db-owner"></p>
+        </div>
+        <div class="alert bad" id="db-overdue" hidden></div>
+        <div class="alert good" id="db-gate" hidden><b>You're cleared to buy.</b> Every box is checked. Before you spend a dollar, send your first deal to <span id="db-gate-coach">your coach</span> for review, and do this for your first 5–7 deals.</div>
+        <section class="card stack" id="db-msgs-card" style="gap:12px" aria-labelledby="db-msgs-h">
+          <div class="row" style="justify-content:space-between"><h3 id="db-msgs-h" class="sec-h">Messages from your coaches</h3><span class="chip info" id="db-unread" hidden></span></div>
+          <ul class="msgs" id="db-msgs"></ul>
+          <button class="linkbtn" type="button" id="db-msgs-more" hidden>Show older messages</button>
+        </section>
+        <div class="callbar" id="db-call"><span><b>Group coaching call</b> Every Saturday at 6pm MT. Bring your questions and wins.</span><a class="btn small ghost" id="db-call-link" href="#" target="_blank" rel="noopener" hidden>Join link</a></div>
+        <div id="db-sections" class="stack" style="gap:22px"></div>
+        <section class="card stack" style="gap:12px" aria-labelledby="db-prof-h">
+          <h3 id="db-prof-h" class="sec-h">My business at a glance</h3>
+          <dl class="snap" id="db-snap"></dl>
+        </section>
+      </div>
+    </section>
+
+    <!-- COACH -->
+    <section class="view" id="view-coach" role="tabpanel" aria-labelledby="tab-coach" hidden>
+      <div class="view-head">
+        <h2>Ask the Coach</h2>
+        <p>Ask anything about buying, testing, fixing, listing or shipping laptops, any time of day. No question is too basic. If something needs a human, the coach will tell you to bring it to your next call.</p>
+      </div>
+      <details class="profile card">
+        <summary>Tell the coach about you <span class="note">(optional, for better answers)</span></summary>
+        <div class="fields" style="margin-top:16px">
+          <div class="field"><label for="p-stage">Where you are right now</label>
+            <select id="p-stage"><option>Just started</option><option>Looking for first deal</option><option>Bought first lot</option><option>Testing &amp; listing</option><option>Making sales</option><option>Scaling up</option></select></div>
+          <div class="field"><label for="p-capital">Money for laptops</label><div class="unit pre"><span>$</span><input id="p-capital" type="number" min="0" step="100" placeholder="1500"></div></div>
+          <div class="field"><label for="p-hours">Hours per week</label><input id="p-hours" type="number" min="0" placeholder="10"></div>
+          <div class="field"><label for="p-location">State / region</label><input id="p-location" type="text" placeholder="e.g. Texas"></div>
+          <div class="field wide"><label for="p-goal">Your goal</label><input id="p-goal" type="text" placeholder="e.g. $2,000/month profit part-time within 6 months"></div>
+        </div>
+      </details>
+      <div class="card stack">
+        <div class="chat" id="chat" aria-live="polite"></div>
+        <div class="stack" style="gap:8px" id="starters-wrap">
+          <span class="note">Not sure what to ask? Tap one:</span>
+          <div class="starters" id="starters">
+            <button type="button">I'm brand new. What should I do first?</button>
+            <button type="button">What should I check before bidding on a GovDeals lot?</button>
+            <button type="button">Which laptop models are best for my first deal?</button>
+            <button type="button">A laptop won't turn on. Where do I start?</button>
+            <button type="button">How do I know what a laptop will sell for?</button>
+          </div>
+        </div>
+        <form class="composer" id="chat-form">
+          <textarea id="chat-input" rows="2" placeholder="Type your question…" aria-label="Your question"></textarea>
+          <button class="btn" id="chat-send" type="submit">Ask</button>
+          <button class="btn ghost" id="chat-stop" type="button" hidden>Stop</button>
+        </form>
+        <p class="note" id="chat-note" style="margin:0"></p>
+      </div>
+    </section>
+
+    <!-- AUCTION -->
+    <section class="view" id="view-auction" role="tabpanel" aria-labelledby="tab-auction" hidden>
+      <div class="view-head">
+        <h2>Check an Auction</h2>
+        <p>Found a lot of laptops on GovDeals, Public Surplus or another auction site? Paste the link and we'll tell you what's in it, what could go wrong, what to ask the seller, and whether it's worth bidding on.</p>
+      </div>
+      <div class="grid2">
+        <form class="card stack" id="auction-form" autocomplete="off">
+          <div class="field"><label for="a-url">1. Paste the auction link</label><small class="hint">Copy it from your browser's address bar while you're on the auction page.</small><input id="a-url" type="url" placeholder="https://www.govdeals.com/..." inputmode="url"></div>
+          <div class="field"><label for="a-text">2. Paste the description <span class="note">(recommended)</span></label><small class="hint" id="a-url-note">Some auction sites hide details from us. Copy the item description from the page and paste it here for the best result.</small><textarea id="a-text" rows="5" placeholder="Lot description, condition notes, quantity, pickup and payment terms…"></textarea></div>
+          <div class="field" id="a-img-wrap" hidden><label for="a-img">3. Add screenshots <span class="note">(optional)</span></label><small class="hint">Photos of the laptops or the listing help us spot models and damage. Up to 4.</small><input id="a-img" type="file" multiple></div>
+          <div class="field"><label for="a-budget">Most you could spend on this lot <span class="note">(optional)</span></label><div class="unit pre"><span>$</span><input id="a-budget" type="number" min="0" step="50" placeholder="1500"></div></div>
+          <div class="row"><button class="btn" id="auction-go" type="submit">Check this auction</button><button class="btn ghost" id="auction-stop" type="button" hidden>Stop</button><button class="linkbtn" type="button" id="auction-example">Try an example</button></div>
+          <p class="note" id="auction-note" style="margin:0" aria-live="polite"></p>
+          <div class="stack" id="au-recent-wrap" hidden style="gap:6px;border-top:1px solid var(--line);padding-top:14px">
+            <strong style="font-size:15px">Auctions you've checked</strong>
+            <ul class="au-list" id="au-recent"></ul>
+          </div>
+        </form>
+        <div class="card stack" id="auction-out">
+          <div class="tip"><b>Tip</b><span>You'll get a simple verdict (Strong, Worth a look, or Pass), every laptop in the lot with an estimated resale price, red flags, and questions to send the seller. Then one tap takes you to the Profit Calculator.</span></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- DEAL -->
+    <section class="view" id="view-deal" role="tabpanel" aria-labelledby="tab-deal" hidden>
+      <div class="view-head">
+        <h2>Profit Calculator</h2>
+        <p>Before you bid, answer 4 questions. We'll show your profit and the most you should bid, including the fees and costs beginners usually forget.</p>
+      </div>
+      <div class="example" id="deal-example-note"><span>These are example numbers. Replace them with your lot.</span><button class="linkbtn" type="button" id="deal-clear">Clear them</button></div>
+      <div class="grid2">
+        <form class="card stack" id="deal-form" autocomplete="off">
+          <fieldset><legend>Your lot</legend>
+            <div class="fields">
+              <div class="field"><label for="d-qty">How many laptops?</label><input id="d-qty" type="number" min="1" step="1" value="10"></div>
+              <div class="field"><label for="d-bid">Your bid for the whole lot</label><small class="hint">Or the current bid if you're just checking.</small><div class="unit pre"><span>$</span><input id="d-bid" type="number" min="0" step="10" value="1100"></div></div>
+              <div class="field"><label for="d-resale">What each one sells for</label><small class="hint">Use recent sold prices for the same model on eBay.</small><div class="unit pre"><span>$</span><input id="d-resale" type="number" min="0" step="5" value="300"></div></div>
+              <div class="field"><label for="d-target">Profit goal (ROI)</label><small class="hint">40% means $40 profit per $100 spent. Beginners should aim for 30–40%.</small><div class="unit"><span>%</span><input id="d-target" type="number" min="0" step="5" value="40"></div></div>
+            </div>
+          </fieldset>
+          <details class="more" id="deal-more">
+            <summary>Other costs <span class="note" style="font-weight:500">(we've filled in typical numbers)</span></summary>
+            <div class="stack">
+              <div class="field"><label for="d-desc">What's in the lot (optional)</label><input id="d-desc" type="text" value="10x Dell Latitude 5420, i5-1145G7, 16GB, no SSDs, no chargers"></div>
+              <div class="fields">
+                <div class="field"><label for="d-prem">Auction fee (buyer's premium)</label><small class="hint">Added on top of your bid. Check the auction page.</small><div class="unit"><span>%</span><input id="d-prem" type="number" min="0" step="0.5" value="10"></div></div>
+                <div class="field"><label for="d-tax">Sales tax</label><small class="hint">0 if you have a seller's permit.</small><div class="unit"><span>%</span><input id="d-tax" type="number" min="0" step="0.25" value="0"></div></div>
+                <div class="field"><label for="d-freight">Cost to pick up or ship the lot to you</label><small class="hint">Gas, truck rental or freight.</small><div class="unit pre"><span>$</span><input id="d-freight" type="number" min="0" step="5" value="80"></div></div>
+                <div class="field"><label for="d-refurb">Parts per laptop</label><small class="hint">Chargers, drives, batteries you'll need to add.</small><div class="unit pre"><span>$</span><input id="d-refurb" type="number" min="0" step="1" value="25"></div></div>
+                <div class="field"><label for="d-defect">How many won't work (duds)</label><small class="hint">Expect 10–20% in untested lots.</small><div class="unit"><span>%</span><input id="d-defect" type="number" min="0" max="100" step="5" value="10"></div></div>
+                <div class="field"><label for="d-parts">A dud sells for parts at</label><div class="unit pre"><span>$</span><input id="d-parts" type="number" min="0" step="5" value="30"></div></div>
+                <div class="field"><label for="d-fee">Selling fee</label><small class="hint">The marketplace's cut. Check eBay's current rate for laptops.</small><div class="unit"><span>%</span><input id="d-fee" type="number" min="0" step="0.05" value="13.25"></div></div>
+                <div class="field"><label for="d-order">Fee per order</label><div class="unit pre"><span>$</span><input id="d-order" type="number" min="0" step="0.05" value="0.40"></div></div>
+                <div class="field"><label for="d-ship">Shipping each laptop to buyers</label><div class="unit pre"><span>$</span><input id="d-ship" type="number" min="0" step="1" value="22"></div></div>
+                <div class="field"><label for="d-pack">Box and packing per laptop</label><div class="unit pre"><span>$</span><input id="d-pack" type="number" min="0" step="1" value="4"></div></div>
+              </div>
+            </div>
+          </details>
+        </form>
+        <div class="stack">
+          <div class="card stack" id="deal-result">
+            <div class="verdict">
+              <span id="r-chip" class="chip info" style="align-self:flex-start">—</span>
+              <p class="answer" id="r-sentence" style="margin:0"></p>
+            </div>
+            <div class="stack" style="gap:4px">
+              <span class="note">Expected profit on the whole lot</span>
+              <span class="big" id="r-profit">$0</span>
+            </div>
+            <div class="kpis">
+              <div class="kpi"><b id="r-maxbid">—</b><span>Most you should bid</span></div>
+              <div class="kpi"><b id="r-roi">—</b><span>Return on your money (ROI)</span></div>
+              <div class="kpi"><b id="r-be">—</b><span>Each must sell for at least</span></div>
+              <div class="kpi"><b id="r-unit">—</b><span>Your cost per laptop</span></div>
+              <div class="kpi"><b id="r-sellable">—</b><span>Laptops you can sell</span></div>
+              <div class="kpi"><b id="r-margin">—</b><span>Profit margin</span></div>
+            </div>
+            <details class="more">
+              <summary>See where the money goes</summary>
+              <div class="stack"><table class="ledger" aria-label="Lot breakdown"><tbody id="r-ledger"></tbody></table></div>
+            </details>
+          </div>
+          <div class="card stack">
+            <h3 style="font-size:20px">Get a second opinion</h3>
+            <p class="note" style="margin:0">The coach checks your numbers for anything too optimistic, spots red flags in the listing, and tells you what to ask the seller.</p>
+            <div class="field"><label for="d-listing">Auction description (optional)</label><textarea id="d-listing" placeholder="Paste the lot description, condition notes, pickup terms…"></textarea></div>
+            <div class="field" id="d-img-wrap" hidden><label for="d-img">Screenshots (optional)</label><input id="d-img" type="file" multiple></div>
+            <div class="row"><button class="btn" id="deal-ai" type="button">Review my deal</button><button class="btn ghost" id="deal-stop" type="button" hidden>Stop</button></div>
+            <div class="ai md empty" id="deal-out">The coach's review appears here.</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- LISTING -->
+    <section class="view" id="view-listing" role="tabpanel" aria-labelledby="tab-listing" hidden>
+      <div class="view-head">
+        <h2>Write a Listing</h2>
+        <p>Tell us about the laptop and we'll write a listing that's honest and easy to find: title, description, condition and a price. Then copy and paste it into the marketplace.</p>
+      </div>
+      <div class="example"><span>We've filled in an example laptop so you can see how it works.</span><button class="linkbtn" type="button" id="listing-clear">Clear it and use mine</button></div>
+      <div class="grid2">
+        <form class="card stack" id="listing-form" autocomplete="off">
+          <fieldset><legend>1. The laptop</legend>
+            <div class="fields">
+              <div class="field wide"><label for="l-model">Brand and model</label><small class="hint">Find it on the sticker under the laptop.</small><input id="l-model" type="text" value="Lenovo ThinkPad T14 Gen 2"></div>
+              <div class="field"><label for="l-cpu">Processor</label><small class="hint">Windows: Settings → System → About.</small><input id="l-cpu" type="text" value="Intel Core i5-1145G7"></div>
+              <div class="field"><label for="l-ram">Memory (RAM)</label><input id="l-ram" type="text" value="16GB DDR4"></div>
+              <div class="field"><label for="l-ssd">Storage</label><input id="l-ssd" type="text" value="512GB NVMe SSD (new)"></div>
+              <div class="field"><label for="l-screen">Screen</label><input id="l-screen" type="text" value="14&quot; FHD 1920x1080, non-touch"></div>
+              <div class="field"><label for="l-os">Operating system</label><input id="l-os" type="text" value="Windows 11 Pro, fresh install, activated"></div>
+              <div class="field"><label for="l-incl">What comes with it</label><input id="l-incl" type="text" value="65W USB-C charger (genuine Lenovo)"></div>
+            </div>
+          </fieldset>
+          <fieldset><legend>2. Condition</legend>
+            <div class="fields">
+              <div class="field"><label for="l-grade">Grade</label>
+                <select id="l-grade"><option value="A">A – Like new</option><option value="B" selected>B – Good, light wear</option><option value="C">C – Works, heavy wear</option><option value="P">For parts / not working</option></select>
+                <small class="hint" id="l-grade-hint"></small></div>
+              <div class="field"><label for="l-batt">Battery health</label><small class="hint">How much charge it holds compared to new.</small><input id="l-batt" type="text" value="82% of design capacity"></div>
+              <div class="field wide"><label for="l-tests">What you tested</label><textarea id="l-tests">All QC checks passed: keyboard, trackpad, webcam, mic, speakers, Wi-Fi, Bluetooth, all USB/USB-C ports, HDMI. Backlit keyboard works. No BIOS password, no Computrace/MDM.</textarea></div>
+              <div class="field wide"><label for="l-flaws">Scratches, dents or marks</label><small class="hint">Be honest. Buyers who know about a scratch don't send it back.</small><textarea id="l-flaws">Light scratches on lid, small scuff near trackpad, screen is clean with no pressure marks.</textarea></div>
+              <div class="field wide" id="l-img-wrap" hidden><label for="l-img">Photos (optional)</label><small class="hint">We'll check for flaws you might have missed.</small><input id="l-img" type="file" multiple></div>
+            </div>
+          </fieldset>
+          <fieldset><legend>3. Where and for how much</legend>
+            <div class="fields">
+              <div class="field"><label for="l-market">Where you're selling</label><select id="l-market"><option>eBay</option><option>Facebook Marketplace</option><option>Mercari</option><option>OfferUp</option><option>Back Market</option></select></div>
+              <div class="field wide"><label for="l-comps">Recent sold prices you found</label><small class="hint">On eBay, search the model, then turn on "Sold items". Copy 3–5 prices.</small><input id="l-comps" type="text" value="$289, $305, $275, $319, $299 (same model/specs, used)"></div>
+            </div>
+          </fieldset>
+          <div class="row"><button class="btn" id="listing-go" type="submit">Write my listing</button><button class="btn ghost" id="listing-stop" type="button" hidden>Stop</button></div>
+        </form>
+        <div class="card stack" id="listing-out">
+          <div class="tip"><b>Tip</b><span>Your listing appears here with a Copy button on every part, ready to paste into the marketplace.</span></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CHECKIN -->
+    <section class="view" id="view-checkin" role="tabpanel" aria-labelledby="tab-checkin" hidden>
+      <div class="view-head">
+        <h2>Weekly Check-in</h2>
+        <p>Takes 3 minutes, best on Sunday. Tell us how your week went, even if nothing happened. You'll get a clear plan for next week, and your coach sees where you are.</p>
+      </div>
+      <div class="grid2">
+        <form class="card stack" id="checkin-form" autocomplete="off">
+          <div class="fields">
+            <div class="field"><label for="c-name">Your name</label><input id="c-name" type="text" placeholder="First and last"></div>
+            <div class="field"><label for="c-week">Week</label><input id="c-week" type="text"></div>
+          </div>
+          <fieldset><legend>This week's numbers</legend>
+            <p class="hint" style="margin:-6px 0 0">Zeros are fine. Every business starts at zero.</p>
+            <div class="fields">
+              <div class="field"><label for="c-bought">Laptops bought</label><input id="c-bought" type="number" min="0" value="0"></div>
+              <div class="field"><label for="c-spent">Money spent on laptops</label><div class="unit pre"><span>$</span><input id="c-spent" type="number" min="0" value="0"></div></div>
+              <div class="field"><label for="c-tested">Laptops tested</label><input id="c-tested" type="number" min="0" value="0"></div>
+              <div class="field"><label for="c-listed">Laptops listed for sale</label><input id="c-listed" type="number" min="0" value="0"></div>
+              <div class="field"><label for="c-sold">Laptops sold</label><input id="c-sold" type="number" min="0" value="0"></div>
+              <div class="field"><label for="c-rev">Money from sales</label><div class="unit pre"><span>$</span><input id="c-rev" type="number" min="0" value="0"></div></div>
+              <div class="field"><label for="c-profit">Profit</label><small class="hint">Sales minus what you paid and spent.</small><div class="unit pre"><span>$</span><input id="c-profit" type="number" value="0"></div></div>
+            </div>
+          </fieldset>
+          <fieldset><legend>How it went</legend>
+            <div class="fields">
+              <div class="field wide"><label for="c-wins">What went well?</label><textarea id="c-wins" placeholder="e.g. Signed up on GovDeals and Public Surplus, got my seller's permit"></textarea></div>
+              <div class="field wide"><label for="c-stuck">Where are you stuck?</label><textarea id="c-stuck" placeholder="e.g. Not sure how much to bid on a 15-laptop HP lot"></textarea></div>
+              <div class="field wide"><label for="c-goal">One goal for next week</label><input id="c-goal" type="text" placeholder="e.g. Win my first lot under $800"></div>
+              <div class="field"><label for="c-hours">Hours you have next week</label><input id="c-hours" type="number" min="0" value="10"></div>
+            </div>
+          </fieldset>
+          <div class="row"><button class="btn" id="checkin-go" type="submit">Get my plan for next week</button><button class="btn ghost" id="checkin-stop" type="button" hidden>Stop</button></div>
+        </form>
+        <div class="card stack">
+          <div class="ai md empty" id="checkin-out">Your plan for next week appears here.</div>
+          <div class="row" id="checkin-actions" hidden>
+            <button class="btn" id="checkin-copy" type="button">Copy my report</button>
+            <span class="note" id="checkin-copied"></span>
+          </div>
+          <p class="note" style="margin:0" id="checkin-saved">You can copy your report and post it in the community too.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ACCOUNT -->
+    <section class="view" id="view-account" role="tabpanel" hidden>
+      <div class="view-head">
+        <h2>Account &amp; password</h2>
+        <p>Signed in as <strong id="acct-email"></strong>. You can sign in with Google, with your email and password, or with an email link.</p>
+      </div>
+      <form class="card stack" id="acct-form" autocomplete="off" style="max-width:520px">
+        <h3 style="font-size:20px" id="acct-pass-title">Set a password</h3>
+        <p class="note" style="margin:0" id="acct-pass-help"></p>
+        <input type="text" autocomplete="username" hidden aria-hidden="true">
+        <div class="field"><label for="acct-pass">New password</label><small class="hint">At least 8 characters.</small><input id="acct-pass" type="password" autocomplete="new-password" minlength="8"></div>
+        <div class="field"><label for="acct-pass2">Type it again</label><input id="acct-pass2" type="password" autocomplete="new-password" minlength="8"></div>
+        <div class="row"><button class="btn" type="submit" id="acct-go">Save password</button></div>
+        <p class="note" id="acct-note" style="margin:0" aria-live="polite"></p>
+      </form>
+    </section>
+
+    <!-- PLAYBOOK -->
+    <section class="view" id="view-playbook" role="tabpanel" aria-labelledby="tab-playbook" hidden>
+      <div class="view-head">
+        <h2>Playbook</h2>
+        <p>Step-by-step guides for every part of the business, from finding your first lot to handling buyer messages. New here? Start with "How the business works".</p>
+      </div>
+      <input class="search" id="pb-search" type="search" placeholder="Search, e.g. battery, BIOS, title, shipping" aria-label="Search the playbook">
+      <div class="pb">
+        <nav class="toc" id="pb-toc" aria-label="Playbook sections"></nav>
+        <div class="stack" id="pb-body"></div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<script type="module">
+import { PLAYBOOK } from "./playbook.js";
+import { analyze, buildPrompt, parseJsonReply, cleanAuction } from "./prompts.js";
+import { TEMPLATE, summarize, unitTarget } from "./checklist.js";
+import { loadConfig, readSessionFromLink, accessToken, clearSession, signInWithPassword, signInWithGoogle, sendSignInLink } from "./auth.js";
+
+/* ===================== helpers ===================== */
+const $ = (s, el=document) => el.querySelector(s);
+const esc = s => String(s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+function md(src){
+  const lines = String(src).replace(/\r/g,"").split("\n");
+  let out = "", list = null, para = [];
+  const inline = t => esc(t).replace(/`([^`]+)`/g,"<code>$1</code>").replace(/\*\*([^*]+)\*\*/g,"<strong>$1</strong>").replace(/(^|[\s(])\*([^*\s][^*]*)\*/g,"$1<em>$2</em>");
+  const flushP = () => { if(para.length){ out += "<p>"+inline(para.join(" "))+"</p>"; para=[]; } };
+  const flushL = () => { if(list){ out += "</"+list+">"; list=null; } };
+  for(const raw of lines){
+    const l = raw.trim(); let m;
+    if(!l){ flushP(); flushL(); continue; }
+    if((m = l.match(/^#{1,3}\s+(.*)/))){ flushP(); flushL(); out += "<h3>"+inline(m[1])+"</h3>"; continue; }
+    if((m = l.match(/^#{4,6}\s+(.*)/))){ flushP(); flushL(); out += "<h4>"+inline(m[1])+"</h4>"; continue; }
+    if((m = l.match(/^[-*•]\s+(.*)/))){ flushP(); if(list!=="ul"){ flushL(); out+="<ul>"; list="ul"; } out += "<li>"+inline(m[1])+"</li>"; continue; }
+    if((m = l.match(/^\d+[.)]\s+(.*)/))){ flushP(); if(list!=="ol"){ flushL(); out+="<ol>"; list="ol"; } out += "<li>"+inline(m[1])+"</li>"; continue; }
+    flushL(); para.push(l);
+  }
+  flushP(); flushL();
+  return out;
+}
+const money = n => (n<0?"−$":"$") + Math.abs(n).toLocaleString("en-US",{maximumFractionDigits:0});
+const money2 = n => (n<0?"−$":"$") + Math.abs(n).toLocaleString("en-US",{minimumFractionDigits:2,maximumFractionDigits:2});
+const pct = n => isFinite(n) ? (n*100).toFixed(1) + "%" : "—";
+const store = {
+  get(k){ try{ return JSON.parse(localStorage.getItem(k)); }catch{ return null; } },
+  set(k,v){ try{ localStorage.setItem(k, JSON.stringify(v)); }catch{} },
+  del(k){ try{ localStorage.removeItem(k); }catch{} }
+};
+function errCopy(e){
+  switch(e && e.code){
+    case "daily_limit": return "You've reached today's AI limit. It resets tomorrow; your coach can help in the meantime.";
+    case "not_enrolled": return "This account isn't enrolled. Contact your coach.";
+    case "paused": return "Your access is paused. Contact your coach.";
+    case "signed_out": return "";
+    case "not_granted": case "sampling_disabled": case "not_declared": case "capability_disabled": case "capability_removed":
+      return "AI help is turned off for this page.";
+    case "rate_limited": case "busy": return "The AI is busy right now. Wait a minute, then try again.";
+    case "session_expired": return "Your session expired. Sign in again, then retry.";
+    case "refused": return "The coach couldn't answer that as written. Try rephrasing.";
+    case "prompt_too_large": case "too_large": return "That's too much at once. Shorten the text or use fewer images.";
+    case "image_rejected": return "One of the images couldn't be used. Try a JPG or PNG.";
+    case "invalid_json": return "The answer came back in the wrong format. Select the button again.";
+    case "server_not_configured": return "The hub isn't fully set up yet. Let your coach know.";
+    case "offline": return "Couldn't reach the server. Check your internet connection.";
+    case "cancelled": return "";
+    default: return "Something went wrong reaching the AI. Try again in a moment.";
+  }
+}
+
+/* ===================== Sign-in (website mode) =====================
+   Three ways in: Continue with Google, email + password, or a one-time email link. The session lives in this browser. */
+const MODE = window.claude ? "claude" : "web";
+let me = null;
+function screen(which){
+  $("#screen-loading").hidden = which !== "loading";
+  $("#screen-signin").hidden = which !== "signin";
+  $("#app").hidden = which !== "app";
+}
+function showSignin(msg){
+  clearSession();
+  $("#signin-msg").textContent = msg || "";
+  $("#signin-msg").hidden = !msg;
+  setSigninMode("password");
+  screen("signin");
+}
+let signinMode = "password";
+function setSigninMode(m){
+  signinMode = m;
+  const link = m === "link";
+  $("#signin-pass-field").hidden = link;
+  $("#signin-go").textContent = link ? "Email me a sign-in link" : "Sign in";
+  $("#signin-mode").textContent = link ? "I have a password" : "No password yet, or forgot it? Email me a sign-in link";
+  $("#signin-password").required = !link;
+  $("#signin-note").textContent = "";
+}
+$("#signin-mode").addEventListener("click", () => setSigninMode(signinMode === "link" ? "password" : "link"));
+loadConfig().then(cfg => {
+  $("#signin-google-wrap").hidden = !cfg.google;
+  if(!cfg.anonKey){ setSigninMode("link"); $("#signin-mode").hidden = true; }
+});
+$("#signin-google").addEventListener("click", async () => {
+  $("#signin-note").textContent = "Opening Google…";
+  if(!(await signInWithGoogle("/"))) $("#signin-note").textContent = "Google sign-in isn't switched on yet. Use your email instead.";
+});
+$("#signin-form").addEventListener("submit", async e => {
+  e.preventDefault();
+  const email = $("#signin-email").value.trim();
+  if(!email) return;
+  $("#signin-go").disabled = true;
+  try{
+    if(signinMode === "link"){
+      $("#signin-note").textContent = "Sending…";
+      $("#signin-note").textContent = await sendSignInLink(email);
+    } else {
+      $("#signin-note").textContent = "Signing in…";
+      const err = await signInWithPassword(email, $("#signin-password").value);
+      if(err){ $("#signin-note").textContent = err; return; }
+      $("#signin-password").value = "";
+      boot();
+    }
+  } finally { $("#signin-go").disabled = false; }
+});
+$("#signout").addEventListener("click", () => showSignin("You're signed out."));
+async function api(path, { method = "GET", body, signal } = {}){
+  const t = await accessToken();
+  if(!t){ showSignin("Your session ended. Please sign in again."); throw { code:"signed_out" }; }
+  let r;
+  try{
+    r = await fetch(path, { method, signal, headers: { "authorization": "Bearer " + t, ...(body ? {"content-type":"application/json"} : {}) }, body: body ? JSON.stringify(body) : undefined });
+  }catch(e){ throw { code: e && e.name === "AbortError" ? "cancelled" : "offline" }; }
+  if(r.status === 401){ showSignin("Your session ended. Please sign in again."); throw { code:"signed_out" }; }
+  let j = null; try{ j = await r.json(); }catch{}
+  if(!r.ok) throw { code: (j && j.error) || "upstream_error", message: j && j.error };
+  return j;
+}
+
+/* ===================== Account (password) ===================== */
+function renderAccount(){
+  const set = !!(me && me.student && me.student.password_set);
+  $("#acct-email").textContent = (me && me.student && me.student.email) || "";
+  $("#acct-pass-title").textContent = set ? "Change your password" : "Set a password";
+  $("#acct-pass-help").textContent = set ? "Pick a new password. You'll use it the next time you sign in." : "Sign in with your email and a password, so you don't need to wait for a link each time. You can still use a link or Google any time.";
+  $("#home-pass-tip").hidden = set || MODE !== "web" || store.get("lbm-pass-tip-hidden") === true;
+}
+$("#acct-form").addEventListener("submit", async e => {
+  e.preventDefault();
+  const p1 = $("#acct-pass").value, p2 = $("#acct-pass2").value;
+  if(p1.length < 8){ $("#acct-note").textContent = "Use at least 8 characters."; return; }
+  if(p1 !== p2){ $("#acct-note").textContent = "The two passwords don't match."; return; }
+  $("#acct-go").disabled = true; $("#acct-note").textContent = "Saving…";
+  try{
+    await api("/api/password", { method:"POST", body:{ password: p1 } });
+    $("#acct-pass").value = ""; $("#acct-pass2").value = "";
+    if(me && me.student) me.student.password_set = true;
+    renderAccount();
+    $("#acct-note").textContent = "Saved. Next time, sign in with your email and this password.";
+  }catch(err){ $("#acct-note").textContent = (err && err.message && err.message.length > 12 ? err.message : errCopy(err)) || "Couldn't save. Try again."; }
+  finally{ $("#acct-go").disabled = false; }
+});
+$("#home-pass-go").addEventListener("click", () => { show("account"); window.scrollTo({ top: 0 }); });
+$("#home-pass-hide").addEventListener("click", () => { store.set("lbm-pass-tip-hidden", true); $("#home-pass-tip").hidden = true; });
+$("#acct-link").addEventListener("click", () => { show("account"); window.scrollTo({ top: 0 }); });
+
+/* ===================== AI connection =====================
+   Website mode: calls /api/ai as the signed-in student; the program's API key stays on the server.
+   Claude preview mode: when opened inside Claude, uses the viewer's own Claude account. */
+let sample = null, imgLimits = null, aiReady = false, lastFetchNote = "";
+const aiButtons = ["#chat-send","#deal-ai","#listing-go","#checkin-go","#auction-go"];
+function setAiEnabled(on, msg){
+  aiReady = on;
+  aiButtons.forEach(s => { const b = $(s); if(b) b.disabled = !on; });
+  $("#chat-note").textContent = msg || "";
+}
+function showImageInputs(accept){
+  for(const id of ["#d-img","#l-img","#a-img"]){ const i = $(id); i.accept = accept; i.closest(".field").hidden = false; }
+}
+if(MODE === "web"){
+  setAiEnabled(false);
+  imgLimits = {maxCount: 4};
+  showImageInputs("image/jpeg,image/png,image/webp");
+} else {
+  setAiEnabled(false);
+  (async () => {
+    try{ sample = await window.claude.use("sample"); }catch{ sample = null; }
+    if(!sample){ setAiEnabled(false, "AI help isn't available in this view."); return; }
+    setAiEnabled(true);
+    try{ const lim = await sample.limits(); if(lim && lim.images){ imgLimits = lim.images; showImageInputs(lim.images.mediaTypes.join(",")); } }catch{}
+  })();
+}
+
+async function shrinkImage(file){
+  const url = URL.createObjectURL(file);
+  try{
+    const img = await new Promise((res, rej) => { const im = new Image(); im.onload = () => res(im); im.onerror = rej; im.src = url; });
+    const scale = Math.min(1, 1280 / Math.max(img.naturalWidth, img.naturalHeight));
+    const c = document.createElement("canvas");
+    c.width = Math.round(img.naturalWidth * scale); c.height = Math.round(img.naturalHeight * scale);
+    c.getContext("2d").drawImage(img, 0, 0, c.width, c.height);
+    return { media_type: "image/jpeg", data: c.toDataURL("image/jpeg", 0.82).split(",")[1] };
+  } finally { URL.revokeObjectURL(url); }
+}
+function pickFiles(input){
+  if(!imgLimits || !input.files || !input.files.length) return [];
+  return Array.from(input.files).slice(0, imgLimits.maxCount || 1);
+}
+
+/* One call for every tool. Returns text (or a parsed object for JSON tools). */
+async function ai(tool, data, { onText, signal, files = [] } = {}){
+  const p = buildPrompt(tool, data);
+  if(MODE === "claude"){
+    const turns = [{ role:"user", content: p.system + "\n\nRespond to the request that follows." }, ...p.messages];
+    const opts = { signal, images: files.length ? files : undefined };
+    if(p.json) return await sample.json(turns, opts);
+    const r = await sample(turns, { ...opts, cache: false, onText: onText ? ({text}) => onText(text) : undefined });
+    return r.text;
+  }
+  let images = [];
+  try{ images = await Promise.all(files.map(shrinkImage)); }catch{ throw { code:"image_rejected" }; }
+  const tok = await accessToken();
+  if(!tok){ showSignin("Your session ended. Enter your email to sign in again."); throw { code:"signed_out" }; }
+  let res;
+  try{
+    res = await fetch("/api/ai", { method:"POST", signal,
+      headers: { "content-type":"application/json", "authorization": "Bearer " + tok },
+      body: JSON.stringify({ tool, data, images }) });
+  }catch(e){ throw { code: e && e.name === "AbortError" ? "cancelled" : "offline" }; }
+  if(!res.ok){
+    let code = "upstream_error"; try{ code = (await res.json()).error || code; }catch{}
+    if(code === "signed_out") showSignin("Your session ended. Enter your email to sign in again.");
+    throw { code };
+  }
+  lastFetchNote = res.headers.get("x-fetch-note") ? decodeURIComponent(res.headers.get("x-fetch-note")) : "";
+  const reader = res.body.getReader(); const dec = new TextDecoder(); let text = "";
+  try{
+    for(;;){
+      const { done, value } = await reader.read(); if(done) break;
+      text += dec.decode(value, { stream:true });
+      if(text.includes("\u0000ERROR")){ text = text.replace("\u0000ERROR",""); throw { code:"upstream_error", text }; }
+      if(onText && !p.json) onText(text);
+    }
+  }catch(e){
+    if(e && e.code) throw e;
+    throw { code: e && e.name === "AbortError" ? "cancelled" : "upstream_error", text };
+  }
+  if(p.json){ const obj = parseJsonReply(text); if(!obj) throw { code:"invalid_json", text }; return obj; }
+  if(!text.trim()) throw { code:"upstream_error" };
+  return text;
+}
+
+/* ===================== tabs ===================== */
+const views = ["home","dashboard","coach","auction","deal","listing","checkin","playbook","account"];
+function show(v){
+  if(!views.includes(v)) v = "home";
+  for(const id of views){ $("#view-"+id).hidden = id !== v; const t = $("#tab-"+id); if(t) t.setAttribute("aria-selected", String(id === v)); }
+  store.set("lbm-tab", v);
+  if(v === "dashboard") markReadSoon();
+}
+document.querySelectorAll(".nav button").forEach(b => b.addEventListener("click", () => { show(b.dataset.view); window.scrollTo({top:0}); }));
+const startHash = ({ roadmap:"dashboard", plan:"dashboard" })[(location.hash||"").slice(1)] || (location.hash||"").slice(1);
+
+/* ===================== COACH ===================== */
+const profileMap = { stage:"p-stage", capital:"p-capital", hours:"p-hours", location:"p-location", goal:"p-goal" };
+const savedProfile = store.get("lbm-profile") || {};
+for(const [k,id] of Object.entries(profileMap)){
+  if(savedProfile[k] != null) $("#"+id).value = savedProfile[k];
+  $("#"+id).addEventListener("change", () => store.set("lbm-profile", getProfile()));
+}
+function getProfile(){
+  const p = {}; for(const [k,id] of Object.entries(profileMap)) p[k] = $("#"+id).value.trim();
+  const d = dash.data;
+  if(d){
+    p.progress = `Enrollment checklist: ${d.done} of ${d.total} steps done (stage: ${d.stage})` + (d.next ? `; next step: ${d.next.title}` : "; checklist complete, cleared to buy");
+    if(d.profile.focus_brand) p.progress += `; focus brand ${d.profile.focus_brand}`;
+    if(d.profile.tier) p.progress += `; ${d.profile.tier} tier`;
+    if(d.profile.weekly_unit_target) p.progress += `; target ${d.profile.weekly_unit_target} laptops/week`;
+  }
+  return p;
+}
+
+const turns = [];
+let chatCtl = null;
+function addMsg(role, html){
+  const wrap = document.createElement("div");
+  wrap.className = "msg " + (role === "user" ? "user" : "bot");
+  wrap.innerHTML = `<span class="who">${role === "user" ? "You" : "Coach"}</span><div class="bubble ${role==="user"?"":"md"}"></div>`;
+  const bubble = wrap.querySelector(".bubble");
+  if(role === "user") bubble.textContent = html; else bubble.innerHTML = html;
+  $("#chat").append(wrap);
+  return bubble;
+}
+addMsg("bot", md("Hi! I'm your coach, here any time. Ask me anything about finding, buying, fixing, listing or shipping laptops. If you're brand new, try **\"I'm brand new. What should I do first?\"** below."));
+function addFeedback(msgEl, question, answer){
+  const row = document.createElement("div"); row.className = "fb";
+  const lab = document.createElement("span"); lab.textContent = "Was this right?";
+  const up = document.createElement("button"); up.type = "button"; up.className = "thumb"; up.textContent = "👍 Yes";
+  const down = document.createElement("button"); down.type = "button"; down.className = "thumb"; down.textContent = "👎 Not quite";
+  row.append(lab, up, down);
+  const send = async (rating, comment) => {
+    row.textContent = "Sending…";
+    try{
+      await api("/api/feedback", { method:"POST", body:{ rating, question, answer, comment } });
+      row.textContent = rating === "up" ? "Thanks! Glad that helped." : "Thanks. Your coach will check this answer, and the AI Coach will learn the right one.";
+    }catch(e){ row.textContent = errCopy(e) || "Couldn't send that. Try again later."; }
+  };
+  up.addEventListener("click", () => send("up", ""));
+  down.addEventListener("click", () => {
+    row.innerHTML = "";
+    const f = document.createElement("form");
+    const inp = document.createElement("input"); inp.placeholder = "What was wrong or missing? (optional)"; inp.setAttribute("aria-label", "What was wrong");
+    const b = document.createElement("button"); b.className = "btn small"; b.type = "submit"; b.textContent = "Send to my coach";
+    f.append(inp, b); row.append(f); inp.focus();
+    f.addEventListener("submit", e => { e.preventDefault(); send("down", inp.value.trim()); });
+  });
+  msgEl.append(row);
+}
+async function sendChat(text){
+  text = text.trim();
+  if(!text || !aiReady || chatCtl) return;
+  $("#starters-wrap").hidden = true;
+  addMsg("user", text);
+  turns.push({role:"user", content:text});
+  const bubble = addMsg("bot", '<span class="thinking">Thinking…</span>');
+  $("#chat-input").value = "";
+  $("#chat-send").disabled = true; $("#chat-stop").hidden = false; $("#chat-note").textContent = "";
+  chatCtl = new AbortController();
+  try{
+    const answer = await ai("coach", { profile: getProfile(), turns }, { signal: chatCtl.signal, onText: t => { bubble.innerHTML = md(t); } });
+    bubble.innerHTML = md(answer);
+    turns.push({role:"assistant", content: answer});
+    if(MODE === "web") addFeedback(bubble.closest(".msg"), text, answer);
+  }catch(e){
+    if(e && e.text){ bubble.innerHTML = md(e.text) + (e.code==="cancelled" ? "" : '<p class="note">(interrupted)</p>'); turns.push({role:"assistant", content:e.text}); }
+    else { bubble.closest(".msg").remove(); turns.pop(); }
+    $("#chat-note").textContent = errCopy(e);
+  }finally{
+    $("#chat-send").disabled = !aiReady; $("#chat-stop").hidden = true; chatCtl = null;
+  }
+}
+$("#chat-form").addEventListener("submit", e => { e.preventDefault(); sendChat($("#chat-input").value); });
+$("#chat-input").addEventListener("keydown", e => { if(e.key === "Enter" && !e.shiftKey){ e.preventDefault(); sendChat($("#chat-input").value); } });
+$("#chat-stop").addEventListener("click", () => chatCtl && chatCtl.abort());
+document.querySelectorAll("#starters button").forEach(b => b.addEventListener("click", () => sendChat(b.textContent)));
+
+/* ===================== DEAL ANALYZER ===================== */
+const dealIds = {qty:"d-qty", bid:"d-bid", prem:"d-prem", tax:"d-tax", freight:"d-freight", refurb:"d-refurb", defect:"d-defect", parts:"d-parts", resale:"d-resale", fee:"d-fee", order:"d-order", ship:"d-ship", pack:"d-pack", target:"d-target"};
+function dealInputs(){ const o = {}; for(const [k,id] of Object.entries(dealIds)) o[k] = $("#"+id).value; return o; }
+function renderDeal(){
+  const a = analyze(dealInputs()); const i = a.i;
+  const chip = $("#r-chip");
+  if(a.profit < 0){ chip.className = "chip bad"; chip.textContent = "You'd lose money"; }
+  else if(a.roi >= a.target){ chip.className = "chip good"; chip.textContent = "Good deal: meets your goal"; }
+  else { chip.className = "chip warn"; chip.textContent = "Makes money, but below your goal"; }
+  $("#r-profit").textContent = money(a.profit);
+  const sent = $("#r-sentence");
+  if(!a.qty || !i.resale){
+    sent.textContent = "Fill in the 4 questions to see your profit.";
+    chip.className = "chip info"; chip.textContent = "Waiting for your numbers";
+  } else {
+    const bidTxt = money(i.bid), maxTxt = isFinite(a.maxBid) && a.maxBid > 0 ? money(a.maxBid) : null;
+    const goal = `To hit your ${i.target}% goal, ` + (maxTxt ? `don't bid more than <strong>${maxTxt}</strong>.` : `this lot would need a higher resale price. It's probably a pass.`);
+    sent.innerHTML = a.profit < 0
+      ? `At a ${esc(bidTxt)} bid you'd <strong>lose about ${esc(money(-a.profit))}</strong>. ${goal}`
+      : `At a ${esc(bidTxt)} bid you'd make about <strong>${esc(money(a.profit))}</strong>, a ${esc(pct(a.roi))} return. ${goal}`;
+  }
+  $("#r-profit").style.color = a.profit < 0 ? "var(--bad)" : "var(--fg)";
+  $("#r-roi").textContent = pct(a.roi);
+  $("#r-margin").textContent = pct(a.margin);
+  $("#r-unit").textContent = isFinite(a.unitCost) ? money2(a.unitCost) : "—";
+  $("#r-be").textContent = isFinite(a.breakEven) ? money2(a.breakEven) : "—";
+  $("#r-maxbid").textContent = isFinite(a.maxBid) ? (a.maxBid <= 0 ? "Don't bid" : money(a.maxBid)) : "—";
+  const r1 = x => Math.round(x*10)/10;
+  $("#r-sellable").textContent = r1(a.sellable) + " of " + a.qty;
+  const rows = [
+    ["Selling " + r1(a.sellable) + " working laptops", a.revenue - a.partsRev],
+    ["Selling " + r1(a.duds) + " duds for parts", a.partsRev],
+    ["Marketplace selling fees", -a.fees],
+    ["Shipping and boxes", -a.outbound],
+    ["Parts (chargers, drives…)", -a.refurb],
+    ["Lot cost incl. auction fee, tax, pickup", -a.acq]
+  ];
+  $("#r-ledger").innerHTML = rows.map(([k,v]) => `<tr><td>${esc(k)}</td><td>${money2(v)}</td></tr>`).join("") +
+    `<tr class="total"><td>Profit</td><td>${money2(a.profit)}</td></tr>`;
+}
+$("#deal-form").addEventListener("input", e => { if(["d-qty","d-bid","d-resale"].includes(e.target.id)) $("#deal-example-note").hidden = true; renderDeal(); });
+$("#deal-clear").addEventListener("click", () => {
+  for(const id of ["d-qty","d-bid","d-resale","d-desc"]) $("#"+id).value = "";
+  $("#deal-example-note").hidden = true; renderDeal(); $("#d-qty").focus();
+});
+$("#deal-form").addEventListener("submit", e => e.preventDefault());
+renderDeal();
+
+function streamInto(out, emptyText){
+  return {
+    start(msg){ out.classList.remove("empty"); out.innerHTML = `<span class="thinking">${esc(msg)}</span>`; },
+    text(t){ out.innerHTML = md(t); },
+    fail(e){
+      out.innerHTML = e && e.text ? md(e.text) : "";
+      const m = errCopy(e); if(m) out.insertAdjacentHTML("beforeend", `<p class="note">${esc(m)}</p>`);
+      if(!out.innerHTML){ out.classList.add("empty"); out.textContent = emptyText; }
+    }
+  };
+}
+let dealCtl = null;
+$("#deal-ai").addEventListener("click", async () => {
+  if(!aiReady || dealCtl) return;
+  const view = streamInto($("#deal-out"), "The coach's review appears here.");
+  view.start("Reviewing the deal…");
+  $("#deal-ai").disabled = true; $("#deal-stop").hidden = false;
+  dealCtl = new AbortController();
+  const files = pickFiles($("#d-img"));
+  try{
+    const t = await ai("deal", { desc: $("#d-desc").value, inputs: dealInputs(), listing: $("#d-listing").value, hasImages: files.length > 0 },
+      { signal: dealCtl.signal, files, onText: view.text });
+    view.text(t);
+  }catch(e){ view.fail(e); }
+  finally{ $("#deal-ai").disabled = !aiReady; $("#deal-stop").hidden = true; dealCtl = null; }
+});
+$("#deal-stop").addEventListener("click", () => dealCtl && dealCtl.abort());
+
+/* ===================== LISTING BUILDER ===================== */
+function copyBtn(getText, label="Copy"){
+  const b = document.createElement("button");
+  b.type = "button"; b.className = "btn ghost"; b.textContent = label;
+  b.addEventListener("click", async () => {
+    const t = getText();
+    try{ await navigator.clipboard.writeText(t); b.textContent = "Copied"; setTimeout(()=>b.textContent=label, 1500); }
+    catch{ const ta = document.createElement("textarea"); ta.value = t; ta.style.width="100%"; ta.rows = 4; b.closest(".stack").append(ta); ta.select(); b.textContent = "Press Ctrl/Cmd+C"; }
+  });
+  return b;
+}
+let listCtl = null;
+const GRADE_HINT = { A:"Works perfectly, barely any marks, battery 80%+.", B:"Works perfectly, light scratches you'd notice at arm's length, battery 70%+.", C:"Works perfectly, but heavy wear, dents or worn keys.", P:"Something doesn't work, it's locked, or parts are missing. Say exactly what." };
+const gradeHint = () => { $("#l-grade-hint").textContent = GRADE_HINT[$("#l-grade").value] || ""; };
+$("#l-grade").addEventListener("change", gradeHint); gradeHint();
+$("#listing-clear").addEventListener("click", e => {
+  for(const id of ["l-model","l-cpu","l-ram","l-ssd","l-screen","l-os","l-batt","l-tests","l-flaws","l-incl","l-comps"]) $("#"+id).value = "";
+  e.target.closest(".example").hidden = true; $("#l-model").focus();
+});
+$("#listing-form").addEventListener("submit", async e => {
+  e.preventDefault();
+  if(!aiReady || listCtl) return;
+  const v = id => $("#"+id).value.trim();
+  const out = $("#listing-out");
+  out.innerHTML = '<p class="thinking">Writing your listing…</p>';
+  $("#listing-go").disabled = true; $("#listing-stop").hidden = false;
+  listCtl = new AbortController();
+  const files = pickFiles($("#l-img"));
+  try{
+    const r = await ai("listing", { market:v("l-market"), grade:v("l-grade"), model:v("l-model"), cpu:v("l-cpu"), ram:v("l-ram"), ssd:v("l-ssd"),
+      screen:v("l-screen"), os:v("l-os"), batt:v("l-batt"), tests:v("l-tests"), flaws:v("l-flaws"), incl:v("l-incl"), comps:v("l-comps"), hasImages: files.length > 0 },
+      { signal: listCtl.signal, files });
+    renderListing(r || {});
+  }catch(e2){
+    out.innerHTML = `<p class="note">${esc(errCopy(e2) || "Stopped.")}</p>`;
+  }finally{ $("#listing-go").disabled = !aiReady; $("#listing-stop").hidden = true; listCtl = null; }
+});
+$("#listing-stop").addEventListener("click", () => listCtl && listCtl.abort());
+function renderListing(r){
+  const out = $("#listing-out"); out.innerHTML = "";
+  const sec = (label, node, copyText) => {
+    const s = document.createElement("div"); s.className = "stack"; s.style.gap = "8px";
+    const h = document.createElement("div"); h.className = "row"; h.style.justifyContent = "space-between";
+    const l = document.createElement("strong"); l.textContent = label; h.append(l);
+    if(copyText != null) h.append(copyBtn(() => copyText));
+    s.append(h, node); out.append(s);
+  };
+  const title = String(r.title || "");
+  const t = document.createElement("div"); t.className = "out-title"; t.textContent = title;
+  const cnt = document.createElement("span"); cnt.className = "counter"; cnt.textContent = title.length + " characters";
+  const tw = document.createElement("div"); tw.className = "stack"; tw.style.gap = "4px"; tw.append(t, cnt);
+  sec("Title", tw, title);
+  const price = r.price || {};
+  if(Number(price.list) > 0){
+    const p = document.createElement("div"); p.className = "kpis";
+    p.innerHTML = `<div class="kpi"><b>${money2(Number(price.list))}</b><span>List price</span></div><div class="kpi"><b>${money2(Number(price.floor)||0)}</b><span>Best Offer floor</span></div>`;
+    const why = document.createElement("p"); why.className = "note"; why.style.margin = "0"; why.textContent = String(price.reasoning || "");
+    const w = document.createElement("div"); w.className = "stack"; w.style.gap = "6px"; w.append(p, why);
+    sec("Price", w, null);
+  } else if(price.reasoning){
+    const why = document.createElement("p"); why.className = "note"; why.textContent = String(price.reasoning); sec("Price", why, null);
+  }
+  const cn = document.createElement("p"); cn.style.margin = "0"; cn.textContent = String(r.conditionNote || "");
+  sec("Condition note", cn, String(r.conditionNote || ""));
+  const d = document.createElement("div"); d.className = "md"; d.innerHTML = md(String(r.description || ""));
+  sec("Description", d, String(r.description || ""));
+  if(Array.isArray(r.itemSpecifics) && r.itemSpecifics.length){
+    const dl = document.createElement("dl"); dl.className = "specs";
+    r.itemSpecifics.forEach(x => { const dt = document.createElement("dt"); dt.textContent = String(x?.name||""); const dd = document.createElement("dd"); dd.textContent = String(x?.value||""); dl.append(dt, dd); });
+    sec("Item specifics", dl, r.itemSpecifics.map(x => `${x?.name}: ${x?.value}`).join("\n"));
+  }
+  if(Array.isArray(r.keywords) && r.keywords.length){
+    const k = document.createElement("div"); k.className = "row"; k.style.gap = "6px";
+    r.keywords.forEach(w => { const c = document.createElement("span"); c.className = "chip info"; c.textContent = String(w); k.append(c); });
+    sec("Keywords", k, r.keywords.join(", "));
+  }
+  if(Array.isArray(r.warnings) && r.warnings.length){
+    const ul = document.createElement("ul"); ul.style.margin = "0"; ul.style.paddingLeft = "20px";
+    r.warnings.forEach(w => { const li = document.createElement("li"); li.textContent = String(w); ul.append(li); });
+    const w = document.createElement("div"); w.style.cssText = "background:var(--warn-soft);border-radius:6px;padding:10px 14px"; w.append(ul);
+    sec("Fix or check before listing", w, null);
+  }
+}
+
+/* ===================== WEEKLY CHECK-IN ===================== */
+(function(){
+  const d = new Date(); const mon = new Date(d); mon.setDate(d.getDate() - ((d.getDay()+6)%7));
+  $("#c-week").value = "Week of " + mon.toLocaleDateString("en-US",{month:"short", day:"numeric", year:"numeric"});
+  const n = store.get("lbm-name"); if(n) $("#c-name").value = n;
+  $("#c-name").addEventListener("change", () => store.set("lbm-name", $("#c-name").value));
+})();
+let ckCtl = null, ckText = "";
+$("#checkin-form").addEventListener("submit", async e => {
+  e.preventDefault();
+  if(!aiReady || ckCtl) return;
+  const v = id => $("#"+id).value.trim();
+  const view = streamInto($("#checkin-out"), "Your plan for next week appears here.");
+  view.start("Building your plan…");
+  $("#checkin-actions").hidden = true;
+  $("#checkin-go").disabled = true; $("#checkin-stop").hidden = false;
+  ckCtl = new AbortController();
+  try{
+    ckText = await ai("checkin", { week:v("c-week"), name:v("c-name"), bought:v("c-bought"), spent:v("c-spent"), tested:v("c-tested"), listed:v("c-listed"),
+      sold:v("c-sold"), rev:v("c-rev"), profit:v("c-profit"), hours:v("c-hours"), wins:v("c-wins"), stuck:v("c-stuck"), goal:v("c-goal"), profile:getProfile() },
+      { signal: ckCtl.signal, onText: view.text });
+    view.text(ckText); $("#checkin-actions").hidden = false;
+    if(MODE === "web") $("#checkin-saved").textContent = "Saved. Your coach can see this check-in in the dashboard. Copy the report if you also want to post it in the community.";
+  }catch(e2){ view.fail(e2); }
+  finally{ $("#checkin-go").disabled = !aiReady; $("#checkin-stop").hidden = true; ckCtl = null; }
+});
+$("#checkin-stop").addEventListener("click", () => ckCtl && ckCtl.abort());
+$("#checkin-copy").addEventListener("click", async () => {
+  const idx = ckText.search(/#+\s*Coach report/i);
+  const report = idx >= 0 ? ckText.slice(idx).replace(/^#+\s*Coach report\s*/i, "").replace(/\*\*/g,"").trim() : ckText;
+  try{ await navigator.clipboard.writeText(report); $("#checkin-copied").textContent = "Copied. Paste it to your coach."; }
+  catch{ const ta = document.createElement("textarea"); ta.value = report; ta.style.width = "100%"; ta.rows = 8; $("#checkin-actions").after(ta); ta.select(); $("#checkin-copied").textContent = "Select the text below and copy it."; }
+});
+
+/* ===================== PLAYBOOK VIEW ===================== */
+$("#pb-toc").innerHTML = PLAYBOOK.map(s => `<a href="#pb-${s.id}" data-id="${s.id}">${esc(s.title)}</a>`).join("");
+$("#pb-toc").addEventListener("click", e => { const a = e.target.closest("a"); if(!a) return; e.preventDefault(); document.getElementById("pb-"+a.dataset.id).scrollIntoView({behavior:"smooth", block:"start"}); });
+$("#pb-body").innerHTML = PLAYBOOK.map(s => `<article class="card pb-sec md" id="pb-${s.id}"><h3 class="sec">${esc(s.title)}</h3>${md(s.body)}</article>`).join("");
+$("#pb-search").addEventListener("input", e => {
+  const q = e.target.value.trim().toLowerCase();
+  PLAYBOOK.forEach(s => {
+    const hit = !q || (s.title + " " + s.body).toLowerCase().includes(q);
+    document.getElementById("pb-"+s.id).hidden = !hit;
+    $(`#pb-toc a[data-id="${s.id}"]`).hidden = !hit;
+  });
+});
+/* ===================== AUCTION ANALYSIS ===================== */
+let auCtl = null, lastAuction = null, recentLoaded = false;
+const RATING_CHIP = { "Strong":"good", "Worth a look":"warn", "Pass":"bad" };
+const LEVEL_CHIP = { high:"bad", medium:"warn", low:"info" };
+if(MODE !== "web") $("#a-url-note").textContent = "In this preview the AI can't open links. Paste the listing description or add screenshots. Links are read automatically on your live site.";
+function el(tag, cls, text){ const e = document.createElement(tag); if(cls) e.className = cls; if(text != null) e.textContent = text; return e; }
+function renderAuction(a, note){
+  lastAuction = a;
+  const out = $("#auction-out"); out.innerHTML = "";
+  if(note) out.append(el("div", "warnbox", note));
+  const head = el("div", "au-head");
+  const chip = el("span", "chip " + (RATING_CHIP[a.verdict.rating] || "info"), a.verdict.rating); chip.style.alignSelf = "flex-start";
+  head.append(chip, el("h3", null, a.title));
+  if(a.verdict.reason) head.append(el("p", "note", a.verdict.reason));
+  out.append(head);
+  const f = a.auction, facts = el("div", "facts");
+  const fact = (k, v) => { if(v === null || v === undefined || v === "") return; const d = el("div"); d.append(el("span", null, k), el("strong", null, String(v))); facts.append(d); };
+  fact("Units", a.totalUnits || "Unknown");
+  fact("Current bid", f.currentBid != null ? money(f.currentBid) : "");
+  fact("Buyer's premium", f.buyerPremiumPct != null ? f.buyerPremiumPct + "%" : "");
+  fact("Closes", f.closes); fact("Location", f.location); fact("Site", f.site);
+  if(facts.children.length) out.append(facts);
+  if(f.pickup || f.payment){ const p = el("p", "note"); p.style.margin = "0"; p.textContent = [f.pickup && "Pickup: " + f.pickup, f.payment && "Payment: " + f.payment].filter(Boolean).join(" · "); out.append(p); }
+  if(a.units.length){
+    const wrap = el("div", "stack"); wrap.style.gap = "6px";
+    wrap.append(el("strong", null, "What's in the lot"));
+    const sc = el("div", "tscroll"), t = el("table", "units");
+    t.innerHTML = "<thead><tr><th>Model</th><th>Qty</th><th>Specs</th><th>Win 11</th><th>Est. resale each</th></tr></thead>";
+    const tb = el("tbody");
+    for(const u of a.units){
+      const tr = el("tr");
+      const m = el("td"); m.append(el("strong", null, u.model)); if(u.condition){ const c = el("div", "note", u.condition); c.style.marginTop = "2px"; m.append(c); }
+      const specs = [u.cpu, u.ram, u.storage].filter(Boolean).join(" · ") || "Not stated";
+      const w = el("td"); w.append(el("span", "chip " + (u.win11 === "yes" ? "good" : u.win11 === "no" ? "bad" : "info"), u.win11 === "yes" ? "Yes" : u.win11 === "no" ? "No" : "Unknown"));
+      const rs = u.resaleHigh > 0 ? money(u.resaleLow) + "–" + money(u.resaleHigh) : "Can't estimate";
+      tr.append(m, el("td", "num", String(u.qty || "?")), el("td", null, specs), w, el("td", "num", rs));
+      tb.append(tr);
+    }
+    t.append(tb); sc.append(t); wrap.append(sc);
+    wrap.append(el("p", "note", "Resale ranges are estimates. Confirm each model with recent sold listings before you bid."));
+    out.append(wrap);
+  }
+  if(a.redFlags.length){
+    const w = el("div", "stack"); w.style.gap = "6px"; w.append(el("strong", null, "Red flags"));
+    const ul = el("ul", "flags");
+    for(const fl of a.redFlags){ const li = el("li"); li.append(el("span", "chip " + LEVEL_CHIP[fl.level], fl.level[0].toUpperCase() + fl.level.slice(1)), el("span", null, fl.text)); ul.append(li); }
+    w.append(ul); out.append(w);
+  }
+  if(a.missing.length){
+    const w = el("div", "stack"); w.style.gap = "6px"; w.append(el("strong", null, "Not stated in the listing"));
+    const ul = el("ul"); ul.style.cssText = "margin:0;padding-left:20px"; a.missing.forEach(x => ul.append(el("li", null, x))); w.append(ul); out.append(w);
+  }
+  if(a.questions.length){
+    const w = el("div", "stack"); w.style.gap = "6px";
+    const h = el("div", "row"); h.style.justifyContent = "space-between";
+    h.append(el("strong", null, "Ask the seller before bidding"), copyBtn(() => a.questions.map((q, i) => (i + 1) + ". " + q).join("\n"), "Copy questions"));
+    const ol = el("ol"); ol.style.cssText = "margin:0;padding-left:20px"; a.questions.forEach(x => ol.append(el("li", null, x)));
+    w.append(h, ol); out.append(w);
+  }
+  const go = el("button", "btn", "Run the numbers in Profit Calculator"); go.type = "button";
+  go.addEventListener("click", () => sendToDeal(a));
+  const row = el("div", "row"); row.append(go, el("span", "note", "Fills in the numbers from this lot so you see your profit and max bid."));
+  out.append(row);
+}
+function sendToDeal(a){
+  const d = a.dealInputs, set = (id, v) => { if(v !== null && v !== undefined && v !== "" && !(typeof v === "number" && !isFinite(v))) $("#" + id).value = v; };
+  set("d-desc", a.title);
+  if(d.qty) set("d-qty", d.qty);
+  if(d.resale) set("d-resale", Math.round(d.resale));
+  set("d-refurb", Math.round(d.refurb)); set("d-defect", Math.round(d.defect)); set("d-parts", Math.round(d.parts));
+  set("d-prem", d.prem); set("d-freight", Math.round(d.freight));
+  if(a.auction.currentBid != null) set("d-bid", a.auction.currentBid);
+  const listing = $("#a-text").value.trim(); if(listing && !$("#d-listing").value.trim()) $("#d-listing").value = listing;
+  $("#deal-example-note").hidden = true; $("#deal-more").open = true;
+  renderDeal(); show("deal"); window.scrollTo({ top: 0 });
+}
+async function loadRecentAuctions(){
+  if(MODE !== "web") return;
+  try{
+    const j = await api("/api/auctions");
+    const list = (j && j.auctions) || [];
+    $("#au-recent-wrap").hidden = !list.length;
+    const ul = $("#au-recent"); ul.innerHTML = "";
+    for(const r of list){
+      const li = el("li"), b = el("button"); b.type = "button";
+      const left = el("span", "t", r.title || "Auction lot");
+      const right = el("span", "chip " + (RATING_CHIP[r.rating] || "info"), r.rating || "—");
+      b.append(left, right); b.title = new Date(r.created_at).toLocaleDateString();
+      b.addEventListener("click", () => { const a = cleanAuction(r.result); if(a){ renderAuction(a); $("#auction-out").scrollIntoView({ block:"start", behavior:"smooth" }); } });
+      li.append(b); ul.append(li);
+    }
+    recentLoaded = true;
+  }catch{}
+}
+document.querySelector('#tab-auction').addEventListener("click", () => { if(!recentLoaded) loadRecentAuctions(); });
+$("#auction-form").addEventListener("submit", async e => {
+  e.preventDefault();
+  if(!aiReady || auCtl) return;
+  const url = $("#a-url").value.trim(), text = $("#a-text").value.trim();
+  const files = pickFiles($("#a-img"));
+  if(!url && !text && !files.length){ $("#auction-note").textContent = "Add an auction link, the listing description, or screenshots."; return; }
+  $("#auction-note").textContent = "";
+  $("#auction-out").innerHTML = '<p class="thinking">Reading the auction and analyzing the lot… this usually takes 20–60 seconds.</p>';
+  $("#auction-go").disabled = true; $("#auction-stop").hidden = false;
+  auCtl = new AbortController();
+  const data = { url, listing: text, budget: $("#a-budget").value, hasImages: files.length > 0 };
+  if(MODE !== "web" && url) data.fetchNote = "The link could not be opened in this preview; rely on the pasted text and screenshots.";
+  try{
+    const obj = await ai("auction", data, { signal: auCtl.signal, files });
+    const a = cleanAuction(obj);
+    if(!a) throw { code:"invalid_json" };
+    renderAuction(a, MODE === "web" ? lastFetchNote : "");
+    if(MODE === "web"){ recentLoaded = false; loadRecentAuctions(); }
+  }catch(err){
+    $("#auction-out").innerHTML = ""; $("#auction-out").append(el("p", "note", errCopy(err) || "Stopped."));
+  }finally{ $("#auction-go").disabled = !aiReady; $("#auction-stop").hidden = true; auCtl = null; }
+});
+$("#auction-stop").addEventListener("click", () => auCtl && auCtl.abort());
+$("#auction-example").addEventListener("click", () => {
+  $("#a-url").value = "";
+  $("#a-text").value = "Lot #2291 – Surplus laptops (15). 15 HP EliteBook 840 G6 laptops, Intel Core i5-8365U, 8GB RAM. Hard drives have been removed. No power adapters included. Units were in service until 2025 and were working when retired; not tested by surplus staff. Some cosmetic wear. Asset tags attached. Buyer's premium 12.5%. Pickup only, within 7 business days, at the county warehouse in Dayton, OH. Payment due within 3 business days.";
+  $("#a-budget").value = "1200";
+  $("#auction-note").textContent = "Example loaded. Tap \"Check this auction\" to see the result.";
+});
+
+/* ===================== MY DASHBOARD ===================== */
+const dash = { data: null, allMsgs: false, open: new Set(), readTimer: null, survey: false };
+const fmtDate = iso => new Date(iso).toLocaleDateString("en-US", { weekday:"short", month:"short", day:"numeric" });
+const ago = iso => { const d = Math.floor((Date.now() - Date.parse(iso)) / 864e5); return d <= 0 ? "today" : d === 1 ? "yesterday" : d + " days ago"; };
+const first = n => String(n || "").trim().split(/\s+/)[0] || "";
+function firstName(){ return first((dash.data && dash.data.profile && dash.data.profile.name) || (me && me.student && me.student.name)); }
+
+/* Preview inside Claude: a sample student, kept in memory, so every part of the dashboard can be tried. */
+const demo = (() => {
+  const D = 864e5, now = Date.now(), at = d => new Date(now - d * D).toISOString();
+  const student = { name:"Angela Westwood", email:"angela@example.com", created_at: at(9), last_active_at: at(0), owner:"Moses Confidence",
+    business_name:"Lovely1 Computing Solutions", domain:"lovely1computingsolutions.com", partner:"Dana Brooks", sections_done:{}, phone:"206-920-1987",
+    brand_submitted_at: at(7), brand:{ business_name:"Lovely1 Computing Solutions", name_verified:"yes", has_logo:"no", colours:"Navy blue and silver", swatches:["#1f3a5f","#c0c6cc"], colours_avoid:"", style:"Modern and clean",
+      contact_email:"hello@lovely1computingsolutions.com", contact_phone:"206-920-1987", show_address:"city", address:"Seattle, WA", hours:"", socials:"", notes:"" } };
+  const doneMap = { intro:[8,""], partner:[6,"Dana Brooks"], name:[8,"Lovely1 Computing Solutions"], domain:[7,"lovely1computingsolutions.com"], brand_form:[7,""], llc:[3,""] };
+  const items = TEMPLATE.map((t, i) => ({ id:"d"+i, key:t.key, done: !!doneMap[t.key], done_at: doneMap[t.key] ? at(doneMap[t.key][0]) : null,
+    value: doneMap[t.key] ? doneMap[t.key][1] : "", done_by_name: doneMap[t.key] ? student.name : "", comment_count:0, awaiting_reply:false }));
+  const comments = [
+    { item_key:"ein", author:"Angela Westwood", from_team:false, body:"Do I need my LLC approved before I apply for the EIN?", created_at: at(1) },
+    { item_key:"ein", author:"Moses Confidence", from_team:true, body:"Yes, wait for the LLC approval, then apply on the IRS site. It takes about 10 minutes.", created_at: at(0) }
+  ];
+  items.find(i => i.key === "ein").comment_count = 2;
+  const messages = [
+    { id:"m2", author:"Moses Confidence", body:"Great progress this week, Angela! Your LLC is done. Next up is your EIN, and your logo is being designed now.", read_at:null, created_at: at(0) },
+    { id:"m1", author:"Moses Confidence", body:"Hey Angela, welcome to Laptop Business Mastery! I'm Moses, your success coach, and I'll be with you every step along with Cynthia. Your dashboard is live. Two things to do right now: fill out the brand survey (step 5 on your checklist) so we can start your logo and website, and work through your checklist below. Stuck on anything? Comment right on that step and we'll answer. Let's get it.", read_at: at(8), created_at: at(9) }
+  ];
+  function build(){
+    const sum = summarize(student, items);
+    sum.items.forEach(i => { i.comments = comments.filter(c => c.item_key === i.key); if(i.link) i.link = null; });
+    return { profile: { ...student }, ...sum, messages: messages.slice(), coach:"Moses Confidence", coaches:["Moses Confidence","Cynthia Nweze"] };
+  }
+  function act(b){
+    const nowIso = new Date().toISOString();
+    if(b.action === "brand_survey"){
+      const m = surveyCheck(b.answers); if(m) throw { message:m };
+      Object.assign(student, { brand: b.answers, business_name: b.answers.business_name, brand_submitted_at: student.brand_submitted_at || nowIso });
+      const it = items.find(i => i.key === "brand_form"); if(!it.done) Object.assign(it, { done:true, done_at:nowIso, done_by_name:student.name });
+    }
+    if(b.action === "read_messages") messages.forEach(m => { m.read_at = m.read_at || nowIso; });
+    if(b.action === "comment"){
+      comments.push({ item_key:b.key, author:student.name, from_team:false, body:b.body, created_at:nowIso });
+      const it = items.find(i => i.key === b.key); it.comment_count++; it.awaiting_reply = true;
+    }
+    if(b.action === "tick"){
+      const t = TEMPLATE.find(x => x.key === b.key), it = items.find(i => i.key === b.key);
+      let v = String(b.value || "").trim();
+      if(b.done && t.input){
+        if(t.key === "unit_target" && !v) v = String(unitTarget(student.monthly_goal, student.tier) || "");
+        if(t.input.required && !v) throw { message: `Please fill in: ${t.input.label}.` };
+        if(t.input.type === "money" || t.input.type === "number"){ const n = Number(v.replace(/[$,\s]/g, "")); if(!(n > 0)) throw { message:"Enter a number." }; v = String(t.input.type === "number" ? Math.round(n) : n); }
+        if(t.input.field) student[t.input.field] = t.input.type === "money" || t.input.type === "number" ? Number(v) : v;
+      }
+      Object.assign(it, { done: !!b.done, done_at: b.done ? nowIso : null, done_by_name: b.done ? student.name : "", value: b.done ? v : it.value });
+    }
+    return build();
+  }
+  return { build, act };
+})();
+
+async function loadDash(){
+  try{
+    dash.data = MODE === "web" ? await api("/api/checklist") : demo.build();
+    $("#db-load").hidden = true; $("#db-body").hidden = false;
+    renderDash();
+  }catch(e){
+    if(e.code === "signed_out") return;
+    $("#db-load").textContent = errCopy(e) || "Couldn't load your dashboard. Refresh the page to try again.";
+  }
+}
+async function dashAct(body){
+  const d = MODE === "web" ? await api("/api/checklist", { method:"POST", body }) : demo.act(body);
+  dash.data = d; renderDash();
+  return d;
+}
+
+function itemChip(i){
+  if(i.done){
+    const by = i.done_by_name && i.done_by_name !== (dash.data.profile.name || "") ? " by " + i.done_by_name : "";
+    return ["good", "Done " + fmtDate(i.done_at) + by];
+  }
+  if(i.overdue) return ["bad", i.overdue_days > 0 ? `Overdue by ${i.overdue_days} day${i.overdue_days === 1 ? "" : "s"}` : "Due today"];
+  if(i.waiting_on){
+    const w = dash.data.items.find(x => x.key === i.waiting_on);
+    return ["info", "Starts after: " + (w ? w.title : "the step before")];
+  }
+  if(i.due){
+    const soon = Date.parse(i.due) - Date.now() < 2 * 864e5;
+    return [soon ? "warn" : "info", "Due " + fmtDate(i.due)];
+  }
+  return null;
+}
+function valueNode(i){
+  if(!i.value) return null;
+  const p = el("div", "val");
+  const label = i.input ? i.input.label.replace(/\s*\(.*\)$/, "") : "";
+  if(i.input && i.input.type === "url"){
+    p.append(document.createTextNode((i.key === "logo" ? "Your logo: " : i.key === "website" ? "Your website: " : label + ": ")));
+    const a = el("a", null, i.value.replace(/^https?:\/\//, "")); a.href = i.value; a.target = "_blank"; a.rel = "noopener"; p.append(a);
+  } else {
+    const v = i.input && i.input.type === "money" ? "$" + Number(i.value).toLocaleString("en-US") : i.value;
+    p.textContent = label + ": " + v;
+  }
+  return p;
+}
+function inputNode(i){
+  const t = i.input, wrap = el("div", "field");
+  const id = "in-" + i.key, lab = el("label", null, t.label); lab.htmlFor = id;
+  let inp;
+  if(t.type === "choice"){
+    inp = document.createElement("select");
+    inp.append(new Option("Choose…", ""));
+    t.options.forEach(o => inp.append(new Option(i.key === "tier" ? o + " (" + ({Low:"$100 laptops",Mid:"$500–600, recommended",High:"$700+"})[o] + ")" : o, o)));
+  } else {
+    inp = document.createElement("input");
+    inp.type = t.type === "url" ? "url" : "text";
+    if(t.type === "money" || t.type === "number") inp.inputMode = "numeric";
+    if(t.type === "money") inp.placeholder = "e.g. 7000";
+    if(i.key === "domain") inp.placeholder = "mybusiness.com";
+    if(i.key === "unit_target"){
+      const p = dash.data.profile, auto = unitTarget(p.monthly_goal, p.tier);
+      if(auto){ inp.value = String(auto); }
+      inp.placeholder = auto ? "" : "Set your tier and goal first";
+    }
+  }
+  inp.id = id; if(i.value) inp.value = i.value;
+  wrap.append(lab, inp);
+  return { wrap, inp };
+}
+function threadNode(i){
+  const th = el("div", "thread");
+  for(const c of i.comments || []){
+    const d = el("div", "c" + (c.from_team ? " team" : ""));
+    d.append(el("div", "who", (c.from_team ? c.author + " · coach" : "You") + " · " + ago(c.created_at)), el("p", null, c.body));
+    th.append(d);
+  }
+  const f = document.createElement("form");
+  const ta = document.createElement("textarea"); ta.placeholder = "Ask a question or leave a note for your coaches…"; ta.setAttribute("aria-label", "Comment on " + i.title);
+  const row = el("div", "row"); const b = el("button", "btn small", "Send"); b.type = "submit";
+  const note = el("span", "note"); row.append(b, note);
+  f.append(ta, row);
+  f.addEventListener("submit", async e => {
+    e.preventDefault();
+    const text = ta.value.trim(); if(!text) return;
+    b.disabled = true; note.textContent = "Sending…";
+    try{ await dashAct({ action:"comment", key:i.key, body:text }); }
+    catch(err){ note.textContent = err.message || errCopy(err) || "Couldn't send. Try again."; b.disabled = false; }
+  });
+  th.append(f);
+  return th;
+}
+/* ---------- brand survey ---------- */
+function surveyCheck(a){
+  if(!a.business_name) return "Add your business name.";
+  if(a.name_verified !== "yes") return "Please verify your business name first: Google it and search your state's LLC registry. Once it's clear, come back and choose Yes. We only design around a name that's available.";
+  if(!a.has_logo) return "Tell us if you already have a logo.";
+  if(a.has_logo === "no" && !a.colours) return "Tell us the colours you'd like for your logo.";
+  if(!a.contact_email && !a.contact_phone) return "Add at least one way customers can contact you: an email or a phone number.";
+  if(a.show_address !== "none" && !a.address) return a.show_address === "city" ? "Add the city and state to show." : "Add the address to show.";
+  return "";
+}
+function surveyNode(i){
+  const p = dash.data.profile, b = p.brand || {};
+  const f = document.createElement("form"); f.className = "survey"; f.noValidate = true;
+  const v = (k, d = "") => esc(b[k] != null && b[k] !== "" ? b[k] : d);
+  const radio = (name, val, label, cur) => `<label class="opt"><input type="radio" name="${name}" value="${val}" ${cur === val ? "checked" : ""}> ${label}</label>`;
+  const sw = b.swatches || [];
+  f.innerHTML = `
+    <fieldset><legend>1. Your business name</legend>
+      <div class="field"><label for="sv-name">Business name</label><input id="sv-name" name="business_name" value="${v("business_name", p.business_name)}" autocomplete="organization"></div>
+      <div class="field"><span class="label">Have you verified the name is available?</span>
+        <small class="hint">Google it, and search your state's LLC registry. If someone else is using it, pick another name before we design.</small>
+        <div class="opts">${radio("name_verified","yes","Yes, it's available", b.name_verified)}${radio("name_verified","no","Not yet", b.name_verified)}</div></div>
+    </fieldset>
+    <fieldset><legend>2. Your logo and colours</legend>
+      <div class="field"><span class="label">Do you already have a logo?</span>
+        <div class="opts">${radio("has_logo","yes","Yes, I have one", b.has_logo)}${radio("has_logo","no","No, please design one", b.has_logo)}</div></div>
+      <div class="field" data-when="has_logo=yes"><label for="sv-logo">Link to your logo</label><small class="hint">A Google Drive or Dropbox link is perfect. No link handy? Leave it blank and we'll ask you for it.</small><input id="sv-logo" name="logo_link" type="url" value="${v("logo_link")}" placeholder="https://"></div>
+      <div class="field" data-when="has_logo=no"><label for="sv-col">Colours you'd like</label><small class="hint">Describe them, e.g. "navy blue and silver". Pick up to 3 below if you like.</small><input id="sv-col" name="colours" value="${v("colours")}" placeholder="e.g. navy blue and silver">
+        <div class="swatches">${[0,1,2].map(n => `<label class="sw-pick"><input type="color" data-sw="${n}" value="${esc(sw[n] || ["#1f3a5f","#c0c6cc","#2e8b57"][n])}" ${sw[n] ? 'data-set="1"' : ""}><span>${sw[n] ? esc(sw[n]) : "Pick"}</span></label>`).join("")}</div></div>
+      <div class="field" data-when="has_logo=no"><label for="sv-avoid">Colours to avoid <span class="hint">(optional)</span></label><input id="sv-avoid" name="colours_avoid" value="${v("colours_avoid")}"></div>
+      <div class="field" data-when="has_logo=no"><label for="sv-style">Style <span class="hint">(optional)</span></label>
+        <select id="sv-style" name="style"><option value="">No preference</option>${["Modern and clean","Bold","Classic and trustworthy","Techy"].map(o => `<option ${b.style === o ? "selected" : ""}>${o}</option>`).join("")}</select></div>
+    </fieldset>
+    <fieldset><legend>3. Contact details for your website</legend>
+      <small class="hint">How customers reach you. Only what you put here goes on the site.</small>
+      <div class="fields">
+        <div class="field"><label for="sv-email">Email to show</label><input id="sv-email" name="contact_email" type="email" value="${v("contact_email", p.email)}"></div>
+        <div class="field"><label for="sv-phone">Phone to show</label><input id="sv-phone" name="contact_phone" type="tel" value="${v("contact_phone", p.phone)}"></div>
+        <div class="field"><label for="sv-addr-show">Show an address?</label>
+          <select id="sv-addr-show" name="show_address">${[["none","No address"],["city","City and state only"],["full","Full address"]].map(([k,l]) => `<option value="${k}" ${(b.show_address || "none") === k ? "selected" : ""}>${l}</option>`).join("")}</select></div>
+        <div class="field" data-when="show_address!=none"><label for="sv-addr">Address</label><input id="sv-addr" name="address" value="${v("address")}"></div>
+        <div class="field"><label for="sv-hours">Business hours <span class="hint">(optional)</span></label><input id="sv-hours" name="hours" value="${v("hours")}" placeholder="e.g. Mon–Fri 9–5"></div>
+        <div class="field wide"><label for="sv-soc">Social media links <span class="hint">(optional)</span></label><input id="sv-soc" name="socials" value="${v("socials")}" placeholder="Facebook, Instagram…"></div>
+      </div>
+    </fieldset>
+    <div class="field"><label for="sv-notes">Anything else we should know? <span class="hint">(optional)</span></label><textarea id="sv-notes" name="notes">${v("notes")}</textarea></div>
+    <p class="err" role="alert" hidden></p>
+    <div class="row"><button class="btn" type="submit">${p.brand_submitted_at ? "Save my changes" : "Send my brand survey"}</button><button class="linkbtn" type="button" data-close>Close</button></div>`;
+  const val = n => { const e = f.elements[n]; if(!e) return ""; if(e instanceof RadioNodeList) return e.value; return String(e.value || "").trim(); };
+  const sync = () => f.querySelectorAll("[data-when]").forEach(el => {
+    const [k, op, want] = el.dataset.when.split(/(!=|=)/);
+    el.hidden = op === "=" ? val(k) !== want : val(k) === want;
+  });
+  f.addEventListener("change", e => {
+    if(e.target.dataset.sw != null){ e.target.dataset.set = "1"; e.target.nextElementSibling.textContent = e.target.value; }
+    sync();
+  });
+  sync();
+  f.querySelector("[data-close]").addEventListener("click", () => { dash.survey = false; renderDash(); });
+  f.addEventListener("submit", async e => {
+    e.preventDefault();
+    const a = {}; ["business_name","name_verified","has_logo","logo_link","colours","colours_avoid","style","contact_email","contact_phone","show_address","address","hours","socials","notes"].forEach(k => a[k] = val(k));
+    a.swatches = [...f.querySelectorAll("[data-sw][data-set]")].map(x => x.value);
+    const err = f.querySelector(".err"), btn = f.querySelector("button[type=submit]");
+    const msg = surveyCheck(a);
+    if(msg){ err.textContent = msg; err.hidden = false; return; }
+    err.hidden = true; btn.disabled = true; btn.textContent = "Sending…";
+    try{ dash.survey = false; await dashAct({ action:"brand_survey", answers:a }); goToItem("brand_form"); }
+    catch(e2){ dash.survey = true; err.textContent = e2.message || errCopy(e2) || "Couldn't send. Try again."; err.hidden = false; btn.disabled = false; btn.textContent = "Try again"; }
+  });
+  return f;
+}
+function itemNode(i){
+  const row = el("div", "item" + (i.done ? " done" : "") + (i.overdue ? " overdue" : ""));
+  row.id = "item-" + i.key;
+  const cb = document.createElement("input"); cb.type = "checkbox"; cb.id = "cb-" + i.key; cb.checked = i.done;
+  const team = i.by === "team";
+  const isSurvey = i.input && i.input.type === "survey";
+  cb.disabled = team || isSurvey || (!!i.waiting_on && !i.done);
+  const body = el("div", "body");
+  const t = el("div", "t"); const lb = el("label", null, i.title); lb.htmlFor = cb.id; t.append(lb);
+  if(team) t.append(el("span", "chip info", "Our team"));
+  body.append(t);
+  if(!i.done) body.append(el("p", "help", i.help));
+  const meta = el("div", "meta");
+  const ch = itemChip(i); if(ch) meta.append(el("span", "chip " + ch[0], ch[1]));
+  if(team && !i.done) meta.append(el("span", "note", "We tick this when it's delivered, and you'll get a text and email."));
+  if(i.awaiting_reply) meta.append(el("span", "chip warn", "Waiting for a coach reply"));
+  if(meta.childNodes.length) body.append(meta);
+  const v = valueNode(i); if(v) body.append(v);
+  if(i.link && !i.done){ const a = el("a", "btn small ghost", "Open the brand form"); a.href = i.link; a.target = "_blank"; a.rel = "noopener"; a.style.alignSelf = "flex-start"; body.append(a); }
+  if(isSurvey){
+    const sb = el("button", i.done ? "btn small ghost" : "btn small", i.done ? "View or edit my answers" : "Fill out the brand survey"); sb.type = "button"; sb.style.alignSelf = "flex-start";
+    sb.addEventListener("click", () => { dash.survey = !dash.survey; renderDash(); const fm = $("#item-brand_form form.survey"); if(fm){ fm.scrollIntoView({ block:"start" }); fm.querySelector("input").focus({ preventScroll:true }); } });
+    if(!dash.survey) body.append(sb); else body.append(surveyNode(i));
+  }
+  let inp = null;
+  if(i.input && !isSurvey && !i.done && !team && !i.waiting_on){
+    const n = inputNode(i); inp = n.inp;
+    const box = el("div", "inp"); const save = el("button", "btn small", "Save and tick"); save.type = "button";
+    box.append(n.wrap, save); body.append(box);
+    save.addEventListener("click", () => { cb.checked = true; tick(); });
+    inp.addEventListener("keydown", e => { if(e.key === "Enter"){ e.preventDefault(); cb.checked = true; tick(); } });
+  }
+  const err = el("p", "err"); err.hidden = true; err.setAttribute("role", "alert"); body.append(err);
+  const n = (i.comments || []).length;
+  const tg = el("button", "linkbtn", n ? `Comments (${n})` : "Ask a question about this step"); tg.type = "button";
+  tg.setAttribute("aria-expanded", String(dash.open.has(i.key)));
+  body.append(tg);
+  if(dash.open.has(i.key)) body.append(threadNode(i));
+  tg.addEventListener("click", () => { dash.open.has(i.key) ? dash.open.delete(i.key) : dash.open.add(i.key); renderDash(); const ta = $("#item-" + i.key + " textarea"); if(ta && dash.open.has(i.key)) ta.focus(); });
+  async function tick(){
+    const done = cb.checked;
+    err.hidden = true; cb.disabled = true;
+    try{ await dashAct({ action:"tick", key:i.key, done, value: inp ? inp.value : undefined }); }
+    catch(e2){ cb.checked = !done; cb.disabled = false; err.textContent = e2.message || errCopy(e2) || "Couldn't save that. Try again."; err.hidden = false; }
+  }
+  cb.addEventListener("change", tick);
+  row.append(cb, body);
+  return row;
+}
+const SEC_CHIP = { complete:["good","Complete"], attention:["bad","Needs attention"], progress:["info","In progress"], not_started:["info","Not started"] };
+function renderMsgs(){
+  const d = dash.data, list = $("#db-msgs"); list.innerHTML = "";
+  const msgs = dash.allMsgs ? d.messages : d.messages.slice(0, 3);
+  if(!msgs.length) list.append(el("li", "note", "No messages yet. Your coaches will post updates here."));
+  for(const m of msgs){
+    const li = el("li", m.read_at ? "" : "unread");
+    const meta = el("div", "meta"); meta.append(el("b", null, m.author), el("span", null, ago(m.created_at)));
+    if(!m.read_at) meta.append(el("span", "chip info", "New"));
+    li.append(meta, el("p", null, m.body)); list.append(li);
+  }
+  $("#db-msgs-more").hidden = dash.allMsgs || d.messages.length <= 3;
+  const unread = d.messages.filter(m => !m.read_at).length;
+  $("#db-unread").hidden = !unread; $("#db-unread").textContent = unread + " new";
+  $("#tab-dot").hidden = !unread;
+}
+$("#db-msgs-more").addEventListener("click", () => { dash.allMsgs = true; renderMsgs(); });
+function markReadSoon(){
+  clearTimeout(dash.readTimer);
+  if(!dash.data || !dash.data.messages.some(m => !m.read_at)) return;
+  dash.readTimer = setTimeout(async () => {
+    if($("#view-dashboard").hidden) return;
+    try{ const d = MODE === "web" ? await api("/api/checklist", { method:"POST", body:{ action:"read_messages" } }) : demo.act({ action:"read_messages" }); $("#tab-dot").hidden = true; dash.data = d; }catch{}
+  }, 2500);
+}
+function renderDash(){
+  const d = dash.data; if(!d) return;
+  const p = d.profile;
+  $("#db-stage").textContent = d.stage;
+  $("#db-stage").className = "chip " + (d.gate_open ? "good" : d.overdue ? "bad" : "info");
+  $("#db-count").textContent = `${d.done} of ${d.total} steps done`;
+  $("#db-pct").textContent = d.percent + "%";
+  $("#db-bar").style.width = d.percent + "%"; $("#db-bar-wrap").setAttribute("aria-valuenow", String(d.percent));
+  const nx = d.next;
+  $("#db-next").hidden = !nx;
+  if(nx){
+    $("#db-next-title").textContent = nx.title + (nx.by === "team" ? " (our team is on it)" : "");
+    $("#db-next-due").textContent = nx.due ? (Date.parse(nx.due) < Date.now() ? "Was due " : "Due ") + fmtDate(nx.due) : "";
+  }
+  const coaches = d.coaches || ["Moses Confidence","Cynthia Nweze"], owner = d.coach || coaches[0];
+  const others = coaches.filter(n => n !== owner);
+  $("#db-owner").textContent = `Your success coach is ${owner}` + (others.length ? `, with ${others.join(" and ")}` : "") + `. We check this dashboard every day.`;
+  $("#db-gate-coach").textContent = first(owner);
+  const od = d.items.filter(i => i.overdue && i.by === "student");
+  $("#db-overdue").hidden = !od.length;
+  $("#db-overdue").innerHTML = od.length ? `<b>${od.length === 1 ? "1 step is" : od.length + " steps are"} past due:</b> ${od.map(i => esc(i.title)).join(", ")}. Knock ${od.length === 1 ? "it" : "them"} out today, or comment on the step if you're stuck and we'll help.` : "";
+  $("#db-gate").hidden = !d.gate_open;
+  renderMsgs();
+  if(d.call_link){ $("#db-call-link").href = d.call_link; $("#db-call-link").hidden = false; }
+  const wrap = $("#db-sections"); wrap.innerHTML = "";
+  for(const s of d.sections){
+    const sec = el("section", "dsec"); sec.id = "sec-" + s.n;
+    const h = document.createElement("header");
+    h.append(el("h3", null, s.n + ". " + s.title), el("span", "chip " + SEC_CHIP[s.status][0], SEC_CHIP[s.status][1]), el("span", "n", `${s.done}/${s.total}`));
+    sec.append(h);
+    for(const i of d.items.filter(x => x.section === s.n)) sec.append(itemNode(i));
+    wrap.append(sec);
+  }
+  const snap = $("#db-snap"); snap.innerHTML = "";
+  const rows = [["Business name", p.business_name], ["Domain", p.domain], ["Logo", p.logo_url, true], ["Website", p.website_url, true], ["Accountability partner", p.partner],
+    ["Tier", p.tier], ["Brand to master", p.focus_brand], ["Monthly goal", p.monthly_goal ? "$" + Number(p.monthly_goal).toLocaleString("en-US") : ""], ["Laptops per week", p.weekly_unit_target]];
+  for(const [k, v, link] of rows){
+    const dv = document.createElement("div"); dv.append(el("dt", null, k));
+    const dd = el("dd");
+    if(v && link){ const a = el("a", null, "Open"); a.href = v; a.target = "_blank"; a.rel = "noopener"; dd.append(a); }
+    else dd.textContent = v || "Not set yet";
+    if(!v) dd.style.color = "var(--muted)";
+    dv.append(dd); snap.append(dv);
+  }
+  renderHome();
+}
+$("#db-next-go").addEventListener("click", () => goToItem(dash.data && dash.data.next && dash.data.next.key));
+function goToItem(key){
+  if(!key) return;
+  show("dashboard");
+  const r = document.getElementById("item-" + key); if(!r) return;
+  r.scrollIntoView({ block:"center" }); r.classList.add("flash"); setTimeout(() => r.classList.remove("flash"), 1600);
+  const f = r.querySelector(".inp input, .inp select, input[type=checkbox]:not(:disabled)"); if(f) f.focus({ preventScroll:true });
+}
+function renderHome(){
+  const fn = firstName();
+  $("#home-hello").textContent = fn ? `Welcome back, ${fn}` : "Welcome to your Student Hub";
+  const d = dash.data;
+  if(!d){ $("#home-next-k").textContent = "Start here"; $("#home-next-title").textContent = "Open your dashboard"; $("#home-next-go").textContent = "Open my dashboard"; $("#home-progress").hidden = true; return; }
+  $("#home-progress").hidden = false; $("#home-bar").style.width = d.percent + "%";
+  if(d.gate_open){
+    $("#home-next-k").textContent = "Checklist complete";
+    $("#home-next-title").textContent = "You're cleared to buy. Send your first deal to " + first(d.coach || "your coach") + " for review before you spend a dollar.";
+    $("#home-next-go").textContent = "Check an auction";
+  } else {
+    $("#home-next-k").textContent = `Your next step · ${d.done} of ${d.total} done` + (d.overdue ? ` · ${d.overdue} overdue` : "");
+    $("#home-next-title").textContent = d.next ? d.next.title : "Open your dashboard";
+    $("#home-next-go").textContent = "Do it now";
+  }
+}
+$("#home-next-go").addEventListener("click", () => {
+  if(dash.data && dash.data.gate_open){ show("auction"); window.scrollTo({ top:0 }); return; }
+  if(dash.data && dash.data.next) goToItem(dash.data.next.key); else { show("dashboard"); window.scrollTo({ top:0 }); }
+});
+document.querySelectorAll(".action[data-go]").forEach(b => b.addEventListener("click", () => { show(b.dataset.go); window.scrollTo({ top: 0 }); }));
+
+/* ===================== START ===================== */
+function applyMe(m){
+  me = m;
+  const s = m.student;
+  $("#who-name").textContent = s ? "Signed in as " + (s.name || s.email) : "";
+  $("#admin-link").hidden = !m.admin;
+  $("#signout").hidden = false;
+  $("#acct-link").hidden = !s;
+  renderAccount();
+  if(s && s.name && !$("#c-name").value) $("#c-name").value = s.name;
+  if(s && s.location && !$("#p-location").value) $("#p-location").value = s.location;
+}
+async function boot(){
+  if(MODE === "claude"){
+    screen("app"); renderHome(); loadDash();
+    show(views.includes(startHash) ? startHash : "home");
+    return;
+  }
+  screen("loading");
+  const linkErr = readSessionFromLink();
+  if(!(await accessToken())){ showSignin(linkErr); return; }
+  try{ applyMe(await api("/api/me")); }
+  catch(e){
+    if(e.code === "signed_out") return;
+    showSignin(e.code === "not_enrolled" || e.code === "paused" ? errCopy(e) : "Couldn't load your hub. Refresh the page to try again.");
+    return;
+  }
+  if(me.admin && !me.student){ location.href = "/admin.html"; return; }
+  setAiEnabled(true);
+  screen("app"); renderHome();
+  show(views.includes(startHash) ? startHash : "home");
+  await loadDash();
+  if(startHash === "dashboard") markReadSoon();
+}
+boot();
+</script>
+
+</body>
+</html>
