@@ -1,0 +1,12 @@
+{
+  // Cloudflare settings for the Student Hub. Your keys go in the Cloudflare dashboard
+  // (Settings → Variables and Secrets), never in this file.
+  "name": "studenthub",
+  "main": "worker.js",
+  "compatibility_date": "2025-09-01",
+  "compatibility_flags": ["nodejs_compat"],
+  "assets": { "directory": "./public", "binding": "ASSETS" },
+  "triggers": { "crons": ["0 * * * *"] },
+  "keep_vars": true,
+  "observability": { "enabled": true }
+}
