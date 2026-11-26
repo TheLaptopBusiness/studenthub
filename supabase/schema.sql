@@ -109,6 +109,7 @@ alter table public.students add column if not exists last_contact_at timestamptz
 alter table public.students add column if not exists reminders_paused boolean not null default false;
 alter table public.students add column if not exists brand jsonb not null default '{}'::jsonb;
 alter table public.students add column if not exists brand_submitted_at timestamptz;
+alter table public.students add column if not exists welcomed_at timestamptz;
 alter table public.students add column if not exists sms_opt_out boolean not null default false;
 
 create table if not exists public.checklist_items (

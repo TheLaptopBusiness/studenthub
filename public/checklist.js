@@ -38,7 +38,7 @@ export const TEMPLATE = [
     help: "At least $1M coverage, about $30/month." },
 
   { key: "logo", section: 4, by: "team", due: { after: "brand_form", bizDays: 5 }, title: "Logo delivered",
-    help: "Our team designs your logo from your brand form.", input: { type: "url", label: "Link to the logo files", field: "logo_url" } },
+    help: "Our team designs your logo from your brand survey.", input: { type: "url", label: "Link to the logo files", field: "logo_url" } },
   { key: "logo_ok", section: 4, by: "student", due: { after: "logo", days: 2 }, title: "Approve your logo",
     help: "Happy with it? Tick this. Want changes? Leave a comment and we'll revise it." },
   { key: "website", section: 4, by: "team", due: { after: "logo_ok", bizDays: 5 }, title: "Website built, domain connected",

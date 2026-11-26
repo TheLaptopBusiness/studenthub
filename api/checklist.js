@@ -116,6 +116,10 @@ export default async function handler(req) {
         await updateStudent(student.id, { ...f, ...touch });
         return respond(student, asTeam);
       }
+      case "welcomed": {
+        if (!asTeam && !student.welcomed_at) await updateStudent(student.id, { welcomed_at: nowIso() });
+        return respond(student, asTeam);
+      }
       case "read_messages": {
         if (asTeam) return respond(student, asTeam);
         await db(`messages?student_id=eq.${enc(student.id)}&read_at=is.null`, { method: "PATCH", prefer: "return=minimal", body: { read_at: nowIso() } });
