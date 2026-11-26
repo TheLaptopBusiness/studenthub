@@ -5,11 +5,13 @@
 // POST {action:"resend", id}              → send a fresh sign-in link
 // POST {action:"status", id, status}      → pause or reactivate
 // POST {action:"notes", id, notes}        → save private coach notes
+// POST {action:"call_reminder", when}      → email + text every student (when: tomorrow | today | hour | now)
 import { getUser, isAdmin, getStudent, getStudentByEmail, updateStudent, db, enc, signInLink, configured } from "../lib/supa.js";
 import { sendEmail, templates } from "../lib/email.js";
 import { summarize } from "../lib/checklist.js";
 import { enrollStudent } from "../lib/dashboard.js";
 import { coachNames, teamNames } from "../lib/team.js";
+import { sendCallReminder } from "../lib/calls.js";
 import { json, readJson, isEmail } from "../lib/http.js";
 
 export const config = { runtime: "edge" };
@@ -61,6 +63,11 @@ export default async function handler(req) {
     if (await getStudentByEmail(email)) return json({ error: "That email is already enrolled." }, 409);
     const r = await enrollStudent({ name, email, phone: String(body.phone || "").trim(), owner: body.owner });
     return json({ ok: true, emailed: r.emailed });
+  }
+
+  if (body.action === "call_reminder") {
+    try { return json({ ok: true, ...(await sendCallReminder(String(body.when || ""))) }); }
+    catch (e) { return json({ error: e.message }, 400); }
   }
 
   const s = await getStudent(String(body.id || ""));

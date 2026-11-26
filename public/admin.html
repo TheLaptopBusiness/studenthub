@@ -196,6 +196,18 @@ a.btn{text-decoration:none;display:inline-block}
     <div class="tile"><b id="t-ready">0</b><span>Cleared to buy</span></div>
   </div>
 
+  <div class="card stack callcard" style="gap:10px">
+    <div class="row" style="justify-content:space-between"><strong>Coaching call reminder</strong><span class="note">Emails and texts every student: "Check the Skool community for the link."</span></div>
+    <div class="row" id="call-btns">
+      <button class="btn ghost sm" type="button" data-when="tomorrow">Tomorrow at 6pm MT</button>
+      <button class="btn ghost sm" type="button" data-when="today">Today at 6pm MT</button>
+      <button class="btn ghost sm" type="button" data-when="hour">Starts in 1 hour</button>
+      <button class="btn ghost sm" type="button" data-when="now">Starting now</button>
+    </div>
+    <div class="row" id="call-confirm" hidden><span id="call-q"></span><button class="btn sm" type="button" id="call-yes">Yes, send it</button><button class="btn ghost sm" type="button" id="call-no">Cancel</button></div>
+    <p class="note" id="call-note" style="margin:0" aria-live="polite"></p>
+  </div>
+
   <form class="card row" id="add-form" autocomplete="off" style="align-items:end">
     <div class="field"><label for="add-name">Student name</label><input id="add-name" type="text" required></div>
     <div class="field"><label for="add-email">Email</label><input id="add-email" type="email" required></div>
@@ -436,6 +448,22 @@ $("#add-form").addEventListener("submit", async e => {
     await load();
   }catch(err){ if(err.message !== "signed_out") $("#add-note").textContent = err.message; }
   finally{ $("#add-go").disabled = false; }
+});
+
+/* ---------- coaching call reminder ---------- */
+let callWhen = "";
+document.querySelectorAll("#call-btns [data-when]").forEach(b => b.addEventListener("click", () => {
+  callWhen = b.dataset.when;
+  const live = students.filter(s => s.status !== "paused" && !s.reminders_paused).length;
+  $("#call-q").textContent = `Send "${b.textContent}" to ${live} student${live === 1 ? "" : "s"} by email and text?`;
+  $("#call-btns").hidden = true; $("#call-confirm").hidden = false; $("#call-note").textContent = "";
+}));
+$("#call-no").addEventListener("click", () => { $("#call-btns").hidden = false; $("#call-confirm").hidden = true; });
+$("#call-yes").addEventListener("click", async () => {
+  $("#call-yes").disabled = true; $("#call-note").textContent = "Sending…";
+  try{ const r = await api("/api/admin", { action:"call_reminder", when: callWhen }); $("#call-note").textContent = `Sent to ${r.sent} of ${r.total} students.`; }
+  catch(err){ $("#call-note").textContent = err.message; }
+  finally{ $("#call-yes").disabled = false; $("#call-btns").hidden = false; $("#call-confirm").hidden = true; }
 });
 
 /* ---------- one student ---------- */

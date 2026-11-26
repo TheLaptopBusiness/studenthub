@@ -1,8 +1,7 @@
 // GET /api/cron — runs every hour (Cloudflare cron trigger in wrangler.jsonc) and decides what's due:
 //  • Daily at DAILY_HOUR (default 9) in TIMEZONE: overdue items, the quiet-student ladder, sign-in reminders,
 //    Monday focus, Sunday check-in, and the team's daily summary email.
-//  • Coaching call reminders: email 24 hours before, SMS 1 hour before (CALL_DAY / CALL_HOUR in CALL_TZ;
-//    defaults Saturday 18:00 America/Denver = 6pm MT). CALL_LINK = the call's join link.
+//  • Coaching call reminders are NOT automatic: a coach sends them from the coach dashboard (lib/calls.js).
 // Add ?run=daily to run the daily part now (for testing).
 // Env: CRON_SECRET (the worker sends it on each scheduled run), TIMEZONE (default America/Los_Angeles)
 import { db, nowIso, updateStudent, configured, siteUrl } from "../lib/supa.js";
@@ -52,8 +51,7 @@ export default async function handler(req) {
   const dayBefore = DAYS[(DAYS.indexOf(callDay) + 6) % 7];
 
   const doDaily = force === "daily" || local.hour === parseInt(process.env.DAILY_HOUR || "9", 10);
-  const doCall24 = force === "call24" || (callLocal.weekday === dayBefore && callLocal.hour === callHour);
-  const doCall1 = force === "call1" || (callLocal.weekday === callDay && callLocal.hour === callHour - 1);
+  const doCall24 = false, doCall1 = false; // call reminders are sent from the coach dashboard
   if (!doDaily && !doCall24 && !doCall1) return json({ ok: true, skipped: true });
 
   const students = await db("students?status=in.(invited,active)&select=*&limit=5000");
@@ -76,11 +74,11 @@ export default async function handler(req) {
 
     // ----- coaching call reminders -----
     if (doCall24 && !paused && rem.call24 !== callLocal.date) {
-      if (await sendEmail({ to: s.email, student: s, ...templates.callReminder(s.name, `tomorrow (${callDay === "Sat" ? "Saturday" : callDay}) at ${hourLabel} MT`, callLink) })) sent.call24++;
+      if (await sendEmail({ to: s.email, student: s, ...templates.callReminder(s.name, `tomorrow at ${hourLabel} MT`) })) sent.call24++;
       rem.call24 = callLocal.date; changed = true;
     }
     if (doCall1 && !paused && rem.call1 !== callLocal.date) {
-      await sms("call_reminder", s, `${first(s.name)}, our coaching call starts in 1 hour (${hourLabel} MT).${callLink ? " Join: " + callLink : " Join from Skool."}`);
+      await sms("call_reminder", s, `${first(s.name)}, our coaching call starts in 1 hour (${hourLabel} MT). Check the Skool community for the link.`);
       sent.call1++; rem.call1 = callLocal.date; changed = true;
     }
 

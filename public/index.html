@@ -433,7 +433,7 @@ details.profile summary{cursor:pointer;font-weight:700}
           <ul class="msgs" id="db-msgs"></ul>
           <button class="linkbtn" type="button" id="db-msgs-more" hidden>Show older messages</button>
         </section>
-        <div class="callbar" id="db-call"><span><b>Group coaching call</b> Every Saturday at 6pm MT. Bring your questions and wins.</span><a class="btn small ghost" id="db-call-link" href="#" target="_blank" rel="noopener" hidden>Join link</a></div>
+        <div class="callbar" id="db-call"><span><b>Group coaching call</b> Every Saturday at 6pm MT. The link is posted in the Skool community. Bring your questions and wins.</span></div>
         <div id="db-sections" class="stack" style="gap:22px"></div>
         <section class="card stack" style="gap:12px" aria-labelledby="db-prof-h">
           <h3 id="db-prof-h" class="sec-h">My business at a glance</h3>
@@ -1678,7 +1678,6 @@ function renderDash(){
   $("#db-overdue").innerHTML = od.length ? `<b>${od.length === 1 ? "1 step is" : od.length + " steps are"} past due:</b> ${od.map(i => esc(i.title)).join(", ")}. Knock ${od.length === 1 ? "it" : "them"} out today, or comment on the step if you're stuck and we'll help.` : "";
   $("#db-gate").hidden = !d.gate_open;
   renderMsgs();
-  if(d.call_link){ $("#db-call-link").href = d.call_link; $("#db-call-link").hidden = false; }
   const wrap = $("#db-sections"); wrap.innerHTML = "";
   for(const s of d.sections){
     const sec = el("section", "dsec"); sec.id = "sec-" + s.n;

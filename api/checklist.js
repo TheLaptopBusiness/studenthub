@@ -37,7 +37,7 @@ async function whoAndWhich(req, studentId) {
 async function respond(student, asTeam) {
   const fresh = await getStudent(student.id);
   const d = await loadDashboard(fresh, { forStudent: !asTeam });
-  return json({ profile: publicProfile(fresh), ...d.summary, messages: d.messages, call_link: process.env.CALL_LINK || "",
+  return json({ profile: publicProfile(fresh), ...d.summary, messages: d.messages, 
     coach: coachFor(fresh), coaches: coachNames(), team: asTeam ? teamNames() : undefined });
 }
 
