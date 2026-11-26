@@ -35,10 +35,10 @@ An automated fulfillment system for your students. Students don't need a Claude 
 | Never signed in | Reminder every 3 days (up to 3) |
 | Monday | Focus text with this week's step |
 | Sunday | Check-in reminder email + text |
-| Friday 6pm MT / Saturday 5pm MT | Coaching call reminders: email the day before, text an hour before (with `CALL_LINK`) |
+| When a coach clicks it | **Coaching call reminder** from the coach dashboard (Tomorrow / Today / In 1 hour / Starting now): email + text to every student saying to check the Skool community for the link |
 | Every morning | **Team summary** to everyone in `TEAM`: our late logos/websites first, comments to answer, students 3 and 7+ days late, quiet students, at-risk, never signed in, and the day's wins |
 
-Texts are capped at 1 a day and 4 a week per student (call reminders don't count), so nobody gets spammed. Texts go out through your GoHighLevel workflow; students who reply STOP are handled there.
+Texts are capped at 1 a day and 4 a week per student (call reminders you send yourself don't count), so nobody gets spammed. Texts go out through your GoHighLevel workflow; students who reply STOP are handled there.
 
 Each student can make **40 AI requests a day** (change with `AI_DAILY_LIMIT`), so costs stay predictable.
 
@@ -84,8 +84,6 @@ Nothing to set up here. The Hub sends every email and text through your GoHighLe
 | `ADMIN_EMAILS` | optional, extra coach-dashboard logins that aren't in `TEAM` |
 | `GHL_WEBHOOK_URL` | your GoHighLevel inbound webhook link, for texts (step 7) |
 | `ENROLL_SECRET` | any long random password; GoHighLevel sends it when it enrolls a student (step 8) |
-| `CALL_LINK` | the join link for the Saturday coaching call |
-| `CALL_DAY` / `CALL_HOUR` / `CALL_TZ` | optional, default `Sat` / `18` / `America/Denver` (6pm MT) |
 | `DAILY_HOUR` | optional, hour the daily reminders and summary go out, default `9` |
 | `SITE_URL` | your site address, e.g. `https://hub.yourdomain.com` (no slash at the end) |
 | `CRON_SECRET` | any long random password; the hourly reminder job uses it |
