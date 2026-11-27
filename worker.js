@@ -14,8 +14,9 @@ import me from "./api/me.js";
 import password from "./api/password.js";
 import refresh from "./api/refresh.js";
 import tasks from "./api/tasks.js";
+import pulse from "./api/pulse.js";
 
-const routes = { admin, ai, auctions, checklist, config, cron, enroll, feedback, knowledge, login, me, password, refresh, tasks };
+const routes = { admin, ai, auctions, checklist, config, cron, enroll, feedback, knowledge, login, me, password, refresh, tasks, pulse };
 
 // Make settings available as process.env (also done by Cloudflare's nodejs_compat; this is a safety net).
 function loadEnv(env) {

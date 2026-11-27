@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#fbf8f4">
+<meta name="robots" content="noindex">
+<title>Weekly Check-in · Laptop Business Mastery</title>
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght,SOFT@9..144,400..800,0..100&family=Hanken+Grotesk:wght@300;400;500;600;700&display=swap">
+<style>
+[hidden]{display:none!important}
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh}
+button,input,textarea{font:inherit;color:inherit}
+</style>
+<link rel="stylesheet" href="brand.css">
+<style>
+.pw{max-width:620px;margin:0 auto;padding:40px 18px 64px;display:flex;flex-direction:column;gap:22px}
+.pw-top{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.pw-top .brandline{font-size:14px}
+.faces{display:flex;align-items:center;gap:10px;font-size:13.5px;color:var(--muted)}
+.faces .av-stack .av{width:32px;height:32px;font-size:12px}
+.pw-card{background:#fff;border:1px solid var(--line);border-radius:28px;padding:38px 36px;display:flex;flex-direction:column;gap:26px;animation:rise .6s var(--ease-out) both}
+.pw-card h1{font-size:40px;line-height:1.08;letter-spacing:-.03em}
+.pw-week{font-size:14px;color:var(--muted);margin:-18px 0 0}
+.pw-card h1.swoosh{margin-bottom:0}
+.q{display:flex;flex-direction:column;gap:10px}
+.q label,.q .lab{font-family:var(--display);font-weight:700;font-size:20px;letter-spacing:-.01em;font-variation-settings:"SOFT" 50}
+.q .hint{font-size:14px;color:var(--muted);margin-top:-4px}
+.q textarea{width:100%;min-height:110px;resize:vertical;background:var(--paper);border:1.5px solid var(--line);border-radius:16px;padding:14px 16px;font-size:16px;line-height:1.55;transition:border-color .2s,box-shadow .2s}
+.q textarea:focus{outline:none;border-color:var(--ink);box-shadow:0 0 0 4px var(--cream-2)}
+.moods{display:flex;flex-wrap:wrap;gap:8px}
+.moods label{cursor:pointer;font-family:var(--body);font-size:15px;letter-spacing:0;font-variation-settings:normal}
+.moods input{position:absolute;opacity:0;pointer-events:none}
+.moods span{display:inline-block;padding:10px 18px;border-radius:999px;border:1.5px solid var(--line);background:#fff;font-weight:600;font-size:15px;transition:all .2s var(--ease)}
+.moods label:hover span{border-color:var(--ink)}
+.moods input:checked+span{background:var(--ink);border-color:var(--ink);color:#fff;transform:translateY(-1px)}
+.moods input:focus-visible+span{outline:2px solid var(--ink);outline-offset:3px}
+.help{display:flex;gap:12px;align-items:flex-start;background:var(--sun-soft);border-radius:16px;padding:14px 16px;cursor:pointer;font-size:15.5px}
+.help input{width:20px;height:20px;margin-top:1px;accent-color:var(--ink);flex:none}
+.err{color:var(--bad);font-size:14.5px;margin:0}
+.pw-card .btn{align-self:flex-start;padding:15px 32px;font-size:17px}
+.done{align-items:flex-start;text-align:left}
+.done h1{font-size:44px}
+.done p{margin:0;font-size:18px;line-height:1.6;color:var(--ink-2);max-width:44ch}
+.pw-intro{margin:-8px 0 0;font-size:16.5px;line-height:1.6;color:var(--ink-2)}
+.note-quiet{font-size:13px;color:var(--muted);text-align:center}
+.banner{background:var(--sky-soft);color:var(--sky-ink);border-radius:14px;padding:12px 16px;font-size:14.5px;margin:-6px 0 0}
+@media (max-width:600px){ .pw{padding-top:22px} .pw-card{padding:28px 22px;border-radius:24px} .pw-card h1{font-size:31px} .done h1{font-size:34px} .faces span.t{display:none} }
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><symbol id="i-mark" viewBox="0 0 64 64"><rect width="64" height="64" rx="16" fill="#17162b"/><path d="M22 16v29h20" fill="none" stroke="#fbf8f4" stroke-width="6.5" stroke-linecap="round" stroke-linejoin="round"/><circle cx="45" cy="21" r="5.5" fill="#f4a07d"/></symbol></svg>
+<div class="pw">
+  <div class="pw-top">
+    <div class="brandline"><svg class="mark"><use href="#i-mark"/></svg><span>Laptop Business Mastery</span></div>
+    <div class="faces"><span class="av-stack"><span class="av ph"><img src="img/abdi-avatar.jpg" alt=""></span><span class="av co">MC</span><span class="av sk">CN</span></span><span class="t">From Abdi, Moses &amp; Cynthia</span></div>
+  </div>
+
+  <p class="note-quiet" id="loading">Loading your check-in…</p>
+
+  <form class="pw-card" id="form" hidden novalidate>
+    <h1 class="swoosh" id="title">How was your week?</h1>
+    <p class="pw-week" id="week"></p>
+    <p class="pw-intro">We're proud of you for showing up this week. Tell us what went well and what's been hard. We read every word, and we'll get back to you.</p>
+    <p class="banner" id="again" hidden>You've already checked in this week. Change anything you like and send it again.</p>
+    <div class="q">
+      <label for="win">What's one win from this week?</label>
+      <span class="hint">Big or small, it all counts. Even "I opened my business bank account" is a win.</span>
+      <textarea id="win" required></textarea>
+    </div>
+    <div class="q">
+      <span class="lab" id="mood-l">How are you feeling about the business right now?</span>
+      <div class="moods" role="radiogroup" aria-labelledby="mood-l">
+        <label><input type="radio" name="mood" value="Tough"><span>Tough</span></label>
+        <label><input type="radio" name="mood" value="Slow"><span>Slow</span></label>
+        <label><input type="radio" name="mood" value="Okay"><span>Okay</span></label>
+        <label><input type="radio" name="mood" value="Good"><span>Good</span></label>
+        <label><input type="radio" name="mood" value="Great"><span>Great</span></label>
+      </div>
+    </div>
+    <div class="q">
+      <label for="challenge">Is anything making this harder than it should be?</label>
+      <span class="hint">Optional. Be as honest as you like. This only goes to Abdi, Moses and Cynthia.</span>
+      <textarea id="challenge"></textarea>
+    </div>
+    <label class="help"><input type="checkbox" id="help"><span>I'd love a quick call or message from my coach this week</span></label>
+    <p class="err" id="err" role="alert" hidden></p>
+    <button class="btn" type="submit" id="go">Send to my coaches</button>
+  </form>
+
+  <section class="pw-card done" id="thanks" hidden aria-live="polite">
+    <h1 class="swoosh" id="thanks-t">Thank you.</h1>
+    <p id="thanks-p"></p>
+    <a class="btn ghost" href="/">Open my dashboard</a>
+  </section>
+
+  <section class="pw-card done" id="bad" hidden>
+    <h1>This link isn't working</h1>
+    <p id="bad-p">Use the link from your latest Friday email or text, or open your dashboard.</p>
+    <a class="btn" href="/">Open my dashboard</a>
+  </section>
+</div>
+<script type="module">
+const $ = s => document.querySelector(s);
+const t = new URLSearchParams(location.search).get("t") || "";
+let first = "", coach = "Moses";
+function bad(msg){ $("#loading").hidden = true; $("#form").hidden = true; $("#bad").hidden = false; if(msg) $("#bad-p").textContent = msg; }
+async function load(){
+  if(!t) return bad();
+  try{
+    const r = await fetch("/api/pulse?t=" + encodeURIComponent(t)); const j = await r.json();
+    if(!r.ok) return bad(j.error);
+    first = j.first_name || ""; coach = String(j.coach || "Moses").split(" ")[0];
+    $("#title").textContent = first ? `How was your week, ${first}?` : "How was your week?";
+    $("#week").textContent = j.week_label;
+    if(j.answered){
+      $("#again").hidden = false; $("#win").value = j.answered.win || ""; $("#challenge").value = j.answered.challenge || ""; $("#help").checked = !!j.answered.need_help;
+      const m = document.querySelector(`input[name=mood][value="${j.answered.mood}"]`); if(m) m.checked = true;
+    }
+    $("#loading").hidden = true; $("#form").hidden = false;
+  }catch{ bad("Couldn't reach the server. Check your connection and try again."); }
+}
+function burst(target){
+  if(matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  const r = target.getBoundingClientRect(), cols = ["#f4a07d","#f6d27a","#7cc6ea","#17162b"];
+  for(let i = 0; i < 30; i++){
+    const sp = document.createElement("i"); sp.className = "spark"; sp.style.left = (r.left + r.width * Math.random()) + "px"; sp.style.top = (r.top + 30) + "px";
+    sp.style.background = cols[i % 4]; if(i % 3 === 0) sp.style.borderRadius = "50%"; document.body.append(sp);
+    const a = Math.random() * Math.PI * 2, d = 60 + Math.random() * 110;
+    sp.animate([{ transform:"translate(0,0)", opacity:1 }, { transform:`translate(${Math.cos(a) * d}px,${Math.sin(a) * d - 50}px) rotate(${Math.random() * 360}deg)`, opacity:0 }], { duration:1000 + Math.random() * 500, easing:"cubic-bezier(.2,.7,.2,1)" }).onfinish = () => sp.remove();
+  }
+}
+$("#form").addEventListener("submit", async e => {
+  e.preventDefault();
+  const body = { t, win: $("#win").value.trim(), challenge: $("#challenge").value.trim(), need_help: $("#help").checked, mood: (document.querySelector("input[name=mood]:checked") || {}).value || "" };
+  if(!body.win){ $("#err").textContent = "Tell us your win this week. Big or small, it counts."; $("#err").hidden = false; $("#win").focus(); return; }
+  $("#err").hidden = true; $("#go").disabled = true; $("#go").textContent = "Sending…";
+  try{
+    const r = await fetch("/api/pulse", { method:"POST", headers:{ "content-type":"application/json" }, body: JSON.stringify(body) }); const j = await r.json();
+    if(!r.ok) throw new Error(j.error || "Couldn't send. Try again.");
+    $("#form").hidden = true; $("#thanks").hidden = false;
+    $("#thanks-t").textContent = first ? `Thank you, ${first}.` : "Thank you.";
+    $("#thanks-p").textContent = body.need_help || body.challenge
+      ? `Thank you for being honest. ${coach} will reach out to you personally, usually within a day. You're not doing this alone, and you're closer than you think.`
+      : `We loved reading this. ${coach} will read it today. Enjoy your weekend, you've earned it, and let's make next week even better.`;
+    burst($("#thanks"));
+  }catch(err){ $("#err").textContent = err.message; $("#err").hidden = false; $("#go").disabled = false; $("#go").textContent = "Send to my coaches"; }
+});
+load();
+</script>
+</body>
+</html>

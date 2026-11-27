@@ -152,8 +152,10 @@ a.btn{text-decoration:none;display:inline-block}
 <body>
 <div class="screen" id="signin" hidden>
   <div class="card">
-    <h1 class="swoosh" style="font-size:30px">Coach Dashboard</h1>
-    <p class="note" id="signin-msg">Sign in with your coach account.</p>
+    <div class="adm-signin-brand"><img src="favicon.svg" alt="" width="40" height="40"><span><b>Laptop Business Mastery</b><small>Team area</small></span></div>
+    <h1 class="swoosh" style="font-size:34px">Coach Dashboard</h1>
+    <p class="adm-sub">Where Moses, Cynthia and Abdi keep every student moving: progress, questions, logos and websites, all in one place.</p>
+    <p class="note" id="signin-msg">Sign in with your team email.</p>
     <div id="signin-google-wrap" class="stack" style="gap:12px" hidden>
       <button class="gbtn" type="button" id="signin-google"><svg viewBox="0 0 48 48" aria-hidden="true"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.2 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.4-.4-3.5z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.7 15.1 19 12 24 12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.2 0-9.6-3.3-11.3-8l-6.5 5C9.5 39.6 16.2 44 24 44z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.2-2.2 4.2-4.1 5.6l6.2 5.2C37 39.2 44 34 44 24c0-1.3-.1-2.4-.4-3.5z"/></svg>Continue with Google</button>
       <div class="or"><span>or use your email</span></div>
@@ -188,6 +190,7 @@ a.btn{text-decoration:none;display:inline-block}
   <div class="tabs" role="tablist">
     <button role="tab" id="tab-students" data-pane="students" aria-selected="true">Students</button>
     <button role="tab" id="tab-knowledge" data-pane="knowledge" aria-selected="false">Coach Knowledge</button>
+    <button role="tab" id="tab-pulse" data-pane="pulse" aria-selected="false">Weekly check-ins<span class="badge" id="pulse-count" hidden>0</span></button>
     <button role="tab" id="tab-review" data-pane="review" aria-selected="false">Questions to review<span class="badge" id="review-count" hidden>0</span></button>
   </div>
 
@@ -287,6 +290,21 @@ a.btn{text-decoration:none;display:inline-block}
     </div>
   </div>
 
+  <div class="stack" id="pane-pulse" hidden style="gap:20px">
+    <div class="row" style="justify-content:space-between;align-items:flex-end">
+      <div class="stack" style="gap:4px"><h2 style="font-size:28px" id="pw-label">This week</h2><span class="note" id="pw-stats"></span></div>
+      <div class="row"><button class="btn ghost sm" type="button" id="pw-prev">← Earlier</button><button class="btn ghost sm" type="button" id="pw-next">Later →</button></div>
+    </div>
+    <div class="card stack callcard" style="gap:10px">
+      <div class="row" style="justify-content:space-between"><strong>Send to every student now</strong><span class="note">These also go out automatically: Monday kickoff (Mondays) and the check-in form (Fridays).</span></div>
+      <div class="row" id="wk-btns"><button class="btn ghost sm" type="button" data-wk="checkin">Weekly check-in form</button><button class="btn ghost sm" type="button" data-wk="monday">Monday kickoff</button></div>
+      <div class="row" id="wk-confirm" hidden><span id="wk-q"></span><button class="btn sm" type="button" id="wk-yes">Yes, send it</button><button class="btn ghost sm" type="button" id="wk-no">Cancel</button></div>
+      <p class="note" id="wk-note" style="margin:0"></p>
+    </div>
+    <div id="pw-list" class="plist-grid"></div>
+    <div class="card stack" style="gap:10px" id="pw-missing-card"><strong>Haven't checked in yet</strong><div class="row" id="pw-missing"></div></div>
+  </div>
+
   <div class="stack" id="pane-review" hidden style="gap:20px">
     <div class="card stack" style="gap:6px">
       <h2 style="font-size:22px">Questions to review</h2>
@@ -375,7 +393,8 @@ $("#signout").addEventListener("click", () => showSignin("You're signed out."));
 
 /* ---------- students ---------- */
 let students = [], filter = "all", selected = null, team = [];
-const waitingOnUs = s => s.awaiting_reply > 0 || s.overdue_team > 0;
+const pulseNeedsUs = s => !!(s.pulse && s.pulse.flag === "respond" && !s.pulse.replied);
+const waitingOnUs = s => s.awaiting_reply > 0 || s.overdue_team > 0 || pulseNeedsUs(s);
 const needsAttention = s => s.status !== "paused" && (s.overdue > 0 || waitingOnUs(s) || s.at_risk || (s.status === "invited" && daysSince(s.created_at) >= 2));
 const lastActive = s => [s.last_active_at, s.last_activity_at].filter(Boolean).sort().pop() || null;
 const AVT = { "Moses Confidence":"co", "Cynthia Nweze":"sk", "Abdi Hassan":"ph" };
@@ -383,6 +402,8 @@ function avHtml(n){ n = String(n || ""); if(!n) return ""; if(AVT[n] === "ph") r
   return `<span class="av ${AVT[n] || "cr"}">${esc(n.split(/\s+/).slice(0,2).map(w => w[0]).join("").toUpperCase())}</span>`; }
 function flags(s){
   const f = [];
+  if(pulseNeedsUs(s)) f.push(`<span class="pill bad">Check-in needs a reply</span>`);
+  else if(s.pulse && s.pulse.flag === "watch") f.push(`<span class="pill stalled">Check-in: keep an eye</span>`);
   if(s.awaiting_reply) f.push(`<span class="pill bad">${s.awaiting_reply} comment${s.awaiting_reply > 1 ? "s" : ""} to answer</span>`);
   if(s.overdue_team) f.push(`<span class="pill bad">Our logo/website late</span>`);
   const own = (s.overdue || 0) - (s.overdue_team || 0);
@@ -540,6 +561,33 @@ function surveyHtml(p){
       ${row("Notes", esc(b.notes || ""))}
     </dl></div>`;
 }
+const weekName = wk => "Week of " + new Date(wk + "T12:00:00Z").toLocaleDateString("en-US", { month:"short", day:"numeric", timeZone:"UTC" });
+const moodTone = m => ({ Great:"active", Good:"active", Okay:"invited", Slow:"stalled", Tough:"bad" })[m] || "invited";
+function wireExtras(box, p){
+  const id = cur.id;
+  $("#p-edit").addEventListener("click", () => { $("#p-view").hidden = true; $("#p-form").hidden = false; $("#p-edit").hidden = true; });
+  $("#p-cancel").addEventListener("click", () => { $("#p-view").hidden = false; $("#p-form").hidden = true; $("#p-edit").hidden = false; });
+  $("#p-form").addEventListener("submit", async e => {
+    e.preventDefault(); $("#p-msg").textContent = "Saving…";
+    const fields = Object.fromEntries(new FormData($("#p-form")).entries());
+    try{ await api("/api/admin", { action:"update", id, fields }); await load(); openStudent(id); }
+    catch(err){ $("#p-msg").textContent = err.message; }
+  });
+  box.querySelectorAll("[data-send1]").forEach(b => b.addEventListener("click", async () => {
+    $("#send1-msg").textContent = "Sending…";
+    try{ const r = await api("/api/admin", { action:"send_weekly", kind: b.dataset.send1, id }); $("#send1-msg").textContent = r.sent ? "Sent." : "Couldn't send. Check their email and mobile."; }
+    catch(err){ $("#send1-msg").textContent = err.message; }
+  }));
+  const om = $("#o-more"); if(om) om.addEventListener("click", () => { box.querySelectorAll("#olist li.more").forEach(li => li.hidden = false); om.remove(); });
+  $("#del-go").addEventListener("click", () => { $("#del-start").hidden = true; $("#del-confirm").hidden = false; $("#del-word").focus(); });
+  $("#del-no").addEventListener("click", () => { $("#del-start").hidden = false; $("#del-confirm").hidden = true; });
+  $("#del-yes").addEventListener("click", async () => {
+    if($("#del-word").value.trim() !== "DELETE"){ $("#del-msg").textContent = "Type DELETE (capital letters) to confirm."; return; }
+    $("#del-msg").textContent = "Deleting…";
+    try{ await api("/api/admin", { action:"delete", id, confirm:"DELETE" }); $("#detail").hidden = true; selected = null; cur = null; await load(); }
+    catch(err){ $("#del-msg").textContent = err.message; }
+  });
+}
 function paint(){
   const box = $("#detail"), d = cur.dash, p = d.profile, a = cur.admin, s = a.student;
   const openDetails = new Set([...box.querySelectorAll(".ci details[open]")].map(x => x.closest(".ci").dataset.k));
@@ -569,14 +617,47 @@ function paint(){
           <ul class="mlist">${d.messages.map(m => `<li>${avHtml(m.author)} <b>${esc(m.author)}</b> <span class="note">${ago(m.created_at)} · ${m.read_at ? "read" : "not read yet"}</span><p>${esc(m.body)}</p></li>`).join("") || `<li class="note">No messages yet.</li>`}</ul>
         </div>
         ${surveyHtml(p)}
-        <dl class="kv">
-          <dt>Partner</dt><dd>${esc(p.partner || "—")}</dd><dt>Domain</dt><dd>${esc(p.domain || "—")}</dd>
-          <dt>Logo</dt><dd>${p.logo_url ? `<a href="${esc(p.logo_url)}" target="_blank" rel="noopener">Open</a>` : "—"}</dd>
-          <dt>Website</dt><dd>${p.website_url ? `<a href="${esc(p.website_url)}" target="_blank" rel="noopener">Open</a>` : "—"}</dd>
-          <dt>Tier</dt><dd>${esc(p.tier || "—")}</dd><dt>Brand</dt><dd>${esc(p.focus_brand || "—")}</dd>
-          <dt>Monthly goal</dt><dd>${p.monthly_goal ? "$" + Number(p.monthly_goal).toLocaleString("en-US") : "—"}</dd>
-          <dt>Laptops/week</dt><dd>${esc(p.weekly_unit_target || "—")}</dd><dt>AI uses today</dt><dd>${s.ai_today || 0}</dd>
-        </dl>
+        <div class="pcard" id="pcard">
+          <div class="row" style="justify-content:space-between"><h3 style="font-size:18px">Details</h3><button class="btn ghost sm" type="button" id="p-edit">Edit</button></div>
+          <dl class="kv" id="p-view">
+            <dt>Name</dt><dd>${esc(p.name || "—")}</dd><dt>Email</dt><dd>${esc(p.email)}</dd><dt>Mobile</dt><dd>${esc(p.phone || "—")}</dd>
+            <dt>Location</dt><dd>${esc(p.location || "—")}</dd><dt>Business</dt><dd>${esc(p.business_name || "—")}</dd><dt>Domain</dt><dd>${esc(p.domain || "—")}</dd>
+            <dt>Partner</dt><dd>${esc(p.partner || "—")}</dd>
+            <dt>Logo</dt><dd>${p.logo_url ? `<a href="${esc(p.logo_url)}" target="_blank" rel="noopener">Open</a>` : "—"}</dd>
+            <dt>Website</dt><dd>${p.website_url ? `<a href="${esc(p.website_url)}" target="_blank" rel="noopener">Open</a>` : "—"}</dd>
+            <dt>Tier</dt><dd>${esc(p.tier || "—")}</dd><dt>Brand</dt><dd>${esc(p.focus_brand || "—")}</dd>
+            <dt>Monthly goal</dt><dd>${p.monthly_goal ? "$" + Number(p.monthly_goal).toLocaleString("en-US") : "—"}</dd>
+            <dt>Laptops/week</dt><dd>${esc(p.weekly_unit_target || "—")}</dd>
+            <dt>Enrolled</dt><dd>${fmtD(p.created_at)}</dd><dt>Status</dt><dd>${esc(s.status)}${s.last_active_at ? " · last seen " + ago(s.last_active_at) : " · never signed in"}</dd>
+            <dt>AI uses today</dt><dd>${s.ai_today || 0}</dd>
+          </dl>
+          <form class="pedit" id="p-form" hidden>
+            ${[["name","Name"],["email","Email"],["phone","Mobile"],["location","Location"],["business_name","Business name"],["domain","Domain"],["partner","Accountability partner"],["logo_url","Logo link"],["website_url","Website link"],["monthly_goal","Monthly goal ($)"],["weekly_unit_target","Laptops per week"]]
+              .map(([k,l]) => `<label>${l}<input name="${k}" value="${esc(p[k] ?? "")}"></label>`).join("")}
+            <label>Tier<select name="tier">${["","Low","Mid","High"].map(o => `<option value="${o}" ${p.tier === o ? "selected" : ""}>${o || "Not set"}</option>`).join("")}</select></label>
+            <label>Brand<select name="focus_brand">${["","HP","Dell","Lenovo"].map(o => `<option value="${o}" ${p.focus_brand === o ? "selected" : ""}>${o || "Not set"}</option>`).join("")}</select></label>
+            <div class="row" style="grid-column:1/-1"><button class="btn sm" type="submit">Save changes</button><button class="btn ghost sm" type="button" id="p-cancel">Cancel</button><span class="note" id="p-msg"></span></div>
+          </form>
+        </div>
+        <div class="pcard">
+          <h3 style="font-size:18px">Send now</h3>
+          <p class="note" style="margin:0">Sends to ${esc(first(p.name))} only, by email and text.</p>
+          <div class="row"><button class="btn ghost sm" type="button" data-send1="checkin">This week's check-in form</button><button class="btn ghost sm" type="button" data-send1="monday">Monday kickoff</button><span class="note" id="send1-msg"></span></div>
+        </div>
+        <div class="pcard">
+          <h3 style="font-size:18px">Weekly check-ins</h3>
+          ${(a.pulses || []).length ? `<ul class="plist">${a.pulses.map(x => `<li>
+            <div class="row" style="justify-content:space-between"><b>${esc(weekName(x.week))}</b><span>${x.flag === "respond" && !x.replied_at ? `<span class="pill bad">Needs a reply</span> ` : x.flag === "watch" ? `<span class="pill stalled">Keep an eye</span> ` : ""}${x.mood ? `<span class="pill ${moodTone(x.mood)}">${esc(x.mood)}</span>` : ""}${x.need_help ? ` <span class="pill bad">Wants a call</span>` : ""}</span></div>${x.flag_reason ? `<p class="why">${esc(x.flag_reason)}</p>` : ""}
+            <p><span class="pk">Win</span>${esc(x.win)}</p>${x.challenge ? `<p class="chal"><span class="pk">Making it harder</span>${esc(x.challenge)}</p>` : ""}${x.replied_at ? `<p class="done-l">Replied by ${esc(x.replied_by || "the team")} · ${ago(x.replied_at)}</p>` : ""}</li>`).join("")}</ul>` : `<p class="note" style="margin:0">No check-ins yet. The form goes out every Friday.</p>`}
+        </div>
+        <div class="pcard">
+          <div class="row" style="justify-content:space-between"><h3 style="font-size:18px">Messages we've sent</h3><span class="note">${(a.outbox || []).length} recent</span></div>
+          ${(a.outbox || []).length ? `<ul class="olist" id="olist">${a.outbox.map((o, i) => `<li ${i >= 8 ? 'class="more" hidden' : ""}>
+            <span class="ch ${o.channel}">${o.channel === "sms" ? "Text" : "Email"}</span>
+            <div><b>${esc(o.subject || o.body.slice(0, 80))}</b>${o.subject ? `<span class="note">${esc(o.body.slice(0, 120))}…</span>` : ""}</div>
+            <span class="note">${ago(o.created_at)}${o.ok ? "" : ' · <b style="color:var(--bad)">failed</b>'}</span></li>`).join("")}</ul>
+            ${(a.outbox || []).length > 8 ? `<button class="linkbtn" type="button" id="o-more">Show all</button>` : ""}` : `<p class="note" style="margin:0">Nothing sent yet (messages are logged from now on).</p>`}
+        </div>
         <div class="stack" style="gap:6px">
           <label for="notes" style="font-size:12px;font-weight:600;color:var(--muted)">Private coach notes (team only)</label>
           <textarea id="notes">${esc(s.coach_notes || "")}</textarea>
@@ -591,11 +672,18 @@ function paint(){
           ${(a.auctions || []).length ? `<ul class="tasks" style="max-height:none">${a.auctions.map(x => { const v = (x.result || {}).verdict || {};
             return `<li style="grid-template-columns:76px minmax(0,1fr)"><span class="pill ${x.rating === "Pass" ? "paused" : x.rating === "Strong" ? "active" : "stalled"}" style="text-decoration:none">${esc(x.rating || "—")}</span><span><strong>${esc(x.title)}</strong> <span class="note">· ${ago(x.created_at)}</span><br><span class="note">${esc(v.reason || "")}</span></span></li>`; }).join("")}</ul>` : `<p class="note">No auctions analyzed yet.</p>`}
         </div>
-        <div class="stack" style="gap:6px"><h3 style="font-size:18px">Weekly check-ins</h3>
-          ${(a.checkins || []).length ? a.checkins.map((c, n) => `<details class="report" ${n === 0 ? "open" : ""}><summary><strong>${esc(c.week_label || "Check-in")}</strong> <span class="note">· ${ago(c.created_at)}</span></summary>${md(c.report)}</details>`).join("") : `<p class="note">No check-ins yet.</p>`}
+        <div class="stack" style="gap:6px"><h3 style="font-size:18px">Check-in reports from the Hub tool</h3>
+          ${(a.checkins || []).length ? a.checkins.map((c, n) => `<details class="report" ${n === 0 ? "open" : ""}><summary><strong>${esc(c.week_label || "Check-in")}</strong> <span class="note">· ${ago(c.created_at)}</span></summary>${md(c.report)}</details>`).join("") : `<p class="note">None yet.</p>`}
+        </div>
+        <div class="pcard danger">
+          <h3 style="font-size:18px">Delete this student</h3>
+          <p class="note" style="margin:0">Removes their login, dashboard, checklist, messages and check-ins for good. This can't be undone.</p>
+          <div class="row" id="del-start"><button class="btn ghost sm del" type="button" id="del-go">Delete ${esc(first(p.name))}'s profile</button></div>
+          <div class="row" id="del-confirm" hidden><input id="del-word" placeholder="Type DELETE" autocomplete="off"><button class="btn sm del" type="button" id="del-yes">Delete for good</button><button class="btn ghost sm" type="button" id="del-no">Cancel</button><span class="note" id="del-msg"></span></div>
         </div>
       </div>
     </div>`;
+  wireExtras(box, p);
   openDetails.forEach(k => { const x = box.querySelector(`.ci[data-k="${k}"] details`); if(x) x.open = true; });
   const err = (k, m) => { const e = box.querySelector(`[data-err="${k}"]`); if(e) e.textContent = m; };
   const run = async (k, body) => { err(k, ""); try{ await cl(body); load(); }catch(e){ err(k, e.message); } };
@@ -641,13 +729,61 @@ function paint(){
 
 
 /* ---------- tabs ---------- */
-const panes = ["students","knowledge","review"];
-let kLoaded = false, rLoaded = false;
+const panes = ["students","pulse","knowledge","review"];
+let kLoaded = false, rLoaded = false, pWeek = null;
 function showPane(p){
   panes.forEach(x => { $("#pane-" + x).hidden = x !== p; $("#tab-" + x).setAttribute("aria-selected", String(x === p)); });
   if(p === "knowledge" && !kLoaded) loadKnowledge();
   if(p === "review" && !rLoaded) loadReview();
+  if(p === "pulse") loadPulse(pWeek);
 }
+async function loadPulse(week){
+  $("#pw-list").innerHTML = `<p class="note">Loading…</p>`;
+  let j; try{ j = await api("/api/admin?pulses=1" + (week ? "&week=" + week : "")); }catch(err){ $("#pw-list").innerHTML = `<p class="note">${esc(err.message)}</p>`; return; }
+  pWeek = j.week; $("#pw-label").textContent = j.label;
+  const RANK = { respond: 0, watch: 1, ok: 2, "": 3 };
+  const needReply = j.rows.filter(r => r.flag === "respond" && !r.replied_at).length, total = j.rows.length + j.missing.length;
+  const watch = j.rows.filter(r => r.flag === "watch").length;
+  $("#pw-stats").textContent = `${j.rows.length} of ${total} checked in` + (needReply ? ` · ${needReply} waiting for a reply` : "") + (watch ? ` · ${watch} to keep an eye on` : "");
+  $("#pw-prev").onclick = () => loadPulse(j.prev); $("#pw-next").disabled = !j.next; $("#pw-next").onclick = () => j.next && loadPulse(j.next);
+  const rows = [...j.rows].sort((a, b) => (Number(!!a.replied_at) - Number(!!b.replied_at)) * (a.flag === "respond" || b.flag === "respond" ? 1 : 0) || (RANK[a.flag || ""] - RANK[b.flag || ""]));
+  const FLAG = { respond:["bad","Needs a reply"], watch:["stalled","Keep an eye"], ok:["active","Celebrate"] };
+  $("#pw-list").innerHTML = rows.length ? rows.map(r => `<article class="pcard pulse f-${esc(r.flag || "none")} ${r.replied_at ? "replied" : ""}" data-pid="${esc(r.id)}">
+    <div class="row" style="justify-content:space-between"><button type="button" class="own linkish" data-sid="${esc(r.student_id)}">${avHtml(r.owner)}<b>${esc(r.name || "Student")}</b></button>
+      <span>${r.flag && FLAG[r.flag] ? `<span class="pill ${FLAG[r.flag][0]}">${FLAG[r.flag][1]}</span>` : ""}${r.mood ? ` <span class="pill ${moodTone(r.mood)}">${esc(r.mood)}</span>` : ""}</span></div>
+    ${r.flag_reason ? `<p class="why">${esc(r.flag_reason)}</p>` : ""}
+    <p><span class="pk">Win</span>${esc(r.win)}</p>${r.challenge ? `<p class="chal"><span class="pk">Making it harder</span>${esc(r.challenge)}</p>` : ""}
+    ${r.need_help ? `<p class="askd">Asked for a call or message from their coach.</p>` : ""}
+    ${r.replied_at ? `<p class="done-l">Replied by ${esc(r.replied_by || "the team")} · ${ago(r.replied_at)}</p>`
+      : `<details class="reply" ${r.flag === "respond" ? "open" : ""}><summary>${r.flag === "respond" ? "Reply now" : "Send a note"}</summary>
+         <textarea data-reply>${esc(r.ai_reply || "")}</textarea>
+         <div class="row"><button class="btn sm" type="button" data-send>Send to ${esc((r.name || "them").split(" ")[0])}</button><span class="note">${r.ai_reply ? "Suggested by AI. Edit it to sound like you." : ""} Goes to their message board, email and text.</span></div></details>`}
+    <span class="note">${esc(r.owner || "")} · checked in ${ago(r.created_at)}</span></article>`).join("") : `<p class="note">No check-ins for this week yet.</p>`;
+  document.querySelectorAll("#pw-list [data-send]").forEach(b => b.addEventListener("click", async () => {
+    const card = b.closest("[data-pid]"), body = card.querySelector("[data-reply]").value.trim();
+    if(!body) return;
+    b.disabled = true; b.textContent = "Sending…";
+    try{ await api("/api/admin", { action:"pulse_reply", pulse_id: card.dataset.pid, body }); loadPulse(pWeek); }
+    catch(err){ b.disabled = false; b.textContent = "Try again"; card.querySelector(".reply .note").textContent = err.message; }
+  }));
+  $("#pw-missing-card").hidden = !j.missing.length;
+  $("#pw-missing").innerHTML = j.missing.map(m => `<button class="btn ghost sm" type="button" data-sid="${esc(m.id)}">${esc(m.name || "Student")}</button>`).join("");
+  document.querySelectorAll("#pane-pulse [data-sid]").forEach(el => el.addEventListener("click", () => { showPane("students"); openStudent(el.dataset.sid); }));
+  const c = $("#pulse-count"); c.textContent = needReply; c.hidden = !needReply;
+}
+let wkKind = "";
+document.querySelectorAll("#wk-btns [data-wk]").forEach(b => b.addEventListener("click", () => {
+  wkKind = b.dataset.wk; const n = students.filter(s => s.status !== "paused" && !s.reminders_paused).length;
+  $("#wk-q").textContent = `Send the ${b.textContent.toLowerCase()} to ${n} student${n === 1 ? "" : "s"} by email and text?`;
+  $("#wk-btns").hidden = true; $("#wk-confirm").hidden = false; $("#wk-note").textContent = "";
+}));
+$("#wk-no").addEventListener("click", () => { $("#wk-btns").hidden = false; $("#wk-confirm").hidden = true; });
+$("#wk-yes").addEventListener("click", async () => {
+  $("#wk-yes").disabled = true; $("#wk-note").textContent = "Sending…";
+  try{ const r = await api("/api/admin", { action:"send_weekly", kind: wkKind }); $("#wk-note").textContent = `Sent to ${r.sent} of ${r.total} students.`; }
+  catch(err){ $("#wk-note").textContent = err.message; }
+  finally{ $("#wk-yes").disabled = false; $("#wk-btns").hidden = false; $("#wk-confirm").hidden = true; }
+});
 document.querySelectorAll(".tabs button[data-pane]").forEach(b => b.addEventListener("click", () => showPane(b.dataset.pane)));
 
 /* ---------- Coach Knowledge ---------- */
@@ -806,6 +942,9 @@ async function loadReview(){
   $("#app").hidden = false;
   loadReview();
   try{ await load(); }catch(err){ if(err.message !== "signed_out" && err.message !== "forbidden") $("#rows").innerHTML = `<tr><td colspan="7" class="note">${esc(err.message)}</td></tr>`; }
+  const m = /student=([0-9a-f-]{36})/i.exec(location.hash); if(m) openStudent(m[1]);
+  api("/api/admin?pulses=1").then(j => { const h = j.rows.filter(r => r.flag === "respond" && !r.replied_at).length; $("#pulse-count").hidden = !h; $("#pulse-count").textContent = h; }).catch(() => {});
+  if(/checkins/.test(location.hash)) showPane("pulse");
 })();
 </script>
 </body>

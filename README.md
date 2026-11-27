@@ -131,6 +131,20 @@ Leave "Allow new users to sign up" switched **on** in Supabase. Someone who isn'
 5. Every message is already written by the Hub; GoHighLevel just sends it. Optional: branch on `event` (`enrolled`, `section_complete`, `overdue`, `call_reminder`, `gate_open`, …) to tag contacts or move them through a pipeline.
 6. US texting needs **A2P 10DLC registration** in GoHighLevel (LC Phone).
 
+
+### GoHighLevel API (recommended: no workflow needed)
+Instead of the webhook workflow, the Hub can send emails and texts straight through GoHighLevel. Every message lands in the contact's Conversations, and replies come back to your GHL inbox.
+1. In GoHighLevel (inside your sub-account): **Settings → Private Integrations → Create new integration**. Name it `Student Hub`.
+2. Tick these permissions: **View Contacts**, **Edit Contacts**, **View Conversations**, **Edit Conversations**, **View Conversation Messages**, **Edit Conversation Messages**. Create it and copy the token.
+3. Copy your **Location ID**: **Settings → Business Profile** (it's listed there).
+4. In Cloudflare add: `GHL_API_KEY` (Secret, the token), `GHL_LOCATION_ID` (Text), and `GHL_EMAIL_FROM` = `Laptop Business Mastery <admin@thelaptopbusiness.com>` (Text). Replies go to that address.
+With `GHL_API_KEY` set, the webhook workflow is no longer used (you can switch it off).
+
+### Weekly touches
+- **Monday** (at `DAILY_HOUR`): "New week. Let's crush it." email + text with their focus for the week.
+- **Friday**: the weekly check-in form by email + text (a private link per student; no sign-in needed). Answers appear under **Weekly check-ins** in the coach dashboard, and the team gets an email for each one (flagged when a student needs a hand).
+- **Sunday**: one short text to anyone who hasn't checked in yet.
+
 ### 8. Enroll automatically from GoHighLevel (optional)
 In the workflow that runs when someone signs your agreement or pays, add a **Custom Webhook** action: method `POST`, URL `https://hub.yourdomain.com/api/enroll?secret=YOUR_ENROLL_SECRET`, body with `first_name`, `last_name`, `email`, `phone`. The student gets their dashboard, welcome email and text within seconds. Sending the same contact twice is safe.
 

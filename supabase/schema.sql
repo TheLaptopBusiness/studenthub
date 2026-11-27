@@ -110,6 +110,41 @@ alter table public.students add column if not exists reminders_paused boolean no
 alter table public.students add column if not exists brand jsonb not null default '{}'::jsonb;
 alter table public.students add column if not exists brand_submitted_at timestamptz;
 alter table public.students add column if not exists welcomed_at timestamptz;
+alter table public.students add column if not exists ghl_contact_id text not null default '';
+
+-- Weekly check-in answers (the Friday form)
+create table if not exists public.pulses (
+  id uuid primary key default gen_random_uuid(),
+  student_id uuid not null references public.students(id) on delete cascade,
+  week date not null,
+  win text not null default '',
+  challenge text not null default '',
+  mood text not null default '',
+  need_help boolean not null default false,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now(),
+  unique (student_id, week)
+);
+create index if not exists pulses_week_idx on public.pulses (week);
+alter table public.pulses add column if not exists flag text not null default '';
+alter table public.pulses add column if not exists flag_reason text not null default '';
+alter table public.pulses add column if not exists ai_summary text not null default '';
+alter table public.pulses add column if not exists ai_reply text not null default '';
+alter table public.pulses add column if not exists replied_at timestamptz;
+alter table public.pulses add column if not exists replied_by text not null default '';
+
+-- Every email and text sent to a student
+create table if not exists public.outbox (
+  id uuid primary key default gen_random_uuid(),
+  student_id uuid not null references public.students(id) on delete cascade,
+  channel text not null,
+  event text not null default '',
+  subject text not null default '',
+  body text not null default '',
+  ok boolean not null default true,
+  created_at timestamptz not null default now()
+);
+create index if not exists outbox_student_idx on public.outbox (student_id, created_at desc);
 alter table public.students add column if not exists sms_opt_out boolean not null default false;
 
 create table if not exists public.checklist_items (
@@ -161,3 +196,5 @@ alter table public.coach_feedback enable row level security;
 alter table public.checklist_items enable row level security;
 alter table public.item_comments enable row level security;
 alter table public.messages enable row level security;
+alter table public.pulses enable row level security;
+alter table public.outbox enable row level security;

@@ -9,6 +9,9 @@ import { sendEmail, templates } from "../lib/email.js";
 import { summarize, TEMPLATE } from "../lib/checklist.js";
 import { sms } from "../lib/notify.js";
 import { teamEmails, escalationName, defaultOwner, coachFor } from "../lib/team.js";
+import { sendMonday, sendCheckin, checkinLink } from "../lib/weekly.js";
+import { weekKey } from "../lib/pulse.js";
+import { SUNDAY_NUDGE_SMS, pick, fill } from "../lib/variants.js";
 import { json } from "../lib/http.js";
 
 export const config = { runtime: "edge" };
@@ -59,7 +62,9 @@ export default async function handler(req) {
   const itemsBy = {};
   for (const i of allItems) (itemsBy[i.student_id] = itemsBy[i.student_id] || []).push(i);
 
-  const sent = { call24: 0, call1: 0, overdue: 0, quiet_sms: 0, quiet_email: 0, signin: 0, focus: 0, checkin: 0 };
+  const sent = { call24: 0, call1: 0, overdue: 0, quiet_sms: 0, quiet_email: 0, signin: 0, monday: 0, checkin: 0, nudge: 0 };
+  const wk = weekKey();
+  const pulsed = new Set(doDaily && local.weekday === "Sun" ? (await db(`pulses?week=eq.${wk}&select=student_id&limit=5000`)).map(p => p.student_id) : []);
   const callLink = process.env.CALL_LINK || "";
   const hourLabel = callHour > 12 ? `${callHour - 12}pm` : callHour === 12 ? "12pm" : `${callHour}am`;
   const dg = { teamLate: [], replies: [], late3: [], late7: [], quiet7: [], quiet10: [], risk: [], notSignedIn: [], wins: [] };
@@ -100,6 +105,19 @@ export default async function handler(req) {
       else if (sum.quiet_days >= 7) dg.quiet7.push(`${who}: quiet ${sum.quiet_days} days. Write them a personal message.`);
 
       if (!paused) {
+        // ----- weekly touches: Monday kickoff, Friday check-in form, Sunday nudge if no check-in -----
+        if (local.weekday === "Mon" && rem.monday !== today) {
+          if (await sendMonday(s, itemsBy[s.id] || [])) sent.monday++;
+          rem.monday = today; changed = true;
+        }
+        if (local.weekday === "Fri" && rem.pulse_sent !== wk) {
+          if (await sendCheckin(s)) sent.checkin++;
+          rem.pulse_sent = wk; changed = true;
+        }
+        if (local.weekday === "Sun" && rem.pulse_sent === wk && !pulsed.has(s.id) && rem.pulse_nudge !== wk) {
+          await sms("checkin_nudge", s, fill(pick(SUNDAY_NUDGE_SMS, s.id), { first: first(s.name), link: await checkinLink(s, wk) }));
+          rem.pulse_nudge = wk; changed = true; sent.nudge++;
+        }
         // ----- not signed in yet -----
         if (!s.last_active_at) {
           const age = daysSince(s.created_at), count = rem.onboarding_count || 0;
@@ -140,18 +158,6 @@ export default async function handler(req) {
             rem.ladder.level = 2; changed = true; sent.quiet_email++;
           }
 
-          // ----- Monday focus · Sunday check-in -----
-          if (local.weekday === "Mon" && rem.focus !== today && sum.next && smsAllowed(rem, today)) {
-            const open = sum.items.filter(x => !x.done && x.by === "student" && !x.waiting_on).slice(0, 2).map(x => `"${x.title}"`);
-            await sms("weekly_focus", s, `${first(s.name)}, ${first(coachFor(s))} here. This week's focus: ${open.join(" and ")}. That's it. Knock it out and tick it in your Hub: ${siteUrl()}/#dashboard`);
-            logSms(rem, today); rem.focus = today; changed = true; sent.focus++;
-          }
-          if (local.weekday === "Sun" && daysSince(s.last_checkin_at) > 5 && rem.checkin !== today) {
-            const open = sum.total - sum.done;
-            await sendEmail({ to: s.email, student: s, ...templates.checkinReminder(s.name, open ? `${open} item${open === 1 ? "" : "s"}` : "") });
-            if (smsAllowed(rem, today)) { await sms("checkin", s, `${first(s.name)}, it's check-in time! 3 minutes: what got done this week, and where you're stuck. ${siteUrl()}/#checkin`); logSms(rem, today); }
-            rem.checkin = today; changed = true; sent.checkin++;
-          }
         }
       }
     }
@@ -163,10 +169,13 @@ export default async function handler(req) {
     const since = new Date(Date.now() - DAY).toISOString();
     const recent = await db(`checkins?created_at=gte.${encodeURIComponent(since)}&select=student_id,report&limit=500`);
     const names = Object.fromEntries(students.map(s => [s.id, s.name || s.email]));
+    const unreplied = (await db(`pulses?week=eq.${wk}&flag=eq.respond&replied_at=is.null&select=student_id,flag_reason&limit=500`).catch(() => []))
+      .map(p => `${names[p.student_id] || "A student"}: ${p.flag_reason || "needs a reply"}`);
     const flagged = recent.filter(c => /flag for coaching call/i.test(c.report)).map(c => names[c.student_id] || "A student");
     const wrong = await db("coach_feedback?status=eq.open&rating=eq.down&select=id&limit=500");
     const block = (title, arr) => arr.length ? `<strong>${title}</strong><br>${arr.map(esc).join("<br>")}` : null;
     const lines = [
+      block("💬 Weekly check-ins waiting for a reply:", unreplied),
       block("⚠️ Our logo or website is late:", dg.teamLate),
       block(`🚨 At risk (14+ days quiet), for ${escalationName()}:`, dg.risk),
       block("Comments waiting for a reply:", dg.replies),
