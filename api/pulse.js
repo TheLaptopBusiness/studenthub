@@ -44,7 +44,7 @@ export default async function handler(req) {
   await updateStudent(s.id, { last_activity_at: nowIso(), last_checkin_at: nowIso() });
   const to = teamEmails();
   if (to.length && (!existing || (a.flag === "respond" && existing.flag !== "respond"))) {
-    await sendEmail({ to, ...templates.teamPulse(s.name || s.email, row, `${siteUrl()}/admin.html#checkins`, coachFor(s)) }).catch(() => {});
+    await sendEmail({ to, ...templates.teamPulse(s.name || s.email, row, `${siteUrl()}/admin#checkins`, coachFor(s)) }).catch(() => {});
   }
   return json({ ok: true, updated: !!existing, coach: coachFor(s) });
 }

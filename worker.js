@@ -39,6 +39,7 @@ export default {
         return new Response(JSON.stringify({ error: "Something went wrong. Try again." }), { status: 500, headers: { "content-type": "application/json" } });
       }
     }
+    if (/^\/(coach|coaches|team)\/?$/.test(url.pathname)) return Response.redirect(url.origin + "/admin", 302);
     return env.ASSETS.fetch(request);
   },
   async scheduled(event, env, ctx) {

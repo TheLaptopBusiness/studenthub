@@ -5,7 +5,7 @@
   "main": "worker.js",
   "compatibility_date": "2025-09-01",
   "compatibility_flags": ["nodejs_compat"],
-  "assets": { "directory": "./public", "binding": "ASSETS" },
+  "assets": { "directory": "./public", "binding": "ASSETS", "html_handling": "auto-trailing-slash" },
   "triggers": { "crons": ["0 * * * *"] },
   "keep_vars": true,
   "observability": { "enabled": true }

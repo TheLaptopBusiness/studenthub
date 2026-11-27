@@ -363,7 +363,7 @@ details.profile summary{cursor:pointer;font-weight:700}
     <div class="foot whoami">
       <span id="who-name"></span>
       <button id="acct-link" type="button" class="linkbtn" hidden>Account &amp; password</button>
-      <a id="admin-link" href="/admin.html" class="linkbtn" hidden>Coach dashboard</a>
+      <a id="admin-link" href="/admin" class="linkbtn" hidden>Coach dashboard</a>
       <button id="signout" type="button" class="linkbtn" hidden>Sign out</button>
       <span>Stuck or unsure? Ask the Coach, or bring it to the next coaching call.</span>
     </div>
@@ -1947,7 +1947,7 @@ async function boot(){
     showSignin(e.code === "not_enrolled" || e.code === "paused" ? errCopy(e) : "Couldn't load your hub. Refresh the page to try again.");
     return;
   }
-  if(me.admin && !me.student){ location.href = "/admin.html"; return; }
+  if(me.admin && !me.student){ location.href = "/admin"; return; }
   setAiEnabled(true);
   screen("app"); renderHome();
   show(views.includes(startHash) ? startHash : "home");
