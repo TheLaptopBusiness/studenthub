@@ -56,7 +56,7 @@ button,input,textarea{font:inherit;color:inherit}
 <div class="pw">
   <div class="pw-top">
     <div class="brandline"><svg class="mark"><use href="#i-mark"/></svg><span>Laptop Business Mastery</span></div>
-    <div class="faces"><span class="av-stack"><span class="av ph"><img src="img/abdi-avatar.jpg" alt=""></span><span class="av co">MC</span><span class="av sk">CN</span></span><span class="t">From Abdi, Moses &amp; Cynthia</span></div>
+    <div class="faces"><span class="av-stack"><span class="av ph"><img src="img/abdi-avatar.jpg" alt=""></span></span><span class="t">From Abdi Hassan</span></div>
   </div>
 
   <p class="note-quiet" id="loading">Loading your check-in…</p>
@@ -83,7 +83,7 @@ button,input,textarea{font:inherit;color:inherit}
     </div>
     <div class="q">
       <label for="challenge">Is anything making this harder than it should be?</label>
-      <span class="hint">Optional. Be as honest as you like. This only goes to Abdi, Moses and Cynthia.</span>
+      <span class="hint">Optional. Be as honest as you like. This only goes to our team.</span>
       <textarea id="challenge"></textarea>
     </div>
     <label class="help"><input type="checkbox" id="help"><span>I'd love a quick call or message from my coach this week</span></label>
@@ -106,14 +106,14 @@ button,input,textarea{font:inherit;color:inherit}
 <script type="module">
 const $ = s => document.querySelector(s);
 const t = new URLSearchParams(location.search).get("t") || "";
-let first = "", coach = "Moses";
+let first = "";
 function bad(msg){ $("#loading").hidden = true; $("#form").hidden = true; $("#bad").hidden = false; if(msg) $("#bad-p").textContent = msg; }
 async function load(){
   if(!t) return bad();
   try{
     const r = await fetch("/api/pulse?t=" + encodeURIComponent(t)); const j = await r.json();
     if(!r.ok) return bad(j.error);
-    first = j.first_name || ""; coach = String(j.coach || "Moses").split(" ")[0];
+    first = j.first_name || "";
     $("#title").textContent = first ? `How was your week, ${first}?` : "How was your week?";
     $("#week").textContent = j.week_label;
     if(j.answered){
@@ -144,8 +144,8 @@ $("#form").addEventListener("submit", async e => {
     $("#form").hidden = true; $("#thanks").hidden = false;
     $("#thanks-t").textContent = first ? `Thank you, ${first}.` : "Thank you.";
     $("#thanks-p").textContent = body.need_help || body.challenge
-      ? `Thank you for being honest. ${coach} will reach out to you personally, usually within a day. You're not doing this alone, and you're closer than you think.`
-      : `We loved reading this. ${coach} will read it today. Enjoy your weekend, you've earned it, and let's make next week even better.`;
+      ? `Thank you for being honest. Your coach will reach out to you personally, usually within a day. You're not doing this alone, and you're closer than you think.`
+      : `We loved reading this, and we'll read every word today. Enjoy your weekend, you've earned it, and let's make next week even better.`;
     burst($("#thanks"));
   }catch(err){ $("#err").textContent = err.message; $("#err").hidden = false; $("#go").disabled = false; $("#go").textContent = "Send to my coaches"; }
 });

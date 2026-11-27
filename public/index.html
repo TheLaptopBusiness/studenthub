@@ -439,7 +439,7 @@ details.profile summary{cursor:pointer;font-weight:700}
       <section class="wl-block" aria-labelledby="wl-how">
         <h3 id="wl-how">How the program works</h3>
         <ol class="wl-path">
-          <li><span class="n">1</span><div><b>You're signed up</b><p>Your dashboard is live and your coaches, Moses and Cynthia, can see your progress from day one.</p></div></li>
+          <li><span class="n">1</span><div><b>You're signed up</b><p>Your dashboard is live and your coach can see your progress from day one.</p></div></li>
           <li><span class="n">2</span><div><b>Set up your business</b><p>Business name, domain, LLC, EIN, bank account and reseller's permit. We design your logo and build your website.</p></div></li>
           <li><span class="n">3</span><div><b>Open your shops</b><p>Set up your eBay seller account and Facebook Marketplace, ready to list.</p></div></li>
           <li class="hl"><span class="n">4</span><div><b>Sell our laptops</b><p>We supply you with refurbished laptops to list and sell, so you're earning before you ever buy stock yourself.</p></div></li>
@@ -1454,7 +1454,7 @@ $("#auction-example").addEventListener("click", () => {
 
 /* ===================== MOTION + FACES ===================== */
 const REDUCED = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
-const AV_TONE = { "Moses Confidence":"co", "Cynthia Nweze":"sk", "Your coaching team":"su" };
+const AV_TONE = { "Moses Confidence":"co", "Your coaching team":"su" };
 function avatar(name, cls = ""){
   const n = String(name || "");
   const a = el("span", "av " + cls);
@@ -1509,12 +1509,12 @@ const demo = (() => {
   items.find(i => i.key === "ein").comment_count = 2;
   const messages = [
     { id:"m2", author:"Moses Confidence", body:"Great progress this week, Angela! Your LLC is done. Next up is your EIN, and your logo is being designed now.", read_at:null, created_at: at(0) },
-    { id:"m1", author:"Moses Confidence", body:"Hey Angela, welcome to Laptop Business Mastery! I'm Moses, your success coach, and I'll be with you every step along with Cynthia. Your dashboard is live. Two things to do right now: fill out the brand survey (step 5 on your checklist) so we can start your logo and website, and work through your checklist below. Stuck on anything? Comment right on that step and we'll answer. Let's get it.", read_at: at(8), created_at: at(9) }
+    { id:"m1", author:"Moses Confidence", body:"Hey Angela, welcome to Laptop Business Mastery! I'm Moses, your success coach, and I'll be with you every step of the way. Your dashboard is live. Two things to do right now: fill out the brand survey (step 5 on your checklist) so we can start your logo and website, and work through your checklist below. Stuck on anything? Comment right on that step and we'll answer. Let's get it.", read_at: at(8), created_at: at(9) }
   ];
   function build(){
     const sum = summarize(student, items);
     sum.items.forEach(i => { i.comments = comments.filter(c => c.item_key === i.key); if(i.link) i.link = null; });
-    return { profile: { ...student }, ...sum, messages: messages.slice(), coach:"Moses Confidence", coaches:["Moses Confidence","Cynthia Nweze"] };
+    return { profile: { ...student }, ...sum, messages: messages.slice(), coach:"Moses Confidence", coaches:["Moses Confidence"] };
   }
   function act(b){
     const nowIso = new Date().toISOString();
@@ -1803,7 +1803,7 @@ function renderDash(){
     $("#db-next-title").textContent = nx.title + (nx.by === "team" ? " (our team is on it)" : "");
     $("#db-next-due").textContent = nx.due ? (Date.parse(nx.due) < Date.now() ? "Was due " : "Due ") + fmtDate(nx.due) : "";
   }
-  const coaches = d.coaches || ["Moses Confidence","Cynthia Nweze"], owner = d.coach || coaches[0];
+  const coaches = [d.coach || "Moses Confidence"], owner = coaches[0];
   const others = coaches.filter(n => n !== owner);
   const ol = $("#db-owner"); ol.innerHTML = "";
   const stack = el("span", "av-stack"); [owner, ...others].forEach(n => stack.append(avatar(n)));

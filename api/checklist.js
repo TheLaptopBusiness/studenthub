@@ -38,7 +38,7 @@ async function respond(student, asTeam) {
   const fresh = await getStudent(student.id);
   const d = await loadDashboard(fresh, { forStudent: !asTeam });
   return json({ profile: publicProfile(fresh), ...d.summary, messages: d.messages, 
-    coach: coachFor(fresh), coaches: coachNames(), team: asTeam ? teamNames() : undefined });
+    coach: coachFor(fresh), coaches: [coachFor(fresh)], team: asTeam ? teamNames() : undefined });
 }
 
 export default async function handler(req) {
@@ -98,8 +98,8 @@ export default async function handler(req) {
         if (asTeam) {
           await notify(student, {
             event: "comment_reply",
-            email: templates.commentReply(student.name, shownToStudent(actor), t.title, text),
-            text: `${first(student.name)}, ${shownToStudent(actor)} replied about "${t.title}" in your Hub: ${siteUrl()}/#dashboard`
+            email: templates.commentReply(student.name, "Your coach", t.title, text),
+            text: `${first(student.name)}, your coach replied about "${t.title}" in your Hub: ${siteUrl()}/#dashboard`
           });
         }
         return respond(student, asTeam);
