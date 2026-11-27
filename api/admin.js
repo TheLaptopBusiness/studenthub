@@ -138,8 +138,13 @@ export default async function handler(req) {
     if (["", "Low", "Mid", "High"].includes(f.tier)) out.tier = f.tier;
     if (["", "HP", "Dell", "Lenovo"].includes(f.focus_brand)) out.focus_brand = f.focus_brand;
     for (const k of ["monthly_goal", "weekly_unit_target"]) if (f[k] !== undefined) { const n = Number(String(f[k]).replace(/[$,\s]/g, "")); out[k] = f[k] === "" || !(n > 0) ? null : (k === "weekly_unit_target" ? Math.round(n) : n); }
-    if (f.owner !== undefined) { if (!coachNames().includes(f.owner)) return json({ error: "Owner must be Moses or Cynthia." }, 400); out.owner = f.owner; }
+    if (f.owner !== undefined) { if (!coachNames().includes(f.owner)) return json({ error: "Pick an owner from the team list." }, 400); out.owner = f.owner; }
     if (out.name === "") return json({ error: "Name can't be empty." }, 400);
+    if (typeof f.enrolled === "string" && f.enrolled && f.enrolled !== String(s.created_at || "").slice(0, 10)) {
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(f.enrolled) || isNaN(Date.parse(f.enrolled))) return json({ error: "That enrollment date doesn't look right." }, 400);
+      if (Date.parse(f.enrolled) > Date.now() + 864e5) return json({ error: "The enrollment date can't be in the future." }, 400);
+      out.created_at = f.enrolled + "T12:00:00Z";
+    }
     if (typeof f.email === "string" && f.email.trim().toLowerCase() !== s.email) {
       const email = f.email.trim().toLowerCase();
       if (!isEmail(email)) return json({ error: "That email doesn't look right." }, 400);

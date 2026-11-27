@@ -634,6 +634,7 @@ function paint(){
           <form class="pedit" id="p-form" hidden>
             ${[["name","Name"],["email","Email"],["phone","Mobile"],["location","Location"],["business_name","Business name"],["domain","Domain"],["partner","Accountability partner"],["logo_url","Logo link"],["website_url","Website link"],["monthly_goal","Monthly goal ($)"],["weekly_unit_target","Laptops per week"]]
               .map(([k,l]) => `<label>${l}<input name="${k}" value="${esc(p[k] ?? "")}"></label>`).join("")}
+            <label>Date enrolled<input type="date" name="enrolled" value="${esc(String(p.created_at || "").slice(0, 10))}" max="${new Date().toISOString().slice(0, 10)}"></label>
             <label>Tier<select name="tier">${["","Low","Mid","High"].map(o => `<option value="${o}" ${p.tier === o ? "selected" : ""}>${o || "Not set"}</option>`).join("")}</select></label>
             <label>Brand<select name="focus_brand">${["","HP","Dell","Lenovo"].map(o => `<option value="${o}" ${p.focus_brand === o ? "selected" : ""}>${o || "Not set"}</option>`).join("")}</select></label>
             <div class="row" style="grid-column:1/-1"><button class="btn sm" type="submit">Save changes</button><button class="btn ghost sm" type="button" id="p-cancel">Cancel</button><span class="note" id="p-msg"></span></div>
