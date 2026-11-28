@@ -11,6 +11,7 @@ import { teamName, teamNames, coachNames, coachFor, shownToStudent } from "../li
 import { templates } from "../lib/email.js";
 import { notify } from "../lib/notify.js";
 import { json, readJson } from "../lib/http.js";
+import { soundsLikeExit, flagExit, logAction } from "../lib/care.js";
 
 export const config = { runtime: "edge" };
 const isId = s => /^[0-9a-f-]{36}$/i.test(String(s || ""));
@@ -82,6 +83,7 @@ export default async function handler(req) {
         await updateStudent(student.id, { ...profile, ...touch });
         const after = summarize(updatedStudent, items.map(i => i.id === item.id ? { ...i, done, done_at: done ? nowIso() : null, value } : i));
         await afterTick(updatedStudent, { ...item, done, value }, before, after, asTeam);
+        if (asTeam) await logAction(actor, done ? "ticked" : "unticked", student, t.title);
         return respond(student, asTeam);
       }
       case "comment": {
@@ -92,8 +94,11 @@ export default async function handler(req) {
         const item = items.find(i => i.key === t.key);
         await db("item_comments", { method: "POST", prefer: "return=minimal", body: { student_id: student.id, item_key: t.key, author: actor, from_team: asTeam, body: text } });
         await db(`checklist_items?id=eq.${enc(item.id)}`, { method: "PATCH", prefer: "return=minimal", body: {
-          awaiting_reply: !asTeam, comment_count: (item.comment_count || 0) + 1
+          awaiting_reply: !asTeam, comment_count: (item.comment_count || 0) + 1,
+          ...(asTeam ? { awaiting_since: null, escalated_at: null } : item.awaiting_reply && item.awaiting_since ? {} : { awaiting_since: nowIso(), escalated_at: null })
         } });
+        if (!asTeam && soundsLikeExit(text)) await flagExit(student, `comment on "${t.title}"`, text).catch(() => {});
+        if (asTeam) await logAction(actor, "comment_reply", student, `${t.title}: ${text.slice(0, 120)}`);
         await updateStudent(student.id, touch);
         if (asTeam) {
           await notify(student, {
@@ -130,6 +135,7 @@ export default async function handler(req) {
         const text = String(body.body || "").trim();
         if (!text) return json({ error: "Write a message first." }, 400);
         await postMessage(student, actor, text);
+        await logAction(actor, "message", student, text.slice(0, 160));
         return respond(student, asTeam);
       }
       case "due": {
@@ -141,6 +147,7 @@ export default async function handler(req) {
         const items = await ensureChecklist(student);
         const item = items.find(i => i.key === t.key);
         await db(`checklist_items?id=eq.${enc(item.id)}`, { method: "PATCH", prefer: "return=minimal", body: { due_override: d ? d.toISOString() : null, reminded_at: null } });
+        await logAction(actor, "due_date", student, `${t.title}: ${body.date || "reset"}`);
         if (d && t.by === "team" && body.tell_student) {
           const what = t.key === "logo" ? "logo" : "website";
           const when = d.toLocaleDateString("en-US", { weekday: "long", month: "short", day: "numeric", timeZone: "UTC" });
@@ -152,11 +159,13 @@ export default async function handler(req) {
         if (!asTeam) return json({ error: "forbidden" }, 403);
         if (!coachNames().includes(body.owner)) return json({ error: `Owner must be one of: ${coachNames().join(", ")}.` }, 400);
         await updateStudent(student.id, { owner: body.owner });
+        await logAction(actor, "owner", student, body.owner);
         return respond(student, asTeam);
       }
       case "pause": {
         if (!asTeam) return json({ error: "forbidden" }, 403);
         await updateStudent(student.id, { reminders_paused: Boolean(body.paused) });
+        await logAction(actor, body.paused ? "reminders_off" : "reminders_on", student, "");
         return respond(student, asTeam);
       }
       default:

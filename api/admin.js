@@ -19,10 +19,12 @@ import { enrollStudent, postMessage } from "../lib/dashboard.js";
 import { coachNames, teamNames, teamName } from "../lib/team.js";
 import { sendCallReminder } from "../lib/calls.js";
 import { json, readJson, isEmail } from "../lib/http.js";
+import { careData, healthOf, firstSale, totals, weekdayHoursSince, replyHours, logAction, alertEmails } from "../lib/care.js";
+import { ghlApi } from "../lib/ghl.js";
 
 export const config = { runtime: "edge" };
 
-const LIST_FIELDS = "id,email,name,phone,business_name,status,owner,onboarded_at,tasks_total,tasks_done,last_task_done_at,last_checkin_at,last_active_at,last_activity_at,last_contact_at,reminders_paused,created_at";
+const LIST_FIELDS = "id,email,name,phone,business_name,status,owner,onboarded_at,tasks_total,tasks_done,last_task_done_at,last_checkin_at,last_active_at,last_activity_at,last_contact_at,reminders_paused,created_at,first_sale_at,exit_risk_at,exit_risk_reason,exit_risk_source,location,health_score,red_alerted_at";
 
 export default async function handler(req) {
   if (!configured()) return json({ error: "server_not_configured" }, 500);
@@ -45,35 +47,46 @@ export default async function handler(req) {
         rows: rows.map(r => ({ ...r, name: (by[r.student_id] || {}).name || "", owner: (by[r.student_id] || {}).owner || "" })),
         missing: studs.filter(x => !rows.find(r => r.student_id === x.id) && x.created_at.slice(0, 10) <= shift(6)).map(x => ({ id: x.id, name: x.name, owner: x.owner })) });
     }
+    if (qs.get("health")) return json(await systemHealth());
     if (!id) {
-      const [students, items, wkPulses] = await Promise.all([
+      const [students, items, wkPulses, care] = await Promise.all([
         db(`students?select=${LIST_FIELDS}&order=created_at.desc&limit=1000`),
-        db(`checklist_items?select=student_id,key,done,done_at,due_override,awaiting_reply&limit=50000`),
-        db(`pulses?week=eq.${weekKey()}&select=student_id,flag,replied_at,mood&limit=5000`).catch(() => [])
+        db(`checklist_items?select=student_id,key,done,done_at,due_override,awaiting_reply,awaiting_since&limit=50000`),
+        db(`pulses?week=eq.${weekKey()}&select=student_id,flag,replied_at,mood,need_help,created_at&limit=5000`).catch(() => []),
+        careData()
       ]);
       const pulseBy = Object.fromEntries(wkPulses.map(p => [p.student_id, p]));
       const byStudent = {};
       for (const i of items) (byStudent[i.student_id] = byStudent[i.student_id] || []).push(i);
       const out = students.map(s => {
         const sum = summarize(s, byStudent[s.id] || []);
-        return { ...s, stage: sum.stage, percent: sum.percent, done: sum.done, total: sum.total, overdue: sum.overdue,
+        const mine = byStudent[s.id] || [];
+        const since = [...mine.filter(i => i.awaiting_reply && i.awaiting_since).map(i => i.awaiting_since),
+          ...(pulseBy[s.id] && !pulseBy[s.id].replied_at && (pulseBy[s.id].flag === "respond" || pulseBy[s.id].need_help) ? [pulseBy[s.id].created_at] : [])].sort()[0];
+        const waiting = since ? Math.round(weekdayHoursSince(since)) : 0;
+        const sales = care.salesBy[s.id] || [];
+        const h = healthOf({ student: s, sum, sales, pulse: care.pulseBy[s.id], waiting });
+        const t = totals(sales);
+        return { ...s, health: h, first_sale: firstSale(s), sold: t.count, profit: t.profit, waiting_hours: waiting, reply_late: waiting >= replyHours(), exit_risk: !!s.exit_risk_at, stage: sum.stage, percent: sum.percent, done: sum.done, total: sum.total, overdue: sum.overdue,
           overdue_team: sum.overdue_team, awaiting_reply: sum.awaiting_reply, at_risk: sum.at_risk, quiet_days: sum.quiet_days,
           next: sum.next ? sum.next.title : "",
           pulse: pulseBy[s.id] ? { flag: pulseBy[s.id].flag, replied: !!pulseBy[s.id].replied_at, mood: pulseBy[s.id].mood } : null };
       });
-      return json({ students: out, team: teamNames(), coaches: coachNames() });
+      return json({ students: out, team: teamNames(), coaches: coachNames(), reply_hours: replyHours(), first_sale_days: out[0] ? out[0].first_sale.days : 45 });
     }
     const s = await getStudent(id);
     if (!s) return json({ error: "not_found" }, 404);
-    const [tasks, checkins, auctions, outbox, pulses] = await Promise.all([
+    const [tasks, checkins, auctions, outbox, pulses, sales, activity] = await Promise.all([
       db(`tasks?student_id=eq.${enc(id)}&select=id,phase,week,title,done,done_at&order=sort.asc`),
       db(`checkins?student_id=eq.${enc(id)}&select=week_label,data,report,created_at&order=created_at.desc&limit=8`),
       db(`auctions?student_id=eq.${enc(id)}&select=url,title,rating,result,created_at&order=created_at.desc&limit=6`),
       db(`outbox?student_id=eq.${enc(id)}&select=channel,event,subject,body,ok,created_at&order=created_at.desc&limit=100`).catch(() => []),
-      db(`pulses?student_id=eq.${enc(id)}&select=*&order=week.desc&limit=26`).catch(() => [])
+      db(`pulses?student_id=eq.${enc(id)}&select=*&order=week.desc&limit=26`).catch(() => []),
+      db(`sales?student_id=eq.${enc(id)}&select=*&order=sold_on.desc&limit=500`).catch(() => []),
+      db(`team_actions?student_id=eq.${enc(id)}&select=actor,action,detail,created_at&order=created_at.desc&limit=60`).catch(() => [])
     ]);
     const { ai_day, ai_count, reminders, ...student } = s;
-    return json({ student: { ...student, ai_today: ai_day === new Date().toISOString().slice(0, 10) ? ai_count : 0 }, tasks, checkins, auctions, outbox, pulses });
+    return json({ student: { ...student, ai_today: ai_day === new Date().toISOString().slice(0, 10) ? ai_count : 0 }, tasks, checkins, auctions, outbox, pulses, sales, sales_totals: totals(sales), first_sale: firstSale(s), activity });
   }
 
   if (req.method !== "POST") return json({ error: "method_not_allowed" }, 405);
@@ -86,6 +99,7 @@ export default async function handler(req) {
     if (!isEmail(email) || !name) return json({ error: "Enter the student's name and a valid email." }, 400);
     if (await getStudentByEmail(email)) return json({ error: "That email is already enrolled." }, 409);
     const r = await enrollStudent({ name, email, phone: String(body.phone || "").trim(), owner: body.owner });
+    await logAction(teamName(user.email), "enrolled", r.student, email);
     return json({ ok: true, emailed: r.emailed });
   }
 
@@ -96,6 +110,7 @@ export default async function handler(req) {
       : await db("students?status=in.(invited,active)&reminders_paused=is.false&select=*&limit=5000");
     let sent = 0;
     for (const st of list) if (await (kind === "monday" ? sendMonday(st) : sendCheckin(st))) sent++;
+    if (body.id && list[0]) await logAction(teamName(user.email), "sent_" + kind, list[0], "");
     return json({ ok: true, sent, total: list.length });
   }
 
@@ -108,6 +123,7 @@ export default async function handler(req) {
     const who = teamName(user.email);
     await postMessage(st, who, text);
     await db(`pulses?id=eq.${enc(pr.id)}`, { method: "PATCH", prefer: "return=minimal", body: { replied_at: nowIso(), replied_by: who } });
+    await logAction(who, "checkin_reply", st, text.slice(0, 160));
     return json({ ok: true, replied_by: who });
   }
 
@@ -123,11 +139,13 @@ export default async function handler(req) {
     const { link } = await signInLink(s.email, "/");
     const t = s.onboarded_at ? templates.login(s.name, link) : templates.welcome(s.name, link);
     const emailed = await sendEmail({ to: s.email, student: s, ...t });
+    await logAction(teamName(user.email), "resent_signin", s, "");
     return json({ ok: true, emailed });
   }
   if (body.action === "status") {
     const status = body.status === "paused" ? "paused" : (s.onboarded_at ? "active" : "invited");
     await updateStudent(s.id, { status });
+    await logAction(teamName(user.email), status === "paused" ? "access_paused" : "access_restored", s, "");
     return json({ ok: true, status });
   }
   if (body.action === "update") {
@@ -153,16 +171,48 @@ export default async function handler(req) {
     }
     if (out.phone !== undefined && out.phone !== s.phone) out.ghl_contact_id = "";
     await updateStudent(s.id, out);
+    const changedKeys = Object.keys(out).filter(k => k !== "ghl_contact_id" && String(out[k] ?? "") !== String(s[k] ?? ""));
+    if (changedKeys.length) await logAction(teamName(user.email), "edited", s, changedKeys.map(k => k === "created_at" ? "enrollment date" : k.replace(/_/g, " ")).join(", "));
     return json({ ok: true });
   }
   if (body.action === "delete") {
     if (body.confirm !== "DELETE") return json({ error: 'Type DELETE to confirm.' }, 400);
+    await logAction(teamName(user.email), "deleted", s, s.email);
     await deleteUser(s.id);
     return json({ ok: true, deleted: true });
   }
+  if (body.action === "exit_resolve") {
+    await updateStudent(s.id, { exit_risk_at: null, exit_risk_reason: "", exit_risk_source: "" });
+    await logAction(teamName(user.email), "exit_resolved", s, String(body.note || "").slice(0, 300));
+    return json({ ok: true });
+  }
+  if (body.action === "exit_flag") {
+    await updateStudent(s.id, { exit_risk_at: nowIso(), exit_risk_reason: String(body.note || "Flagged by the team").slice(0, 300), exit_risk_source: "team" });
+    await logAction(teamName(user.email), "exit_flagged", s, String(body.note || "").slice(0, 300));
+    return json({ ok: true });
+  }
   if (body.action === "notes") {
     await updateStudent(s.id, { coach_notes: String(body.notes || "").slice(0, 10000) });
+    await logAction(teamName(user.email), "notes", s, "");
     return json({ ok: true });
   }
   return json({ error: "bad_request" }, 400);
+}
+
+/** System status for the coach dashboard: is everything the Hub depends on reachable? */
+async function systemHealth() {
+  const checks = [];
+  const t0 = Date.now();
+  try { await db("students?select=id&limit=1"); checks.push({ name: "Database", ok: true, note: `Connected (${Date.now() - t0}ms)` }); }
+  catch (e) { checks.push({ name: "Database", ok: false, note: "Can't reach Supabase" }); }
+  checks.push({ name: "Emails and texts", ok: !!(ghlApi() || process.env.RESEND_API_KEY || process.env.GHL_WEBHOOK_URL), note: ghlApi() ? "GoHighLevel connected" : process.env.RESEND_API_KEY ? "Resend" : process.env.GHL_WEBHOOK_URL ? "GoHighLevel workflow" : "Not set up" });
+  checks.push({ name: "AI Coach", ok: !!process.env.ANTHROPIC_API_KEY, note: process.env.ANTHROPIC_API_KEY ? "Key set" : "Missing ANTHROPIC_API_KEY" });
+  checks.push({ name: "Reminder job", ok: !!process.env.CRON_SECRET, note: process.env.CRON_SECRET ? "Runs every hour" : "Missing CRON_SECRET" });
+  checks.push({ name: "Red alerts go to", ok: alertEmails().length > 0, note: alertEmails().join(", ") || "Nobody" });
+  try {
+    const since = new Date(Date.now() - 864e5).toISOString();
+    const f = await db(`outbox?ok=eq.false&created_at=gte.${encodeURIComponent(since)}&select=id&limit=200`);
+    checks.push({ name: "Messages in the last day", ok: f.length === 0, note: f.length ? `${f.length} failed to send` : "All sent" });
+  } catch {}
+  return { ok: checks.every(c => c.ok), checks };
 }

@@ -13,6 +13,7 @@ import { sendMonday, sendCheckin, checkinLink } from "../lib/weekly.js";
 import { weekKey } from "../lib/pulse.js";
 import { SUNDAY_NUDGE_SMS, pick, fill } from "../lib/variants.js";
 import { json } from "../lib/http.js";
+import { weekdayHoursSince, replyHours, sendAlert, careData, healthOf, firstSale, totals, alertEmails } from "../lib/care.js";
 
 export const config = { runtime: "edge" };
 
@@ -55,7 +56,13 @@ export default async function handler(req) {
 
   const doDaily = force === "daily" || local.hour === parseInt(process.env.DAILY_HOUR || "9", 10);
   const doCall24 = false, doCall1 = false; // call reminders are sent from the coach dashboard
-  if (!doDaily && !doCall24 && !doCall1) return json({ ok: true, skipped: true });
+  const errors = [];
+  let escalated = 0;
+  try { escalated = await escalateReplies(); } catch (e) { errors.push("Reply timer: " + (e && e.message)); console.error("escalation failed", e); }
+  if (!doDaily && !doCall24 && !doCall1) {
+    if (errors.length && force !== "quiet") await sendAlert("Student Hub: something went wrong", "The hourly job hit a problem", errors.map(esc)).catch(() => {});
+    return json({ ok: true, skipped: true, escalated, errors });
+  }
 
   const students = await db("students?status=in.(invited,active)&select=*&limit=5000");
   const allItems = await db("checklist_items?select=*&limit=50000");
@@ -70,7 +77,10 @@ export default async function handler(req) {
   const dg = { teamLate: [], replies: [], late3: [], late7: [], quiet7: [], quiet10: [], risk: [], notSignedIn: [], wins: [] };
   const today = local.date;
 
+  const care = doDaily ? await careData() : { salesBy: {}, pulseBy: {} };
+  const reds = [], firstSales = [], exits = [];
   for (const s of students) {
+   try {
     const rem = { ...(s.reminders || {}) };
     let changed = false;
     const sum = summarize(s, itemsBy[s.id] || []);
@@ -161,7 +171,43 @@ export default async function handler(req) {
         }
       }
     }
+    if (doDaily) {
+      // ----- health score + red alerts -----
+      const sales = care.salesBy[s.id] || [];
+      const waitingSince = (itemsBy[s.id] || []).filter(i => i.awaiting_reply && i.awaiting_since).map(i => i.awaiting_since).sort()[0];
+      const h = healthOf({ student: s, sum, sales, pulse: care.pulseBy[s.id], waiting: waitingSince ? weekdayHoursSince(waitingSince) : 0 });
+      const patch = {};
+      if (h.score !== s.health_score || h.level !== s.health_level) Object.assign(patch, { health_score: h.score, health_level: h.level, health_reasons: h.reasons });
+      if (h.level === "red" && !s.red_alerted_at && !paused) { reds.push({ s, h }); patch.red_alerted_at = nowIso(); }
+      if (h.level !== "red" && s.red_alerted_at) patch.red_alerted_at = null;
+      if (s.exit_risk_at) exits.push(who);
+      if (s.first_sale_at && daysSince(s.first_sale_at) < 1) firstSales.push(who);
+      if (Object.keys(patch).length) await updateStudent(s.id, patch);
+
+      // ----- progress report every 30 days -----
+      const age = daysSince(s.created_at), k = Math.floor(age / 30);
+      if (k >= 1 && (rem.report || 0) < k) {
+        if (!paused && age - k * 30 < 7) {
+          const t = totals(sales);
+          await sendEmail({ to: s.email, student: s, event: "progress_report", ...templates.progressReport(s.name, k * 30, {
+            done: sum.done, total: sum.total, sections: sum.sections.filter(x => x.status === "complete").length, sold: t.count, profit: t.profit, next: sum.next && sum.next.title }) });
+          sent.report = (sent.report || 0) + 1;
+        }
+        rem.report = k; changed = true;
+      }
+    }
     if (changed) await updateStudent(s.id, { reminders: rem });
+   } catch (e) {
+    errors.push(`${s.name || s.email}: ${e && e.message ? e.message.slice(0, 200) : e}`);
+    console.error("cron student failed", s.id, e);
+   }
+  }
+
+  if (reds.length) {
+    await sendAlert(`🔴 ${reds.length} student${reds.length === 1 ? "" : "s"} in the red today`, reds.length === 1 ? "A student needs you today" : `${reds.length} students need you today`, [
+      `These students just dropped into the red. Reach out to each one personally today, a call or a voice note works best.`,
+      ...reds.map(({ s, h }) => `<strong>${esc(s.name || s.email)}</strong> · health ${h.score}/100<br><span style="color:#76727f">${esc(h.reasons.join(" · "))}</span>`)
+    ], `${siteUrl()}/admin`);
   }
 
   let digest = false;
@@ -173,6 +219,8 @@ export default async function handler(req) {
       .map(p => `${names[p.student_id] || "A student"}: ${p.flag_reason || "needs a reply"}`);
     const flagged = recent.filter(c => /flag for coaching call/i.test(c.report)).map(c => names[c.student_id] || "A student");
     const wrong = await db("coach_feedback?status=eq.open&rating=eq.down&select=id&limit=500");
+    const failed = (await db(`outbox?ok=eq.false&created_at=gte.${encodeURIComponent(since)}&select=student_id,channel&limit=500`).catch(() => []))
+      .map(o => `${names[o.student_id] || "A student"} (${o.channel === "sms" ? "text" : "email"})`);
     const block = (title, arr) => arr.length ? `<strong>${title}</strong><br>${arr.map(esc).join("<br>")}` : null;
     const lines = [
       block("💬 Weekly check-ins waiting for a reply:", unreplied),
@@ -186,12 +234,49 @@ export default async function handler(req) {
       block("Haven't signed in yet:", dg.notSignedIn),
       flagged.length ? `<strong>Check-ins flagged for a coaching call:</strong> ${esc(flagged.join(", "))}` : null,
       wrong.length ? `<strong>Coach answers marked wrong:</strong> ${wrong.length}. Open "Questions to review".` : null,
-      block("🎉 Wins to celebrate (sections finished in the last day):", dg.wins)
+      block("🎉 Wins to celebrate (sections finished in the last day):", dg.wins),
+      block("🥳 First sales in the last day (send a personal congratulations):", firstSales),
+      block("🔴 Exit risk, offer a one-on-one call (team only):", exits),
+      failed.length ? block(`⚠️ ${failed.length} email${failed.length === 1 ? "" : "s"}/text${failed.length === 1 ? "" : "s"} failed to send in the last day (see "Messages we've sent" on their page):`, [...new Set(failed)]) : null,
+      errors.length ? block("⚠️ The daily job hit problems (tell your developer):", errors.slice(0, 10)) : null
     ].filter(Boolean);
     const to = teamEmails();
     if (lines.length && to.length) digest = await sendEmail({ to, ...templates.coachDigest(lines) });
   }
 
-  return json({ ok: true, ran: { daily: doDaily, call24: doCall24, call1: doCall1 }, students: students.length, sent, digest,
+  return json({ ok: true, ran: { daily: doDaily, call24: doCall24, call1: doCall1 }, students: students.length, sent, digest, escalated, reds: reds.length, errors,
     counts: Object.fromEntries(Object.entries(dg).map(([k, v]) => [k, v.length])) });
+}
+
+/** The 24-hour reply promise (Monday–Friday hours): anything a student is still waiting on gets escalated to the success coach, once. */
+export async function escalateReplies() {
+  const limit = replyHours();
+  const [items, pulses] = await Promise.all([
+    db("checklist_items?awaiting_reply=eq.true&escalated_at=is.null&select=id,student_id,key,awaiting_since&limit=2000"),
+    db("pulses?replied_at=is.null&escalated_at=is.null&or=(flag.eq.respond,need_help.eq.true)&select=id,student_id,created_at,flag_reason,need_help&limit=2000").catch(() => [])
+  ]);
+  const late = [];
+  for (const i of items) {
+    if (!i.awaiting_since) { await db(`checklist_items?id=eq.${i.id}`, { method: "PATCH", prefer: "return=minimal", body: { awaiting_since: nowIso() } }); continue; }
+    const h = weekdayHoursSince(i.awaiting_since);
+    if (h >= limit) late.push({ kind: "item", id: i.id, student_id: i.student_id, what: `question on "${(TEMPLATE.find(t => t.key === i.key) || {}).title || i.key}"`, h });
+  }
+  for (const p of pulses) {
+    const h = weekdayHoursSince(p.created_at);
+    if (h >= limit) late.push({ kind: "pulse", id: p.id, student_id: p.student_id, what: p.need_help ? "weekly check-in (asked for help)" : "weekly check-in", h });
+  }
+  if (!late.length) return 0;
+  const ids = [...new Set(late.map(x => x.student_id))];
+  const studs = await db(`students?id=in.(${ids.join(",")})&select=id,name,email&limit=500`);
+  const nm = Object.fromEntries(studs.map(x => [x.id, x.name || x.email]));
+  const ok = await sendAlert(`⏰ ${late.length} student${late.length === 1 ? " is" : "s are"} waiting over ${limit} hours for a reply`, "Past our 24-hour reply promise", [
+    `We promise students a reply within ${limit} hours, Monday to Friday. These are past that:`,
+    ...late.map(x => `<strong>${esc(nm[x.student_id] || "A student")}</strong>: ${esc(x.what)} · waiting ${Math.round(x.h)} weekday hours`),
+    `Reply from the coach dashboard and this clears automatically.`
+  ], `${siteUrl()}/admin`);
+  if (!ok) return 0;
+  for (const x of late) {
+    await db(`${x.kind === "item" ? "checklist_items" : "pulses"}?id=eq.${x.id}`, { method: "PATCH", prefer: "return=minimal", body: { escalated_at: nowIso() } });
+  }
+  return late.length;
 }

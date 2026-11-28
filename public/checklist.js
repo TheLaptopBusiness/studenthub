@@ -16,6 +16,8 @@ export const SECTIONS = [
 export const TEMPLATE = [
   { key: "intro", section: 1, by: "student", due: { days: 1 }, title: "Post your introduction in the Skool group",
     help: "Name, location and your goal. Start connecting with the group." },
+  { key: "onboarding_call", section: 1, by: "student", due: { days: 2 }, title: "Book your onboarding call",
+    help: "A one-on-one call with one of our consultants to get you set up for success. Pick a time that suits you, then tick this.", link: "ONBOARDING_CALL_LINK", linkLabel: "Book my onboarding call" },
   { key: "partner", section: 1, by: "student", due: { days: 7 }, title: "Find an accountability partner",
     help: "Someone at a similar stage. Check in with each other weekly.", input: { type: "text", label: "Your partner's name", field: "partner", required: true } },
 
@@ -110,7 +112,7 @@ export function summarize(student, items, now = Date.now()) {
       const overdueDays = due ? Math.floor((now - Date.parse(due)) / DAY) : -1;
       const waitingOn = !i.done && t.due.after && !(byKey[t.due.after] && byKey[t.due.after].done) ? t.due.after : null;
       return {
-        id: i.id, key: i.key, section: t.section, by: t.by, title: t.title, help: t.help, input: t.input || null, link: t.link || null,
+        id: i.id, key: i.key, section: t.section, by: t.by, title: t.title, help: t.help, input: t.input || null, link: t.link || null, link_label: t.linkLabel || null,
         value: i.value || "", done: !!i.done, done_at: i.done_at || null, done_by_name: i.done_by_name || "",
         due, overdue: !i.done && due != null && now > Date.parse(due), overdue_days: Math.max(0, overdueDays),
         waiting_on: waitingOn, awaiting_reply: !!i.awaiting_reply, comment_count: i.comment_count || 0

@@ -190,3 +190,14 @@ Nothing extra. Google sign-in and passwords are free in Supabase, and they don't
 - Today / Pipeline / Broadcast views for the team (Phase 3).
 - Coaching-call prep summaries and post-call follow-ups, which need call recordings or transcripts.
 - QC testing workflow, inventory tracking and condition-grading from photos.
+
+## Fulfilment upgrade (sales, health score, alerts)
+After uploading, re-run `supabase/schema.sql` in Supabase → SQL Editor (safe to run again).
+- **My Sales** (students): log each laptop sold; profit, monthly goal progress, and a 45-day first-sale clock. First sale and milestones (5, 10, 25… laptops) send a celebration email and text from Abdi.
+- **Community wins** on Home: recent sales (first name and city only). Students can hide theirs.
+- **Onboarding call**: step 2 on the checklist and a card on Home. Link: `ONBOARDING_CALL_LINK` (default the cal.com link).
+- **Health score** (0–100) for every student on the coach dashboard; red students blink and are emailed to `ALERT_EMAILS` (default topfigurecs@gmail.com) once when they turn red.
+- **24-hour reply promise** (Monday–Friday hours, `REPLY_HOURS`): anything still unanswered is emailed to `ALERT_EMAILS` once.
+- **Exit risk** (team only): words like quitting or money back in a comment, check-in or AI Coach question flag the student and email the success coach to offer a one-on-one call. Students never see it.
+- **30-day progress report** email to each student every 30 days.
+- **System status** strip, **team activity log** per student, and a daily-summary line for any email or text that failed.

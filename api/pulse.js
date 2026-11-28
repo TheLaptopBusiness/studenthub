@@ -8,6 +8,7 @@ import { sendEmail, templates } from "../lib/email.js";
 import { json, readJson } from "../lib/http.js";
 import { analyzePulse } from "../lib/analyze.js";
 import { summarize } from "../lib/checklist.js";
+import { soundsLikeExit, flagExit } from "../lib/care.js";
 
 export const config = { runtime: "edge" };
 const MOODS = ["Tough", "Slow", "Okay", "Good", "Great"];
@@ -42,6 +43,8 @@ export default async function handler(req) {
   if (existing && existing.replied_at) Object.assign(row, { replied_at: existing.replied_at, replied_by: existing.replied_by });
   await db("pulses?on_conflict=student_id,week", { method: "POST", prefer: "resolution=merge-duplicates,return=minimal", body: row });
   await updateStudent(s.id, { last_activity_at: nowIso(), last_checkin_at: nowIso() });
+  const said = `${row.win} ${row.challenge}`;
+  if (soundsLikeExit(said)) await flagExit(s, "weekly check-in", row.challenge || row.win).catch(() => {});
   const to = teamEmails();
   if (to.length && (!existing || (a.flag === "respond" && existing.flag !== "respond"))) {
     await sendEmail({ to, ...templates.teamPulse(s.name || s.email, row, `${siteUrl()}/admin#checkins`, coachFor(s)) }).catch(() => {});

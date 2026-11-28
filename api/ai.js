@@ -6,6 +6,7 @@ import { fetchAuctionText } from "../lib/pagetext.js";
 import { loadKnowledge } from "../lib/knowledge.js";
 import { getUser, isAdmin, getStudent, updateStudent, db, enc, nowIso, recountTasks, configured, studentFor } from "../lib/supa.js";
 import { json } from "../lib/http.js";
+import { soundsLikeExit, flagExit } from "../lib/care.js";
 
 export const config = { runtime: "edge" };
 
@@ -47,6 +48,8 @@ export default async function handler(req) {
     const recentQuestions = turns.filter(t => t && t.role === "user").slice(-2).map(t => String(t.content || "")).join(" ");
     try { body.data.knowledge = await loadKnowledge(recentQuestions); }
     catch (e) { console.error("Knowledge load failed", e && e.message); }
+    const lastQ = turns.filter(t => t && t.role === "user").slice(-1).map(t => String(t.content || "")).join(" ");
+    if (student && soundsLikeExit(lastQ)) await flagExit(student, "question to the AI Coach", lastQ).catch(() => {});
   }
 
   let p;

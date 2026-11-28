@@ -198,3 +198,45 @@ alter table public.item_comments enable row level security;
 alter table public.messages enable row level security;
 alter table public.pulses enable row level security;
 alter table public.outbox enable row level security;
+
+-- ===== Fulfilment upgrade: sales tracker, health score, exit-risk alerts, reply timer, team activity log =====
+create table if not exists public.sales (
+  id uuid primary key default gen_random_uuid(),
+  student_id uuid not null references public.students(id) on delete cascade,
+  model text not null default '',
+  platform text not null default '',
+  buy_price numeric not null default 0,
+  sale_price numeric not null default 0,
+  sold_on date not null default current_date,
+  supplied boolean not null default false,
+  created_at timestamptz not null default now()
+);
+create index if not exists sales_student_idx on public.sales (student_id, sold_on desc);
+create index if not exists sales_recent_idx on public.sales (created_at desc);
+
+alter table public.students add column if not exists first_sale_at timestamptz;
+alter table public.students add column if not exists share_wins boolean not null default true;
+alter table public.students add column if not exists exit_risk_at timestamptz;
+alter table public.students add column if not exists exit_risk_reason text not null default '';
+alter table public.students add column if not exists exit_risk_source text not null default '';
+alter table public.students add column if not exists health_score int;
+alter table public.students add column if not exists health_level text not null default '';
+alter table public.students add column if not exists health_reasons jsonb not null default '[]'::jsonb;
+alter table public.students add column if not exists red_alerted_at timestamptz;
+alter table public.checklist_items add column if not exists awaiting_since timestamptz;
+alter table public.checklist_items add column if not exists escalated_at timestamptz;
+alter table public.pulses add column if not exists escalated_at timestamptz;
+
+create table if not exists public.team_actions (
+  id uuid primary key default gen_random_uuid(),
+  actor text not null default '',
+  action text not null default '',
+  student_id uuid references public.students(id) on delete set null,
+  student_name text not null default '',
+  detail text not null default '',
+  created_at timestamptz not null default now()
+);
+create index if not exists team_actions_student_idx on public.team_actions (student_id, created_at desc);
+
+alter table public.sales enable row level security;
+alter table public.team_actions enable row level security;

@@ -30,7 +30,8 @@ button,input,select,textarea{font:inherit;color:inherit}
 .top .eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
 .top h1{font-size:30px;font-weight:800}
 .card{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:18px}
-.tiles{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+.tiles{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px}
+.tile.red b{color:#b3402e}.tile.red span{display:flex;align-items:center;gap:8px}
 .tile{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:14px 16px;display:flex;flex-direction:column;gap:2px}
 .tile b{font-family:var(--display);font-size:32px;font-weight:800;font-variant-numeric:tabular-nums;line-height:1.1}
 .tile span{font-size:13px;color:var(--muted)}
@@ -154,7 +155,7 @@ a.btn{text-decoration:none;display:inline-block}
   <div class="card">
     <div class="adm-signin-brand"><img src="favicon.svg" alt="" width="40" height="40"><span><b>Laptop Business Mastery</b><small>Team area</small></span></div>
     <h1 class="swoosh" style="font-size:34px">Coach Dashboard</h1>
-    <p class="adm-sub">Where Moses, Cynthia and Abdi keep every student moving: progress, questions, logos and websites, all in one place.</p>
+    <p class="adm-sub">Where our team keeps every student moving: progress, questions, sales, logos and websites, all in one place.</p>
     <p class="note" id="signin-msg">Sign in with your team email.</p>
     <div id="signin-google-wrap" class="stack" style="gap:12px" hidden>
       <button class="gbtn" type="button" id="signin-google"><svg viewBox="0 0 48 48" aria-hidden="true"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.2 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.4-.4-3.5z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.7 15.1 19 12 24 12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.2 0-9.6-3.3-11.3-8l-6.5 5C9.5 39.6 16.2 44 24 44z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.2-2.2 4.2-4.1 5.6l6.2 5.2C37 39.2 44 34 44 24c0-1.3-.1-2.4-.4-3.5z"/></svg>Continue with Google</button>
@@ -195,12 +196,15 @@ a.btn{text-decoration:none;display:inline-block}
   </div>
 
   <div class="stack" id="pane-students" style="gap:20px">
+  <div class="redbar" id="redbar" hidden></div>
   <div class="tiles">
     <div class="tile"><b id="t-total">0</b><span>Students enrolled</span></div>
-    <div class="tile warn"><b id="t-overdue">0</b><span>Have overdue steps</span></div>
+    <div class="tile red"><b id="t-red">0</b><span><i class="blink" id="t-red-dot" hidden></i>In the red, reach out today</span></div>
     <div class="tile warn"><b id="t-us">0</b><span>Waiting on us (reply, logo, website)</span></div>
-    <div class="tile"><b id="t-ready">0</b><span>Cleared to buy</span></div>
+    <div class="tile warn"><b id="t-overdue">0</b><span>Have overdue steps</span></div>
+    <div class="tile"><b id="t-sale">0</b><span>Made their first sale</span></div>
   </div>
+  <div class="status-strip" id="status-strip" aria-label="System status"></div>
 
   <div class="card stack callcard" style="gap:10px">
     <div class="row" style="justify-content:space-between"><strong>Coaching call reminder</strong><span class="note">Emails and texts every student: "Check the Skool community for the link."</span></div>
@@ -226,7 +230,11 @@ a.btn{text-decoration:none;display:inline-block}
   <div class="row" style="justify-content:space-between">
     <div class="filters" id="filters">
       <button type="button" data-f="all" aria-pressed="true">All</button>
+      <button type="button" data-f="red" aria-pressed="false">In the red</button>
       <button type="button" data-f="attention" aria-pressed="false">Needs attention</button>
+      <button type="button" data-f="late" aria-pressed="false">Reply past 24h</button>
+      <button type="button" data-f="exit" aria-pressed="false">Exit risk</button>
+      <button type="button" data-f="nosale" aria-pressed="false">No sale yet</button>
       <button type="button" data-f="us" aria-pressed="false">Waiting on us</button>
       <button type="button" data-f="overdue" aria-pressed="false">Overdue</button>
       <button type="button" data-f="risk" aria-pressed="false">At risk (14+ days quiet)</button>
@@ -240,7 +248,7 @@ a.btn{text-decoration:none;display:inline-block}
 
   <div class="tablewrap">
     <table>
-      <thead><tr><th>Student</th><th>Owner</th><th>Stage</th><th>Checklist</th><th>Flags</th><th>Last active</th><th>Enrolled</th></tr></thead>
+      <thead><tr><th>Student</th><th>Health</th><th>Owner</th><th>Checklist</th><th>First sale</th><th>Flags</th><th>Last active</th></tr></thead>
       <tbody id="rows"><tr><td colspan="7" class="note">Loading students…</td></tr></tbody>
     </table>
   </div>
@@ -392,7 +400,12 @@ $("#pw-form").addEventListener("submit", async e => {
 $("#signout").addEventListener("click", () => showSignin("You're signed out."));
 
 /* ---------- students ---------- */
-let students = [], filter = "all", selected = null, team = [];
+let students = [], filter = "all", selected = null, team = [], replyHours = 24, coachesAll = [];
+async function loadStatus(){
+  try{ const h = await api("/api/admin?health=1");
+    $("#status-strip").innerHTML = `<span class="note" style="border:0;background:none;padding-left:0">System status</span>` + h.checks.map(c => `<span class="${c.ok ? "" : "bad"}" title="${esc(c.note)}"><i></i>${esc(c.name)}: ${esc(c.note)}</span>`).join("");
+  }catch{}
+}
 const pulseNeedsUs = s => !!(s.pulse && s.pulse.flag === "respond" && !s.pulse.replied);
 const waitingOnUs = s => s.awaiting_reply > 0 || s.overdue_team > 0 || pulseNeedsUs(s);
 const needsAttention = s => s.status !== "paused" && (s.overdue > 0 || waitingOnUs(s) || s.at_risk || (s.status === "invited" && daysSince(s.created_at) >= 2));
@@ -400,8 +413,15 @@ const lastActive = s => [s.last_active_at, s.last_activity_at].filter(Boolean).s
 const AVT = { "Moses Confidence":"co", "Cynthia Nweze":"sk", "Abdi Hassan":"ph" };
 function avHtml(n){ n = String(n || ""); if(!n) return ""; if(AVT[n] === "ph") return `<span class="av ph"><img src="img/abdi-avatar.jpg" alt=""></span>`;
   return `<span class="av ${AVT[n] || "cr"}">${esc(n.split(/\s+/).slice(0,2).map(w => w[0]).join("").toUpperCase())}</span>`; }
+const isRed = s => s.health && s.health.level === "red";
+function hpHtml(h){ if(!h || h.score == null) return `<span class="hp paused">Paused</span>`; return `<span class="hp ${h.level}" title="${esc(h.reasons.join(" · "))}">${h.level === "red" ? '<i class="blink"></i>' : ""}${h.score}</span>`; }
+function fsHtml(s){ const f = s.first_sale; if(!f) return "";
+  if(f.done) return `<span class="pill active">Day ${f.day}</span>${s.sold > 1 ? `<span class="sub">${s.sold} sold · $${Math.round(s.profit).toLocaleString("en-US")}</span>` : ""}`;
+  return `<span class="pill ${f.overdue ? "bad" : f.days_left <= 10 ? "stalled" : "invited"}">Day ${f.day} of ${f.days}</span>`; }
 function flags(s){
   const f = [];
+  if(s.exit_risk) f.push(`<span class="pill bad"><i class="blink" style="width:8px;height:8px;margin-right:4px"></i>Exit risk</span>`);
+  if(s.reply_late) f.push(`<span class="pill bad">Waiting ${s.waiting_hours}h for us</span>`);
   if(pulseNeedsUs(s)) f.push(`<span class="pill bad">Check-in needs a reply</span>`);
   else if(s.pulse && s.pulse.flag === "watch") f.push(`<span class="pill stalled">Check-in: keep an eye</span>`);
   if(s.awaiting_reply) f.push(`<span class="pill bad">${s.awaiting_reply} comment${s.awaiting_reply > 1 ? "s" : ""} to answer</span>`);
@@ -419,11 +439,22 @@ function render(){
   $("#t-total").textContent = live.length;
   $("#t-overdue").textContent = live.filter(s => s.overdue > 0).length;
   $("#t-us").textContent = live.filter(waitingOnUs).length;
-  $("#t-ready").textContent = live.filter(s => s.total && s.done === s.total).length;
+  const reds = live.filter(isRed);
+  $("#t-red").textContent = reds.length; $("#t-red-dot").hidden = !reds.length;
+  $("#t-sale").textContent = live.filter(s => s.first_sale && s.first_sale.done).length;
+  const exits = live.filter(s => s.exit_risk), late = live.filter(s => s.reply_late);
+  const rb = $("#redbar");
+  rb.hidden = !(reds.length || exits.length || late.length);
+  rb.innerHTML = `<i class="blink"></i><span>${[reds.length ? `<b>${reds.length} student${reds.length === 1 ? " is" : "s are"} in the red</b>` : "", exits.length ? `<b>${exits.length} exit risk${exits.length === 1 ? "" : "s"}</b> (offer a one-on-one call)` : "", late.length ? `<b>${late.length}</b> waiting past our ${replyHours}-hour reply promise` : ""].filter(Boolean).join(" · ")}. Reach out today.</span><button class="btn sm" type="button" id="redbar-go">Show them</button>`;
+  const rg = $("#redbar-go"); if(rg) rg.onclick = () => { filter = "red"; document.querySelectorAll("#filters button").forEach(x => x.setAttribute("aria-pressed", String(x.dataset.f === "red"))); render(); };
   const q = $("#search").value.trim().toLowerCase(), ow = $("#owner-f").value;
   const list = students.filter(s => {
     if(q && !(s.name + " " + s.email + " " + (s.business_name || "")).toLowerCase().includes(q)) return false;
     if(ow && (s.owner || "") !== ow) return false;
+    if(filter === "red") return isRed(s) || s.exit_risk || s.reply_late;
+    if(filter === "late") return s.reply_late;
+    if(filter === "exit") return s.exit_risk;
+    if(filter === "nosale") return s.status !== "paused" && s.first_sale && !s.first_sale.done;
     if(filter === "attention") return needsAttention(s);
     if(filter === "us") return waitingOnUs(s);
     if(filter === "overdue") return s.overdue > 0;
@@ -432,21 +463,24 @@ function render(){
     if(filter === "invited") return s.status === "invited";
     if(filter === "paused") return s.status === "paused";
     return true;
-  }).sort((x, y) => (Number(waitingOnUs(y)) - Number(waitingOnUs(x))) || ((y.overdue || 0) - (x.overdue || 0)));
+  }).sort((x, y) => (Number(!!y.exit_risk) - Number(!!x.exit_risk)) || (Number(isRed(y)) - Number(isRed(x))) || (Number(!!y.reply_late) - Number(!!x.reply_late))
+    || (Number(waitingOnUs(y)) - Number(waitingOnUs(x))) || (((x.health && x.health.score) ?? 101) - ((y.health && y.health.score) ?? 101)));
   const tb = $("#rows");
   if(!students.length){ tb.innerHTML = `<tr><td colspan="7" class="note">No students yet. Enroll your first student above (or from GoHighLevel); they get a fresh dashboard plus a welcome email and text.</td></tr>`; return; }
   if(!list.length){ tb.innerHTML = `<tr><td colspan="7" class="note">No students match this filter.</td></tr>`; return; }
   tb.innerHTML = list.map(s => `<tr data-id="${esc(s.id)}" class="${selected === s.id ? "sel" : ""}" tabindex="0">
       <td><strong>${esc(s.name || "—")}</strong><span class="sub">${esc(s.business_name || s.email)}</span></td>
+      <td>${hpHtml(s.health)}</td>
       <td><span class="own">${avHtml(s.owner)}${esc(s.owner || "—")}</span></td>
-      <td>${esc(s.stage || "")}</td>
       <td><div class="bar"><i style="width:${s.percent || 0}%"></i></div><span class="sub num">${s.done || 0}/${s.total || 0} · ${s.percent || 0}%</span>${s.next ? `<span class="sub">Next: ${esc(s.next)}</span>` : ""}</td>
+      <td>${fsHtml(s)}</td>
       <td>${flags(s)}</td>
-      <td>${ago(lastActive(s))}</td><td>${ago(s.created_at)}</td></tr>`).join("");
+      <td>${ago(lastActive(s))}</td></tr>`).join("");
 }
 async function load(){
   const j = await api("/api/admin");
   students = j.students || [];
+  replyHours = j.reply_hours || 24; coachesAll = j.coaches || [];
   if(j.team && !team.length){
     team = j.team;
     const opts = (j.coaches || team).map(n => `<option>${esc(n)}</option>`).join("");
@@ -579,6 +613,14 @@ function wireExtras(box, p){
     catch(err){ $("#send1-msg").textContent = err.message; }
   }));
   const om = $("#o-more"); if(om) om.addEventListener("click", () => { box.querySelectorAll("#olist li.more").forEach(li => li.hidden = false); om.remove(); });
+  const eo = $("#exit-ok"); if(eo) eo.addEventListener("click", async () => {
+    $("#exit-msg").textContent = "Saving…";
+    try{ await api("/api/admin", { action:"exit_resolve", id, note: $("#exit-note").value.trim() }); await load(); openStudent(id); }catch(err){ $("#exit-msg").textContent = err.message; }
+  });
+  const ef = $("#exit-flag"); if(ef) ef.addEventListener("click", async () => {
+    if(ef.dataset.sure !== "1"){ ef.dataset.sure = "1"; ef.textContent = "Click again to flag them (team only)"; return; }
+    try{ await api("/api/admin", { action:"exit_flag", id, note:"Flagged by the team" }); await load(); openStudent(id); }catch(err){ ef.textContent = err.message; }
+  });
   $("#del-go").addEventListener("click", () => { $("#del-start").hidden = true; $("#del-confirm").hidden = false; $("#del-word").focus(); });
   $("#del-no").addEventListener("click", () => { $("#del-start").hidden = false; $("#del-confirm").hidden = true; });
   $("#del-yes").addEventListener("click", async () => {
@@ -587,6 +629,26 @@ function wireExtras(box, p){
     try{ await api("/api/admin", { action:"delete", id, confirm:"DELETE" }); $("#detail").hidden = true; selected = null; cur = null; await load(); }
     catch(err){ $("#del-msg").textContent = err.message; }
   });
+}
+const ACT = { enrolled:"enrolled them", edited:"edited", deleted:"deleted the student", notes:"updated notes", message:"posted a message", comment_reply:"replied to a comment",
+  checkin_reply:"replied to their check-in", ticked:"ticked", unticked:"unticked", due_date:"moved a date", owner:"changed owner", reminders_off:"paused reminders", reminders_on:"turned reminders on",
+  resent_signin:"resent the sign-in link", access_paused:"paused access", access_restored:"restored access", sent_checkin:"sent the check-in form", sent_monday:"sent the Monday kickoff",
+  exit_risk:"flagged an exit risk", exit_resolved:"marked the exit risk resolved", exit_flagged:"flagged an exit risk", sale_added:"logged a sale", sale_deleted:"removed a sale" };
+const usd = n => "$" + Math.round(Number(n) || 0).toLocaleString("en-US");
+function careHtml(a, st){
+  const row = students.find(x => x.id === cur.id) || {}, h = row.health, f = a.first_sale || row.first_sale, t = a.sales_totals || { count:0, profit:0, month_profit:0 };
+  const exit = st.exit_risk_at ? `<div class="exitcard"><h3 style="font-size:18px"><i class="blink"></i>Exit risk</h3>
+      <p style="margin:0">From their ${esc(st.exit_risk_source || "messages")}, ${ago(st.exit_risk_at)}:</p><q>${esc(st.exit_risk_reason || "")}</q>
+      <p class="note" style="margin:0"><b>Offer a free one-on-one call today.</b> Listen first, find the real blocker, agree one small next step. Never mention refunds. The student can't see this.</p>
+      <div class="row"><input id="exit-note" placeholder="What happened? (e.g. Called, booked a 1:1 on Tuesday)" style="flex:1 1 240px"><button class="btn sm" type="button" id="exit-ok">Mark resolved</button><span class="note" id="exit-msg"></span></div></div>`
+    : `<div class="row" style="justify-content:flex-end"><button class="linkbtn" type="button" id="exit-flag" style="background:none;border:0;color:var(--muted);cursor:pointer;font-size:13px;text-decoration:underline">Flag as exit risk</button></div>`;
+  const health = h ? `<div class="pcard"><div class="hcard"><div class="hscore ${h.level}">${h.score == null ? "–" : h.score}</div>
+      <div><h3 style="font-size:18px">Health: ${h.level === "red" ? "in the red, reach out today" : h.level === "amber" ? "keep an eye on them" : h.level === "green" ? "on track" : "paused"}</h3><ul class="hreasons">${h.reasons.map(r => `<li>${esc(r)}</li>`).join("")}</ul></div></div></div>` : "";
+  const fsLine = f ? (f.done ? `First sale on day ${f.day} (${fmtD(f.at)})` : f.overdue ? `<b style="color:var(--bad)">No sale yet, day ${f.day} of ${f.days}</b>` : `No sale yet, day ${f.day} of ${f.days} (${f.days_left} days left)`) : "";
+  const sales = `<div class="pcard"><div class="row" style="justify-content:space-between"><h3 style="font-size:18px">Sales</h3><span class="note">${fsLine}</span></div>
+      <div class="row" style="gap:18px"><span><b style="font-size:22px">${t.count}</b> <span class="note">sold</span></span><span><b style="font-size:22px">${usd(t.profit)}</b> <span class="note">profit</span></span><span><b style="font-size:22px">${usd(t.month_profit)}</b> <span class="note">this month</span></span></div>
+      ${(a.sales || []).length ? `<ul class="alog">${a.sales.slice(0, 12).map(x => `<li><span>${esc(x.model)} <span class="note">· ${esc(x.platform)} · ${esc(x.sold_on)}</span></span><span>${usd(x.sale_price)} <b style="color:var(--good)">+${usd(Number(x.sale_price) - Number(x.buy_price))}</b></span></li>`).join("")}</ul>` : `<p class="note" style="margin:0">No sales logged yet. Students log them on their My Sales page.</p>`}</div>`;
+  return exit + health + sales;
 }
 function paint(){
   const box = $("#detail"), d = cur.dash, p = d.profile, a = cur.admin, s = a.student;
@@ -599,7 +661,7 @@ function paint(){
       </div>
       <div class="row">
         <label class="note" for="d-owner">Owner</label>
-        <select id="d-owner">${(d.coaches || team).map(n => `<option ${n === p.owner ? "selected" : ""}>${esc(n)}</option>`).join("")}</select>
+        <select id="d-owner">${(coachesAll.length ? coachesAll : team).map(n => `<option ${n === p.owner ? "selected" : ""}>${esc(n)}</option>`).join("")}</select>
         <label class="note"><input type="checkbox" id="d-pause" ${p.reminders_paused ? "checked" : ""}> Pause reminders</label>
       </div>
     </div>
@@ -609,6 +671,7 @@ function paint(){
           ${d.items.filter(i => i.section === sec.n).map(itemHtml).join("")}`).join("")}
       </div>
       <div class="stack">
+        ${careHtml(a, s)}
         <div class="stack msgbox" style="gap:8px">
           <h3 style="font-size:18px">Message board</h3>
           <p class="note" style="margin:0">Shows on their dashboard. They get an email and a text.</p>
@@ -675,6 +738,10 @@ function paint(){
         </div>
         <div class="stack" style="gap:6px"><h3 style="font-size:18px">Check-in reports from the Hub tool</h3>
           ${(a.checkins || []).length ? a.checkins.map((c, n) => `<details class="report" ${n === 0 ? "open" : ""}><summary><strong>${esc(c.week_label || "Check-in")}</strong> <span class="note">· ${ago(c.created_at)}</span></summary>${md(c.report)}</details>`).join("") : `<p class="note">None yet.</p>`}
+        </div>
+        <div class="pcard">
+          <h3 style="font-size:18px">Team activity</h3>
+          ${(a.activity || []).length ? `<ul class="alog">${a.activity.map(x => `<li><span><b>${esc(x.actor)}</b> ${esc(ACT[x.action] || x.action.replace(/_/g, " "))}${x.detail ? `: <span class="note">${esc(x.detail)}</span>` : ""}</span><span class="note" style="white-space:nowrap">${ago(x.created_at)}</span></li>`).join("")}</ul>` : `<p class="note" style="margin:0">Nothing yet. Every change the team makes here is recorded.</p>`}
         </div>
         <div class="pcard danger">
           <h3 style="font-size:18px">Delete this student</h3>
@@ -942,7 +1009,7 @@ async function loadReview(){
   if(!(await accessToken())){ showSignin(linkErr); return; }
   $("#app").hidden = false;
   loadReview();
-  try{ await load(); }catch(err){ if(err.message !== "signed_out" && err.message !== "forbidden") $("#rows").innerHTML = `<tr><td colspan="7" class="note">${esc(err.message)}</td></tr>`; }
+  try{ await load(); loadStatus(); }catch(err){ if(err.message !== "signed_out" && err.message !== "forbidden") $("#rows").innerHTML = `<tr><td colspan="7" class="note">${esc(err.message)}</td></tr>`; }
   const m = /student=([0-9a-f-]{36})/i.exec(location.hash); if(m) openStudent(m[1]);
   api("/api/admin?pulses=1").then(j => { const h = j.rows.filter(r => r.flag === "respond" && !r.replied_at).length; $("#pulse-count").hidden = !h; $("#pulse-count").textContent = h; }).catch(() => {});
   if(/checkins/.test(location.hash)) showPane("pulse");
